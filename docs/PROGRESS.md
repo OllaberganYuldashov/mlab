@@ -23,11 +23,9 @@
 - Lockout kaliti — Hemis ID + IP (#11 izohi).
 - Hemis ID — 12 xonali, faqat raqam (#8 izohi).
 - INT-02: tushunish savollari R1 da variantga bog'liq, oldindan tayyorlangan (I3).
-- Merge: Claude `scripts/merge-if-green.sh` bilan urinadi; bo'lmasa egasi merge qiladi.
+- Merge: Claude `scripts/merge-if-green.sh` bilan merge qiladi; `needs:owner` PR'larni egasi merge qiladi.
 
 ## Bloklar (egasining javobi kerak)
-- `scripts/merge-if-green.sh` bulut sessiyasida ishlamaydi: `gh` tokeni yaroqsiz (GH_TOKEN invalid), REST API
-  faqat GitHub MCP orqali. Hozircha merge'ni egasi qiladi. Yechim — egasining qarori (skript himoyalangan fayl).
 - Setup skript: sessiya boshida PostgreSQL/Redis ishlamayotgan va `mlab` foydalanuvchisi yo'q edi — muhitdagi
   setup skript qo'yilmagan bo'lishi mumkin. Yangilangan skript PR #23 da (`docs/prompts/setup-script.sh`).
 - SRS 12-bo'lim ochiq savollari: monobloklar parametrlari (I2 gacha), domen va HTTPS (R0-15/R0-16 gacha;
@@ -39,10 +37,12 @@
   Lokal bazada `auth` migratsiyalari qo'llangan bo'lsa, R0-04 dan oldin baza qayta yaratiladi (dev/test ma'lumoti).
 - `@playwright/test` bulutdagi Chromium bilan mos versiyada pin qilingan (1.63.0) — `playwright install` qilinmaydi.
 - gitleaks: soxta kalitlar testlarda `secrets.token_urlsafe()` bilan yaratiladi; literal yozilmaydi.
+- `scripts/merge-if-green.sh` bulutda ishlaydi: `gh auth status` "token invalid" desa ham `gh api` so'rovlari
+  proxy orqali o'tadi (PR #24 shu skript bilan merge qilindi). `gh` boshqa maqsadda ishlatilmaydi.
 - `UV_NATIVE_TLS` eskirgan — ogohlantirishni o'chirish uchun `UV_SYSTEM_CERTS=1` ishlatiladi.
 
 ## Tarix
 | Sana | Sessiya | Natija |
 | --- | --- | --- |
 | 2026-11-22 | Tayyorgarlik (chat) | SRS v2 tasdiqlandi, L1 loyiha fayllari tayyorlandi |
-| 2026-11-21 | Birinchi sessiya (interaktiv) | Label'lar, issue'lar #4–#21; R0-01 → PR #22; R0-02 → PR #23 |
+| 2026-11-21 | Birinchi sessiya (interaktiv) | Label'lar, issue'lar #4–#21; R0-01 → PR #22; R0-02 → PR #23; PR #24 (hujjat) skript bilan merge |
