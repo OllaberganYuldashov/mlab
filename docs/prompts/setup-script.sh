@@ -17,6 +17,14 @@ sudo -u postgres psql -tc "SELECT 1 FROM pg_roles WHERE rolname='mlab'" | grep -
 sudo -u postgres psql -tc "SELECT 1 FROM pg_database WHERE datname='mlab'" | grep -q 1 \
   || sudo -u postgres createdb -O mlab mlab || true
 
-# Eslatma: Playwright brauzeri skeletdan keyin qo'shiladi (R0-02 taski setup skriptni yangilaydi).
+# 4) Python 3.12 (loyiha versiyasi) va bog'liqliklar — sessiya boshida tayyor bo'lsin.
+#    Skript repo papkalari turgan joyda ishga tushadi; repo yo'q bo'lsa qadam o'tkazib yuboriladi.
+uv python install 3.12 || true
+if [ -d mlab/backend ]; then (cd mlab/backend && uv sync --frozen) || true; fi
+if [ -d mlab/frontend ]; then (cd mlab/frontend && npm ci --no-audit --no-fund) || true; fi
+
+# Eslatma: Playwright uchun Chromium bulut muhitida oldindan o'rnatilgan (/opt/pw-browsers).
+# frontend/package.json'da @playwright/test o'rnatilgan versiyaga mos qilib pin qilingan;
+# "playwright install" kerak emas. Versiya o'zgarsa — shu yerga eslatma va CHANGELOG.
 
 exit 0
