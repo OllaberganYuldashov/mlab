@@ -1,0 +1,85 @@
+# main-guard: main'ga PR'siz tushgan commit, force push yoki tunda (23:00–07:00 Toshkent) merge qilingan PR'ni
+# aniqlaydi va darhol issue ochadi.
+# Oldini olmaydi (bepul private repoda himoya yo'q), lekin buzilish bo'lsa bir necha daqiqada bilasiz.
+# GitHub veb-sahifasida qilingan commit'lar (siz qo'lda yuklagan fayllar, PR merge) ruxsat etilgan.
+name: main-guard
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: read
+
+jobs:
+  guard:
+    name: main-guard
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const ev = context.payload;
+            const problems = [];
+
+            if (ev.forced) {
+              problems.push(`**Force push**: main \`${ev.before.slice(0, 7)}\` → \`${ev.after.slice(0, 7)}\` ga qayta yozildi. Taqqoslash: ${ev.compare}`);
+            }
+
+            // Tungi vaqt (Toshkent, UTC+5): 23:00–07:00 — egasi uxlayotgan payt
+            const nightPR = (iso) => {
+              const h = (new Date(iso).getUTCHours() + 5) % 24;
+              return h >= 23 || h < 7;
+            };
+            const seenPR = new Set();
+
+            for (const c of ev.commits || []) {
+              const { data: prs } = await github.rest.repos.listPullRequestsAssociatedWithCommit({
+                owner, repo, commit_sha: c.id,
+              });
+              // Tunda merge qilingan PR — egasi uxlayotganda kim merge qildi?
+              for (const pr of prs) {
+                if (pr.merged_at && !seenPR.has(pr.number) && nightPR(pr.merged_at)) {
+                  seenPR.add(pr.number);
+                  const t = new Date(new Date(pr.merged_at).getTime() + 5 * 3600 * 1000).toISOString().slice(11, 16);
+                  problems.push(`PR #${pr.number} tungi vaqtda (${t} Toshkent) merge qilingan. Buni siz qildingizmi?`);
+                }
+              }
+              // Veb-sahifadagi commit'lar (qo'lda yuklash, PR merge tugmasi) — ruxsat etilgan
+              if (c.committer && c.committer.username === 'web-flow') continue;
+              if (prs.length === 0) {
+                const title = c.message.split('\n')[0];
+                problems.push(`PR'siz commit [\`${c.id.slice(0, 7)}\`](${c.url}): ${title} (muallif: ${c.author.name})`);
+              }
+            }
+
+            if (problems.length === 0) {
+              core.info("main toza: hamma o'zgarish PR orqali yoki veb-sahifadan.");
+              return;
+            }
+
+            const body = [
+              "main branch'da shubhali o'zgarish aniqlandi. Bu loyiha qoidasiga zid bo'lishi mumkin.",
+              '',
+              ...problems.map((p) => '- ' + p),
+              '',
+              '**Nima qilish kerak:**',
+              "1. O'zgarish sizniki bo'lsa, bu issue'ni yoping.",
+              "2. Claude'niki bo'lsa, keyingi run uni avval tekshiradi va kerak bo'lsa revert PR ochadi.",
+              "3. Force push bo'lsa, eski holat haftalik zaxirada saqlangan (Actions → weekly-backup).",
+            ].join('\n');
+
+            const issue = {
+              owner, repo,
+              title: `main-guard: shubhali o'zgarish (${ev.after.slice(0, 7)})`,
+              body,
+            };
+            try {
+              await github.rest.issues.create({ ...issue, labels: ['alert:main-guard'] });
+            } catch (e) {
+              await github.rest.issues.create(issue);
+            }
+            core.setFailed("main'da shubhali o'zgarish — issue ochildi.");
