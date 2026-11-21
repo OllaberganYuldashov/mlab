@@ -1,0 +1,78 @@
+# ci: har PR va main'ga har push'da testlar, lint, type check va zaiflik tekshiruvi.
+# Nomi aynan "ci" bo'lishi shart: known-good va merge-if-green.sh shu nom bo'yicha ishlaydi.
+# Testlar haqiqiy PostgreSQL 16 va Redis 7 bilan (service containers), soxta qiymatlar bilan.
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    name: backend
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: backend
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: mlab
+          POSTGRES_PASSWORD: mlab
+          POSTGRES_DB: mlab
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U mlab"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+      redis:
+        image: redis:7
+        ports: ["6379:6379"]
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      # Faqat CI uchun soxta qiymatlar (secret emas)
+      DJANGO_SETTINGS_MODULE: config.settings.test
+      SECRET_KEY: test-only-not-a-secret
+      DATABASE_URL: postgres://mlab:mlab@localhost:5432/mlab
+      REDIS_URL: redis://localhost:6379/15
+      ALLOWED_HOSTS: testserver,localhost
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+          cache-dependency-glob: backend/uv.lock
+
+      - name: Bog'liqliklar (lockfile bo'yicha)
+        run: uv sync --frozen
+
+      - name: Lint (ruff)
+        run: |
+          uv run ruff check .
+          uv run ruff format --check .
+
+      - name: Type check (mypy)
+        run: uv run mypy .
+
+      - name: Migratsiyalar to'liq va qo'llanadi
+        run: |
+          uv run python manage.py makemigrations --check --dry-run
+          uv run python manage.py migrate --noinput
+
+      - name: Testlar (coverage >= 85%)
+        run: uv run pytest
+
+      - name: Zaifliklar (pip-audit)
+        run: uv run pip-audit --skip-editable

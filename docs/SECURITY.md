@@ -11,10 +11,13 @@ Chat, repo, log, PR, issue, bulut muhiti o'zgaruvchilari va scheduled task promp
 
 | Nomi | Nima uchun | Dev/test qiymati | Prod qiymati qayerda |
 | --- | --- | --- | --- |
-| SECRET_KEY | Django kriptografiyasi | .env.example (soxta) | Server .env |
+| SECRET_KEY | Django kriptografiyasi (prod: ≥ 50 belgi, dev/test qiymati rad etiladi) | .env.example (soxta) | Server .env |
 | DATABASE_URL | PostgreSQL | .env.example (soxta) | Server .env |
 | REDIS_URL | Channels, Celery, kesh | .env.example | Server .env |
-| ALLOWED_HOSTS, CSRF_TRUSTED_ORIGINS | Domen | localhost | Server .env |
+| ALLOWED_HOSTS, CSRF_TRUSTED_ORIGINS | Domen (prod'da `*` taqiqlangan) | localhost | Server .env |
+| DEBUG | Faqat dev (prod'da doim false) | .env.example | — |
+| TIME_ZONE | Vaqt zonasi (default Asia/Tashkent) | .env.example | Server .env |
+| SECURE_SSL_REDIRECT | Prod: HTTP → HTTPS yo'naltirish (default true) | — | Server .env |
 | GEMINI_API_KEY | AI tutor | bo'sh (AI_PROVIDER=fake) | Server .env |
 | AI_PROVIDER, GEMINI_MODEL, AI_DAILY_LIMIT_PER_STUDENT | AI sozlamalari | .env.example | Server .env |
 | SANDBOX_* | Sandbox cheklovlari | .env.example | Server .env |
