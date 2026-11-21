@@ -7,6 +7,7 @@ shuning uchun haqiqiy ishga tushishni faqat yangi jarayon to'g'ri ko'rsatadi.
 from __future__ import annotations
 
 import os
+import secrets
 import subprocess
 import sys
 from pathlib import Path
@@ -21,7 +22,8 @@ DEV_ENV = {
     "REDIS_URL": "redis://localhost:6379/0",
     "ALLOWED_HOSTS": "localhost,127.0.0.1",
 }
-STRONG_KEY = "Abc1Def2Ghi3" * 5  # 60 belgi, soxta, faqat test uchun
+# Har ishga tushishda yangi tasodifiy kalit: repoda kalitga o'xshash literal saqlanmaydi.
+STRONG_KEY = secrets.token_urlsafe(48)
 
 PROBE = (
     "import django; django.setup(); from django.conf import settings; "

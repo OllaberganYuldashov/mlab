@@ -2,10 +2,15 @@
 
 from __future__ import annotations
 
+import secrets
+
 import pytest
 from django.core.exceptions import ImproperlyConfigured
 
 from config import env
+
+# Tasodifiy, har safar yangi: repoda kalitga o'xshash literal saqlanmaydi.
+STRONG_KEY = secrets.token_urlsafe(48)
 
 
 def test_required_returns_stripped_value(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -84,8 +89,8 @@ def test_production_rejects_weak_secret_key(key: str) -> None:
 
 def test_production_rejects_wildcard_host() -> None:
     with pytest.raises(ImproperlyConfigured, match="ALLOWED_HOSTS"):
-        env.validate_production(secret_key="Abc1Def2Ghi3" * 5, allowed_hosts=["*"])
+        env.validate_production(secret_key=STRONG_KEY, allowed_hosts=["*"])
 
 
 def test_production_accepts_strong_settings() -> None:
-    env.validate_production(secret_key="Abc1Def2Ghi3" * 5, allowed_hosts=["mlab.example.uz"])
+    env.validate_production(secret_key=STRONG_KEY, allowed_hosts=["mlab.example.uz"])

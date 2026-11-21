@@ -1,0 +1,8 @@
+# gitleaks yolg'on topilmalari (false positive). Har qator — aniq commit:fayl:qoida:qator fingerprint'i.
+# Faqat tekshirilgan soxta test qiymatlari qo'shiladi; yangi qator PR'da egasiga ko'rsatiladi.
+#
+# PR #22 (R0-01), commit b20b42a: testlardagi "Abc1Def2Ghi3" * 5 — soxta, ochiq yozilgan test kaliti.
+# Keyingi commit'da u secrets.token_urlsafe() bilan almashtirilgan; tarix qayta yozilmadi (force push taqiqlangan).
+b20b42ae76088b5fdef27a466a54f4a3d43721af:backend/tests/test_env_helpers.py:generic-api-key:87
+b20b42ae76088b5fdef27a466a54f4a3d43721af:backend/tests/test_env_helpers.py:generic-api-key:91
+b20b42ae76088b5fdef27a466a54f4a3d43721af:backend/tests/test_nfr_16_settings_fail_fast.py:generic-api-key:24
