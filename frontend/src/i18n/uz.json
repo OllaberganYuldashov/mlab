@@ -1,0 +1,6 @@
+{
+  "app.title": "MLab",
+  "app.tagline": "Machine Learning fanini brauzerda amaliyot orqali o'rganish platformasi",
+  "app.status": "Platforma ishlab chiqilmoqda",
+  "app.greeting": "Salom, {name}!"
+}
