@@ -40,19 +40,24 @@ Django ilovalari (`backend/apps/`): `accounts`, `sections`, `courses`, `labs`, `
 
 | Vazifa | Buyruq |
 | --- | --- |
-| Backend bog'liqliklari | `cd backend && uv sync` |
-| Frontend bog'liqliklari | `cd frontend && npm ci` |
-| Lokal servislar | Bulutda: PostgreSQL va Redis setup skriptda ishga tushadi. Kompyuterda: `docker compose up -d db redis` |
-| Migratsiyalar | `cd backend && uv run python manage.py migrate` |
-| Backend testlari | `cd backend && uv run pytest` |
-| Frontend testlari | `cd frontend && npm test -- --run` |
-| E2E | `cd frontend && npx playwright test` |
+| Backend bog'liqliklari | `cd backend && uv sync` (Python 3.12 — `.python-version`; yo'q bo'lsa uv o'zi o'rnatadi) |
+| Frontend bog'liqliklari | `cd frontend && npm ci` (R0-02) |
+| Lokal servislar | Bulutda: `service postgresql start && service redis-server start` (setup skript ham qiladi). Kompyuterda: `docker compose up -d db redis` (R0-03) |
+| Migratsiyalar | `cd backend && uv run python manage.py migrate` (env o'zgaruvchilari kerak, pastga qarang) |
+| Migratsiya to'liqligi | `cd backend && uv run python manage.py makemigrations --check --dry-run` |
+| Backend testlari | `cd backend && uv run pytest` (coverage ≥ 85% shu yerda tekshiriladi; `config.settings.test` soxta default'lar bilan) |
+| Frontend testlari | `cd frontend && npm test -- --run` (R0-02) |
+| E2E | `cd frontend && npx playwright test` (R0-02) |
 | Lint va format | `cd backend && uv run ruff check . && uv run ruff format --check .`; `cd frontend && npm run lint` |
 | Type check | `cd backend && uv run mypy .`; `cd frontend && npm run typecheck` |
-| Kontent importi | `cd backend && uv run python manage.py import_content ../content` |
-| Ishga tushirish | `uv run python manage.py runserver` va `npm run dev` |
+| Zaifliklar | `cd backend && uv run pip-audit --skip-editable` |
+| Deploy tekshiruvi | `cd backend && uv run python manage.py check --deploy --settings=config.settings.prod` (prod env bilan) |
+| Kontent importi | `cd backend && uv run python manage.py import_content ../content` (R0-13) |
+| Ishga tushirish | `cd backend && uv run python manage.py runserver` va `cd frontend && npm run dev` |
 
-> Buyruqlar R0-01/R0-02 tasklarida skelet yaratilganda tasdiqlanadi; o'zgarsa shu jadval yangilanadi.
+> `manage.py` default `config.settings.dev` ni ishlatadi va majburiy env'siz ishga tushmaydi (fail fast):
+> `SECRET_KEY`, `DATABASE_URL`, `REDIS_URL`, `ALLOWED_HOSTS` — soxta qiymatlari `.env.example`da.
+> CI: `.github/workflows/ci.yml` (nomi `ci`), job `backend`.
 
 ## 5. Qat'iy qoidalar
 
