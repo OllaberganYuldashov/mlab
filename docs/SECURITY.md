@@ -1,0 +1,57 @@
+# SECURITY — L1 · MLab: secret'lar, shaxsiy ma'lumotlar, sandbox
+
+## Qoida
+
+Secret faqat uch joyda: parol menejeri, GitHub Secrets, serverdagi `.env` (chmod 600).
+Chat, repo, log, PR, issue, bulut muhiti o'zgaruvchilari va scheduled task promptida — hech qachon.
+
+## Sozlamalar ro'yxati
+
+> Har yangi sozlama shu jadvalga qo'shiladi (qiymatsiz).
+
+| Nomi | Nima uchun | Dev/test qiymati | Prod qiymati qayerda |
+| --- | --- | --- | --- |
+| SECRET_KEY | Django kriptografiyasi | .env.example (soxta) | Server .env |
+| DATABASE_URL | PostgreSQL | .env.example (soxta) | Server .env |
+| REDIS_URL | Channels, Celery, kesh | .env.example | Server .env |
+| ALLOWED_HOSTS, CSRF_TRUSTED_ORIGINS | Domen | localhost | Server .env |
+| GEMINI_API_KEY | AI tutor | bo'sh (AI_PROVIDER=fake) | Server .env |
+| AI_PROVIDER, GEMINI_MODEL, AI_DAILY_LIMIT_PER_STUDENT | AI sozlamalari | .env.example | Server .env |
+| SANDBOX_* | Sandbox cheklovlari | .env.example | Server .env |
+| PUBLIC_BASE_URL | Sertifikat QR havolasi | localhost | Server .env |
+| DEPLOY_HOST, DEPLOY_USER, DEPLOY_SSH_KEY, DEPLOY_KNOWN_HOSTS | Deploy (agar SSH usuli tanlansa) | — | GitHub Secrets |
+
+## Secret oqib ketsa
+
+1. Darhol yangi qiymat yaratiladi va eskisi bekor qilinadi (rotate).
+2. Yangi qiymat parol menejeri, GitHub Secrets va server `.env`ga yoziladi.
+3. Hodisa `docs/incidents/` va LESSONS.md'ga yoziladi.
+
+## Shaxsiy ma'lumotlar (SRS 7-bo'lim)
+
+- FIO, Hemis ID, IP, qurilma — shaxsiy ma'lumot. Faqat universitet serverida (O'zbekiston).
+- Testda faqat factory/Faker. Haqiqiy ro'yxatlar, baholar va loglar repoga, bulut sessiyasiga va promptga tushmaydi.
+- Loglarda Hemis ID va IP maskalanadi; parol, token, cookie hech qachon loglanmaydi.
+- Gemini'ga faqat savol, kod va mavzu konteksti; FIO va Hemis ID yuborilmaydi (AI-04).
+- Saqlash muddatlari: faollik jurnali 12 oy, AI murojaatlari 6 oy (kurs tugagach) — Celery vazifasi tozalaydi.
+- Parolni hech kim ko'rmaydi: faqat bir martalik vaqtinchalik parol va majburiy almashtirish (AUTH-04).
+
+## Sandbox tahdidlar modeli (SRS 8-bo'lim)
+
+| Tahdid | Himoya |
+| --- | --- |
+| Server yoki boshqa foydalanuvchilarga hujum | Kod faqat brauzerda yoki sandbox'da; konteyner `--network none`, `--read-only`, root'siz, Docker soketisiz |
+| Cheksiz sikl, xotira, fork-bomba | 60 s, 512 MB, 1 CPU, `--pids-limit`, bir vaqtda 2 ta |
+| Yashirin testlarni o'g'irlash | Yashirin testlar faqat serverda; natijada faqat ball va qisqa xabar |
+| Brauzer natijasini soxtalashtirish | Rasmiy ball faqat server tekshiruvidan |
+| Natija orqali XSS | Chiqishlar izolyatsiyalangan iframe va qat'iy CSP ichida |
+
+Sandbox bilan bog'liq har PR `security-reviewer` agenti bilan tekshiriladi.
+
+## Har PR uchun minimal tekshiruv
+
+- Yangi endpoint: autentifikatsiya, rol va obyekt darajasidagi ruxsat (begona foydalanuvchi testi).
+- Kiritilgan ma'lumot serializer'da tekshiriladi; mass assignment yo'q (`fields` aniq ro'yxat).
+- Xom SQL yo'q yoki parametrlangan.
+- Fayl yuklash: hajm va tur cheklangan.
+- gitleaks, pip-audit, npm audit yashil.
