@@ -7,7 +7,7 @@
 
 | Rol | Kim | Vazifasi |
 | --- | --- | --- |
-| Product Owner / CTO | Egasi (siz) | G'oya, yo'nalish, variant tanlash, PR'ni merge qilish |
+| Product Owner / CTO | Egasi (siz) | G'oya, yo'nalish, variant tanlash, kunlik hisobotni o'qish, `needs:owner` PR'larni merge qilish |
 | Tech lead va jamoa | Claude | Reja, arxitektura, kod, test, hujjat, hisobot, o'qitish |
 | Mustaqil reviewer | Agentlar: security-reviewer, schema-reviewer, incident-thinker | Muhim o'zgarishlarni alohida tekshirish |
 | Xotira | Repo va GitHub | Holat, qarorlar, tarix, zaxira |
@@ -84,10 +84,12 @@ Secret oqib ketsa — darhol almashtiriladi (rotate). Git tarixidan o'chirishnin
 ## 8. GitHub
 
 - Repo private, GitHub Free — main'da GitHub himoyasi (ruleset) yo'q. Uning o'rniga:
-  - qoidalar (CLAUDE.md, promptlar) va `.claude/settings.json` taqiqlari: main'ga push, force push, merge;
+  - qoidalar (CLAUDE.md, promptlar) va `.claude/settings.json` taqiqlari: main'ga push, force push, skriptsiz merge;
+  - `merge-gate` workflow + `scripts/merge-if-green.sh`: Claude PR'ni faqat hamma tekshiruv yashil va himoyalangan fayllar o'zgarmagan bo'lsa merge qiladi;
   - `main-guard` workflow: main'ga PR'siz commit yoki force push tushsa, darhol `alert:main-guard` issue ochadi;
   - `weekly-backup` workflow: har yakshanba 01:17 (Toshkent) to'liq git bundle nusxasi, 90 kun saqlanadi.
-- Claude `claude/` bilan boshlanadigan branch'larga push qiladi va PR ochadi; merge'ni egasi qiladi.
+- Claude `claude/` bilan boshlanadigan branch'larga push qiladi, PR ochadi va uni `scripts/merge-if-green.sh` orqali merge qiladi.
+  Himoyalangan fayllarni o'zgartirgan PR `needs:owner` oladi — uni egasi merge qiladi.
 - Ochiq `alert:main-guard` issue — keyingi run'ning birinchi ishi.
 - `known-good` workflow main'dagi har to'liq yashil commit'ga `good-*` teg qo'yadi (yashil nuqta).
 

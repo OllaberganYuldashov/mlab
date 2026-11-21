@@ -56,7 +56,12 @@ Django ilovalari (`backend/apps/`): `accounts`, `sections`, `courses`, `labs`, `
 
 ## 5. Qat'iy qoidalar
 
-1. **main'ga hech qachon push qilma va PR'ni o'zing merge qilma.** Har task `claude/` bilan boshlanadigan branch'da, natija PR, merge'ni egasi qiladi.
+1. **main'ga hech qachon push qilma.** Har task `claude/` bilan boshlanadigan branch'da, natija PR.
+   **Merge faqat `scripts/merge-if-green.sh <PR>` orqali** (egasining 2026-11-22 qarori). Skript merge-gate, ci, secret-scan
+   va boshqa barcha tekshiruvlar yashil bo'lmasa merge qilmaydi. Boshqa yo'l bilan merge qilish (`gh api .../merge`,
+   `gh pr merge`, veb) taqiqlangan. `needs:owner` label'li PR'ni (himoyalangan fayllar: workflow'lar, `.claude/settings.json`,
+   `CLAUDE.md`, `docs/SRS.md`, `docs/RECOVERY.md`, `deploy/`, shu skript) faqat egasi merge qiladi — kutmasdan keyingi taskga o't.
+   Tekshiruvni o'tkazish uchun testni o'chirish, `skip`/`xfail` qo'shish yoki coverage chegarasini tushirish — qoidabuzarlik.
 2. **Secret'lar bilan ishlamaysan.** `.env`ni o'qima, yozma, chiqarma. Yangi sozlama: kodda muhit o'zgaruvchisidan o'qi, `.env.example`ga faqat nomi va soxta qiymat, `docs/SECURITY.md` jadvaliga qator. Ilova majburiy sozlama yo'q bo'lsa darhol to'xtaydi (fail fast).
 3. **Haqiqiy shaxsiy ma'lumot ishlatilmaydi.** FIO va Hemis ID testlarda faqat factory/Faker bilan. Haqiqiy talaba ro'yxati, baholar yoki loglar repoga, bulut sessiyasiga va promptga tushmaydi.
 4. **Gemini'ga shaxsiy ma'lumot yuborilmaydi** (AI-04): faqat savol, kod va mavzu konteksti. Testlarda AI provayderi doim `fake`.
@@ -92,7 +97,10 @@ Django ilovalari (`backend/apps/`): `accounts`, `sections`, `courses`, `labs`, `
 5. `claude/<issue-raqami>-<qisqa-nom>` branch, darhol draft PR.
 6. Test → kod → testlar, lint, xavfsizlik yashil → hujjatlar → commit va push. Har tugagan bosqich alohida commit.
 7. Limit yetsa keyingi issue, yetmasa to'xtash.
-8. Yakunda: PR "ready for review", issue `status:review`, `docs/PROGRESS.md` va `docs/learn/JOURNAL.md` yangilanadi.
+8. PR "ready for review" → `scripts/merge-if-green.sh <PR>`. Kod 0: merge bo'ldi, issue yopiladi (`Closes #`), keyingi task
+   yangilangan main'dan boshlanadi. Kod 1: qizil — sababini tuzat (Sariq qoidasi, ko'pi bilan 2 urinish). Kod 2: tekshiruvlar
+   tugamadi — keyingi taskka o't, oxirida qayta urin. `needs:owner` bo'lsa: issue `status:review`, kunlik hisobotda ko'rsat.
+9. Yakunda: `docs/PROGRESS.md` va `docs/learn/JOURNAL.md` yangilanadi (ular ham PR orqali) va **kunlik hisobot** yoziladi (11-bo'lim).
 
 ## 8. Vazifalar (GitHub Issues)
 
@@ -131,10 +139,14 @@ To'liq tartib: `docs/RECOVERY.md`. Qisqasi:
 - **Sariq:** yangi funksiya olinmaydi, avval tuzatiladi (ko'pi bilan 2 urinish).
 - **Qizil:** to'xta, tashxis (good-* teglarda bisect), `alert:red-light` issue va `docs/incidents/` hisoboti, variantlar (A–E) va nima yo'qolishi, **egasining ruxsatini kut**.
 - Ortga qaytish eng kichik darajadan va faqat PR orqali; tarix o'chirilmaydi, D/E dan oldin `claude/archive-<sana>` branch.
-- **Hech qachon o'zing "Ruxsat" yozma va `approved:*` label qo'yma.**
+- **Hech qachon o'zing "Ruxsat" yozma va `approved:*` label qo'yma.** Qizil holatda hech narsa merge qilinmaydi;
+  egasi "Ruxsat: X" yozgandan keyin faqat o'sha tiklash PR'i skript orqali merge qilinadi.
 
 ## 11. Hisobot
 
+- **Kunlik hisobot** — har run oxirida "📋 Kunlik hisobotlar" issue'siga bitta izoh (issue bo'lmasa yaratiladi, `report` label bilan):
+  sog'liq (Yashil/Sariq/Qizil), merge bo'lgan PR'lar va bajarilgan talab ID'lari, egasini kutayotgan PR'lar (`needs:owner`),
+  javob kutayotgan savollar (`status:blocked`), keyingi tasklar, egasi o'qishi kerak bo'lgan dars. 10–15 qator, oddiy tilda.
 - Run boshida draft PR, har tugagan bosqichda tushunarli commit.
 - PR tavsifi shablon bo'yicha, o'zbek tilida, bajarilgan talab ID'lari bilan.
 - `docs/learn/JOURNAL.md`: har run uchun qisqa yozuv — nima qilindi, qaysi skill nima uchun ishlatildi, egasi nimani o'rganishi kerak.
