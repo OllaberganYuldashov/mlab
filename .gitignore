@@ -1,0 +1,84 @@
+# ---- Secret'lar: HECH QACHON repoga tushmaydi ----
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+secrets/
+credentials*.json
+service-account*.json
+
+# ---- Claude Code shaxsiy sozlamalari ----
+.claude/settings.local.json
+CLAUDE.local.md
+
+# ---- OS va muharrirlar ----
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.swp
+
+# ---- Python ----
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+*.egg-info/
+dist/
+build/
+staticfiles/
+media/
+*.sqlite3
+
+# ---- Node / frontend ----
+node_modules/
+.next/
+.nuxt/
+.output/
+coverage/
+*.log
+
+# ---- .NET / C# ----
+bin/
+obj/
+*.user
+.vs/
+
+# ---- C / C++ ----
+cmake-build-*/
+out/
+*.o
+*.obj
+*.exe
+*.dll
+*.so
+
+# ---- Flutter / mobil ----
+.dart_tool/
+.flutter-plugins*
+*.apk
+*.aab
+*.ipa
+
+# ---- O'yin dvigatellari ----
+.godot/
+Library/
+Temp/
+Logs/
+UserSettings/
+
+# ---- ML ----
+*.ckpt
+*.pt
+*.onnx
+mlruns/
+data/raw/

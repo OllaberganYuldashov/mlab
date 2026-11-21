@@ -1,0 +1,48 @@
+# weekly-backup: har hafta reponing TO'LIQ nusxasini (barcha branch, teg va tarix) git bundle qilib saqlaydi.
+# Nusxa Actions → weekly-backup → run → Artifacts bo'limida 90 kun turadi (~13 ta haftalik nusxa).
+# Force push yoki tasodifiy o'chirishdan keyin shu nusxadan to'liq tiklanadi.
+# Tiklash: artifact'ni yuklab oling, ochib:  git clone backup-YYYY-MM-DD.bundle tiklangan-repo
+name: weekly-backup
+
+on:
+  schedule:
+    - cron: '17 20 * * 6'   # Shanba 20:17 UTC = Yakshanba 01:17 Toshkent vaqti
+  workflow_dispatch:         # Actions sahifasidan istalgan payt qo'lda ishga tushirish mumkin
+
+permissions:
+  contents: read
+
+jobs:
+  backup:
+    name: weekly-backup
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Barcha branch va teglarni lokal qilish
+        run: |
+          git fetch --prune --tags origin '+refs/heads/*:refs/remotes/origin/*'
+          current=$(git rev-parse --abbrev-ref HEAD)
+          for b in $(git for-each-ref --format='%(refname:strip=3)' refs/remotes/origin); do
+            [ "$b" = "HEAD" ] && continue
+            [ "$b" = "$current" ] && continue
+            git branch -f "$b" "origin/$b"
+          done
+          git branch -a
+
+      - name: Bundle yaratish va tekshirish
+        run: |
+          d=$(date -u +%Y-%m-%d)
+          git bundle create "backup-$d.bundle" HEAD --branches --tags
+          git bundle verify "backup-$d.bundle"
+          ls -lh "backup-$d.bundle"
+          echo "BACKUP_DATE=$d" >> "$GITHUB_ENV"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: backup-${{ env.BACKUP_DATE }}
+          path: backup-*.bundle
+          retention-days: 90
+          if-no-files-found: error
