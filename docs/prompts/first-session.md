@@ -12,19 +12,23 @@ Bu L1 · MLab loyihasining birinchi sessiyasi. Men egasiman (Product Owner / CTO
 2. Qaysi skill, agent va buyruqlar mavjudligini ro'yxat qil (.claude/ va akkaunt skill'lari).
 3. GitHub label'larini yarat: status:ready, status:in-progress, status:blocked, status:review,
    type:feature, type:bug, type:chore, type:docs, type:content, size:S, size:M,
-   release:R0, release:R1, iter:I1..iter:I5, alert:main-guard, alert:red-light.
+   release:R0, release:R1, iter:I1..iter:I5, alert:main-guard, alert:red-light,
+   needs:owner, hold, report.
 4. docs/BACKLOG.md'dagi R0-01..R0-17 tasklaridan GitHub Issue'lar yarat (shablon:
    .github/ISSUE_TEMPLATE/task.md, acceptance criteria va bog'liqliklar bilan, sarlavhada talab ID).
    Issue yaratib bo'lmasa — sababini ayt va to'xta, men yordam beraman.
    Natijani jadval qilib ko'rsat va tasdiqlashimni kut.
+   "📋 Kunlik hisobotlar" issue'sini yarat (label: report).
 5. Tasdiqdan keyin R0-01 ni bajar: claude/r0-01-backend-skeleton branch, darhol draft PR,
    CLAUDE.md 6 va 7-bo'limlari bo'yicha (test → kod → hujjat). CI workflow nomi aynan "ci"
    bo'lsin — known-good shu nom bo'yicha yashil nuqta qo'yadi. docs/learn/django.md darsini yoz.
-   PR'ni ready for review qil va menga qisqa hisobot ber.
+   PR'ni ready for review qil va menga qisqa hisobot ber (bu PR ci.yml va CLAUDE.md'ni o'zgartiradi —
+   needs:owner, uni men merge qilaman).
 6. CLAUDE.md 4-bo'limidagi buyruqlarni haqiqiy holatga moslab yangila.
    docs/prompts/setup-script.sh yangilanishi kerak bo'lsa, o'zgarishni ayt — men muhitga qo'yaman.
 7. Limit qolsa R0-02 ga o't (alohida branch va PR). Yakunda docs/PROGRESS.md va
    docs/learn/JOURNAL.md'ni yangila.
 
-Har bosqichdan keyin to'xta va tasdiq so'ra. Secret so'rama va yozma. main'ga push qilma, PR'ni merge qilma.
+Har bosqichdan keyin to'xta va tasdiq so'ra. Secret so'rama va yozma. main'ga push qilma. PR'ni faqat scripts/merge-if-green.sh orqali merge qil;
+ci.yml yoki CLAUDE.md'ni o'zgartirgan PR needs:owner oladi — uni men merge qilaman.
 ```

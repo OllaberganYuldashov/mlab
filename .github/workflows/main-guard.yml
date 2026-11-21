@@ -2,6 +2,7 @@
 # aniqlaydi va darhol issue ochadi.
 # Oldini olmaydi (bepul private repoda himoya yo'q), lekin buzilish bo'lsa bir necha daqiqada bilasiz.
 # GitHub veb-sahifasida qilingan commit'lar (siz qo'lda yuklagan fayllar, PR merge) ruxsat etilgan.
+# Claude'ning merge-gate'dan o'tgan avtomatik merge'lari (scripts/merge-if-green.sh) tunda ham ruxsat etilgan.
 name: main-guard
 
 on:
@@ -12,6 +13,7 @@ permissions:
   contents: read
   issues: write
   pull-requests: read
+  actions: read
 
 jobs:
   guard:
@@ -44,6 +46,20 @@ jobs:
               for (const pr of prs) {
                 if (pr.merged_at && !seenPR.has(pr.number) && nightPR(pr.merged_at)) {
                   seenPR.add(pr.number);
+                  // merge-gate'dan o'tgan claude/ PR — ruxsat etilgan avtomatik merge
+                  if (pr.head.ref.startsWith('claude/')) {
+                    const { data: runs } = await github.rest.actions.listWorkflowRunsForRepo({
+                      owner, repo, head_sha: pr.head.sha, per_page: 100,
+                    });
+                    const gate = runs.workflow_runs
+                      .filter((r) => r.name === 'merge-gate')
+                      .sort((a, b) => new Date(a.created_at) - new Date(b.created_at))
+                      .pop();
+                    if (gate && gate.conclusion === 'success') {
+                      core.info(`PR #${pr.number}: merge-gate yashil — ruxsat etilgan avtomatik merge.`);
+                      continue;
+                    }
+                  }
                   const t = new Date(new Date(pr.merged_at).getTime() + 5 * 3600 * 1000).toISOString().slice(11, 16);
                   problems.push(`PR #${pr.number} tungi vaqtda (${t} Toshkent) merge qilingan. Buni siz qildingizmi?`);
                 }

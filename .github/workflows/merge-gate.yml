@@ -1,0 +1,71 @@
+# merge-gate: Claude'ning PR'ini avtomatik merge qilish mumkinmi — shuni Claude emas, shu tekshiruv hal qiladi.
+# Yashil bo'lishi uchun: branch claude/ bilan boshlanadi, PR draft emas, "needs:owner" va "hold" label'lari yo'q,
+# va PR himoyalangan fayllarga tegmaydi (pastdagi PROTECTED ro'yxati).
+# Himoyalangan fayl o'zgargan bo'lsa: tekshiruv qizil, PR'ga "needs:owner" label qo'yiladi — uni faqat egasi merge qiladi.
+# Merge'ni scripts/merge-if-green.sh bajaradi: u merge-gate, ci, secret-scan va boshqa barcha tekshiruvlar
+# yashil bo'lishini talab qiladi.
+name: merge-gate
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review, labeled, unlabeled]
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+jobs:
+  gate:
+    name: merge-gate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const pr = context.payload.pull_request;
+            // Ishonch chegarasini o'zgartiradigan fayllar: ularni o'zgartirgan PR'ni faqat egasi merge qiladi.
+            const PROTECTED = [
+              /^\.github\/workflows\//,      // CI, guard, backup, gate — tekshiruvlarni zaiflashtirib bo'lmasin
+              /^\.claude\/settings\.json$/,  // Claude taqiqlari
+              /^scripts\/merge-if-green\.sh$/,
+              /^CLAUDE\.md$/,                // ish qoidalari
+              /^docs\/SRS\.md$/,             // tasdiqlangan talablar
+              /^docs\/RECOVERY\.md$/,        // qizil chiroq tartibi
+              /^deploy\//,                   // prod server sozlamalari
+            ];
+            const problems = [];
+
+            if (!pr.head.ref.startsWith('claude/')) problems.push(`branch \`${pr.head.ref}\` claude/ bilan boshlanmaydi`);
+            if (pr.base.ref !== 'main') problems.push(`base branch main emas (\`${pr.base.ref}\`)`);
+            if (pr.draft) problems.push('PR hali draft');
+            const labels = (pr.labels || []).map((l) => l.name);
+            for (const l of ['needs:owner', 'hold']) if (labels.includes(l)) problems.push(`\`${l}\` label'i bor`);
+
+            const files = await github.paginate(github.rest.pulls.listFiles, { owner, repo, pull_number: pr.number, per_page: 100 });
+            const touched = files
+              .flatMap((f) => [f.filename, f.previous_filename].filter(Boolean))
+              .filter((name) => PROTECTED.some((re) => re.test(name)));
+            if (touched.length) {
+              problems.push('himoyalangan fayllar o\'zgargan: ' + [...new Set(touched)].map((n) => '`' + n + '`').join(', '));
+              if (!labels.includes('needs:owner')) {
+                await github.rest.issues.addLabels({ owner, repo, issue_number: pr.number, labels: ['needs:owner'] });
+                await github.rest.issues.createComment({
+                  owner, repo, issue_number: pr.number,
+                  body: [
+                    "**merge-gate:** bu PR ishonch chegarasidagi fayllarni o'zgartiradi, shuning uchun uni **egasi** merge qiladi.",
+                    '',
+                    ...[...new Set(touched)].map((n) => '- `' + n + '`'),
+                    '',
+                    "Tekshirib, ma'qul bo'lsa: **Merge pull request** (07:00–23:00 oralig'ida).",
+                  ].join('\n'),
+                });
+              }
+            }
+
+            if (problems.length) {
+              core.setFailed('Avtomatik merge mumkin emas: ' + problems.join('; '));
+            } else {
+              core.info('merge-gate yashil: barcha boshqa tekshiruvlar ham yashil bo\'lsa, Claude merge qilishi mumkin.');
+            }

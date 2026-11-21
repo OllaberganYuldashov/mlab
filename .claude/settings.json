@@ -15,7 +15,16 @@
       "Bash(git push origin HEAD:main *)",
       "Bash(git push --force *)",
       "Bash(git push -f *)",
-      "Bash(gh api *merge*)"
+      "Bash(gh api *merge*)",
+      "Edit(.claude/settings.json)",
+      "Edit(scripts/merge-if-green.sh)",
+      "Edit(.github/workflows/merge-gate.yml)",
+      "Edit(.github/workflows/main-guard.yml)",
+      "Edit(.github/workflows/known-good.yml)",
+      "Edit(.github/workflows/weekly-backup.yml)",
+      "Edit(.github/workflows/secret-scan.yml)",
+      "Bash(gh pr merge*)",
+      "Bash(git push origin --delete main*)"
     ]
   }
 }
