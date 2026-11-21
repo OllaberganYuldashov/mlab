@@ -1,0 +1,61 @@
+[project]
+name = "mlab-backend"
+version = "0.1.0"
+description = "MLab — Machine Learning fanini o'qitish platformasi (backend)"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "django>=5.2,<5.3",
+    "djangorestframework>=3.18.2,<3.19",
+    "django-environ>=0.12,<0.13",
+    "psycopg[binary]>=3.2,<3.3",
+    "redis>=5.2,<7",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3",
+    "pytest-django>=4.10",
+    "pytest-cov>=6.0",
+    "ruff>=0.11",
+    "mypy>=1.15",
+    "django-stubs[compatible-mypy]>=5.2,<5.3",
+    "djangorestframework-stubs>=3.16",
+    "pip-audit>=2.9",
+]
+
+[tool.uv]
+package = false
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+extend-exclude = ["**/migrations/*"]
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "B", "UP", "S", "DJ", "SIM", "RUF", "PT"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101", "S603"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+plugins = ["mypy_django_plugin.main", "mypy_drf_plugin.main"]
+exclude = ["^\\.venv/"]
+
+[[tool.mypy.overrides]]
+module = ["environ", "environ.*"]
+ignore_missing_imports = true
+
+[tool.django-stubs]
+django_settings_module = "config.settings.test"
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "config.settings.test"
+pythonpath = ["."]
+testpaths = ["tests", "apps"]
+addopts = "-ra --strict-markers --cov=config --cov=apps --cov-branch --cov-report=term-missing --cov-fail-under=85"
+filterwarnings = ["error"]
+
+[tool.coverage.run]
+omit = ["*/migrations/*", "config/asgi.py", "config/wsgi.py", "manage.py"]
