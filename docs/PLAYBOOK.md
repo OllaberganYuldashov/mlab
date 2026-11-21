@@ -40,7 +40,7 @@
 - Jadval: har kecha **01:47 (Asia/Tashkent)**. Keyin kerak bo'lsa 23:47 va 04:47.
 - Haftalik review: yakshanba 01:47 — faqat code-review, tech-debt, LESSONS retro.
 - Pro limiti chat va Claude Code o'rtasida umumiy. Oddiy tasklar Sonnet, arxitektura Opus.
-- Protokol: `CLAUDE.md` 6-bo'lim. Prompt: `docs/prompts/nightly-run.md`.
+- Protokol: `CLAUDE.md` 7-bo'lim (Definition of Done — 6-bo'lim). Prompt: `docs/prompts/nightly-run.md`.
 
 ## 5. Xotira fayllari
 
