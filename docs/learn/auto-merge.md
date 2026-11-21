@@ -21,7 +21,7 @@ Bular "o'yin qoidalari": testlar, xavfsizlik taqiqlari, talablar, prod server. U
 
 ## Siz nima qilasiz
 1. Har kuni "📋 Kunlik hisobotlar" issue'sidagi yangi izohni o'qing (GitHub ilovasi bildirishnoma yuboradi).
-2. Hisobotda `needs:owner` PR bo'lsa — ochib, tavsifini o'qing va 07:00–23:00 da **Merge pull request**.
+2. Hisobotda `needs:owner` PR bo'lsa — ochib, tavsifini o'qing va **Merge pull request** (istalgan vaqtda).
 3. `status:blocked` savol bo'lsa — javob yozing.
 4. PR'ni to'xtatmoqchi bo'lsangiz — unga `hold` label qo'ying; Claude uni merge qilmaydi.
 

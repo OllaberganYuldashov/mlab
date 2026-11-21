@@ -58,7 +58,7 @@ jobs:
                     '',
                     ...[...new Set(touched)].map((n) => '- `' + n + '`'),
                     '',
-                    "Tekshirib, ma'qul bo'lsa: **Merge pull request** (07:00–23:00 oralig'ida).",
+                    "Tekshirib, ma'qul bo'lsa: **Merge pull request** (istalgan vaqtda).",
                   ].join('\n'),
                 });
               }
