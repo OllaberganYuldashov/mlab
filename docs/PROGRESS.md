@@ -14,6 +14,13 @@
 - GitHub: label'lar va R0-01..R0-17 issue'lari (#5–#21), "📋 Kunlik hisobotlar" (#4) yaratildi
 - Oxirgi tugagan tasklar: R0-01 (#5) — PR #22 (egasi merge qildi); R0-02 (#6) — PR #23 (Claude merge qildi, egasining ruxsati bilan)
 
+## Tezlik va MVP prognozi
+> Har yakshanba haftalik review to'ldiradi (`docs/prompts/weekly-review.md` 5b). Ball: M = 2, S = 1.
+
+| Hafta | Yopilgan ball | Runlar | Qoldiq (taxmin) | MVP prognozi |
+| --- | --- | --- | --- | --- |
+| 2026-11-22 (boshlang'ich) | 4 (R0-01, R0-02) | 1 interaktiv | ~394 (R0 24 + R1 kodi 240 + kontent 130) | 8–10 hafta (2027 yanvar oxiri – fevral boshi) |
+
 ## Keyingi task
 - Tayyor (bog'liqligi yopilgan): R0-03 (#7), R0-04 (#8, custom User — birinchi migratsiya, birinchi bo'lib olinsin), R0-14 (#18).
 - R0-04 dan keyin: R0-05 (#9), R0-12 (#16), R0-13 (#17).
