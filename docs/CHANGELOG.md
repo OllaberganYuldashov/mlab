@@ -4,6 +4,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/), versiyalar: [SemVer](ht
 
 ## [Unreleased]
 ### Added
+- Ish tartibi (egasining 2026-11-22 qarori): har tunda 2 run (23:23, 03:23), run hajmi 2× (≥ 2 M yoki 4 S), hamma merge Claude'da — `needs:owner` PR'lar uchun `scripts/merge-protected.sh` (himoya mexanizmining o'zi bundan mustasno), egasi faqat kunlik hisobotni o'qiydi.
 - Frontend skeleti (R0-02): Vite + React 19 + TypeScript, `src/i18n/uz.json` va `t()`, Vitest + Testing Library (coverage ≥ 85%), ESLint, Playwright smoke test; `ci` ga `frontend` job; `docs/learn/react-typescript.md`; setup skriptga `uv sync` va `npm ci`.
 - Backend skeleti (R0-01): Django 5.2 + DRF, `config/settings/{base,dev,test,prod}`, env'dan sozlama va fail fast, `/healthz`; ruff, mypy, pytest (coverage ≥ 85%); CI workflow `ci` (PostgreSQL 16, Redis 7, pip-audit); `docs/learn/django.md`.
 - Nazorat ostidagi avtomatik merge: `merge-gate` workflow, `scripts/merge-if-green.sh`, kunlik hisobot (egasining 2026-11-22 qarori).

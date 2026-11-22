@@ -7,7 +7,7 @@
 
 | Rol | Kim | Vazifasi |
 | --- | --- | --- |
-| Product Owner / CTO | Egasi (siz) | G'oya, yo'nalish, variant tanlash, kunlik hisobotni o'qish, `needs:owner` PR'larni merge qilish |
+| Product Owner / CTO | Egasi (siz) | G'oya, yo'nalish, kunlik hisobotni o'qish va undagi savollarga javob berish (merge'lar Claude'da — 2026-11-22) |
 | Tech lead va jamoa | Claude | Reja, arxitektura, kod, test, hujjat, hisobot, o'qitish |
 | Mustaqil reviewer | Agentlar: security-reviewer, schema-reviewer, incident-thinker | Muhim o'zgarishlarni alohida tekshirish |
 | Xotira | Repo va GitHub | Holat, qarorlar, tarix, zaxira |
@@ -37,9 +37,10 @@
 
 ## 4. Tungi run
 
-- Jadval: har kecha **01:47 (Asia/Tashkent)**. Keyin kerak bo'lsa 23:47 va 04:47.
-- Haftalik review: yakshanba 01:47 — faqat code-review, tech-debt, LESSONS retro.
-- Pro limiti chat va Claude Code o'rtasida umumiy. Oddiy tasklar Sonnet, arxitektura Opus.
+- Jadval (2026-11-22): har tunda **2 run** — 23:23 (har kuni) va 03:23 (dushanba–shanba), Asia/Tashkent.
+- Haftalik review: yakshanba 03:23 — faqat code-review, tech-debt, LESSONS retro.
+- Run hajmi: kamida 2 ta `size:M` yoki 4 ta `size:S`; limit qolsa davom etadi.
+- Pro limiti chat va Claude Code o'rtasida umumiy (egasi kunduzi kam ishlatadi).
 - Protokol: `CLAUDE.md` 7-bo'lim (Definition of Done — 6-bo'lim). Prompt: `docs/prompts/nightly-run.md`.
 
 ## 5. Xotira fayllari
@@ -89,7 +90,9 @@ Secret oqib ketsa — darhol almashtiriladi (rotate). Git tarixidan o'chirishnin
   - `main-guard` workflow: main'ga PR'siz commit yoki force push tushsa, darhol `alert:main-guard` issue ochadi;
   - `weekly-backup` workflow: har yakshanba 01:17 (Toshkent) to'liq git bundle nusxasi, 90 kun saqlanadi.
 - Claude `claude/` bilan boshlanadigan branch'larga push qiladi, PR ochadi va uni `scripts/merge-if-green.sh` orqali merge qiladi.
-  Himoyalangan fayllarni o'zgartirgan PR `needs:owner` oladi — uni egasi merge qiladi.
+  Himoyalangan fayllarni o'zgartirgan PR `needs:owner` oladi — uni ham Claude `scripts/merge-protected.sh` bilan merge qiladi
+  (egasining 2026-11-22 qarori). Faqat himoya mexanizmining o'zi (`.claude/settings.json`, `scripts/merge-*.sh`,
+  nazorat workflow'lari) o'zgargan PR'ni egasi merge qiladi.
 - Ochiq `alert:main-guard` issue — keyingi run'ning birinchi ishi.
 - `known-good` workflow main'dagi har to'liq yashil commit'ga `good-*` teg qo'yadi (yashil nuqta).
 
