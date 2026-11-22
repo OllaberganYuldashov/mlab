@@ -4,6 +4,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/), versiyalar: [SemVer](ht
 
 ## [Unreleased]
 ### Added
+- Kurs kontenti (R0-13; CNT-01): ADR-0002 (Markdown + YAML), `apps.courses` — `Course`, `Topic`, `Lecture`, `LectureStep` (kontent versiyasi va SHA-256 xeshi), `manage.py import_content ../content` — idempotent, bitta tranzaksiya, `fayl:qator` bilan xato; namuna `content/course.yaml` va `content/topics/M01-ml-asoslari/`; PyYAML (`safe_load`); `docs/learn/content-format.md`.
 - Rollar va ruxsatlar (R0-05; SRS 2.2): DRF `IsSuperAdmin`, `IsAdmin`, `IsInstructor`, `IsStudent` (ierarxiyasiz, `|` bilan birlashtiriladi); Django Admin `/admin/` — faqat super admin va admin, rolga asoslangan `RoleAccessAdmin`; parol xeshi admin'da ko'rinmaydi; rolni faqat super admin o'zgartiradi va bu audit jurnaliga yoziladi; audit jurnalini faqat super admin ko'radi; `docs/learn/roles-permissions.md`.
 - Audit jurnali (R0-12; ADM-02): `apps.audit` — `AuditLog` (kim, harakat, obyekt, `before`/`after`, `request_id`, `created_at`), `apps.audit.record(...)` (secret kalitlar saqlanmaydi), faqat qo'shiladi (model, QuerySet va PostgreSQL trigger), indekslar (obyekt, vaqt) va (actor, vaqt), Django Admin'da faqat o'qish; `django.contrib.admin` ilovasi yoqildi (URL — R0-05).
 - Kuzatuvchanlik (R0-14; NFR-17, NFR-11): `X-Request-ID` middleware, stdout'ga JSON loglar (`LOG_LEVEL`), formatter'da Hemis ID va IP maskalash, parol/token/cookie/Authorization hech qachon yozilmaydi; `GET /readyz` (DB va Redis: 200/503); `docs/learn/observability.md`.

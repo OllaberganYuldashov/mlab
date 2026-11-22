@@ -1,0 +1,4 @@
+# Kurs meta ma'lumotlari (ADR-0002). Import: cd backend && uv run python manage.py import_content ../content
+slug: machine-learning
+title: Machine Learning
+version: "2026.1"
