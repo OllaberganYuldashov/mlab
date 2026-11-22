@@ -4,6 +4,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/), versiyalar: [SemVer](ht
 
 ## [Unreleased]
 ### Added
+- Audit jurnali (R0-12; ADM-02): `apps.audit` — `AuditLog` (kim, harakat, obyekt, `before`/`after`, `request_id`, `created_at`), `apps.audit.record(...)` (secret kalitlar saqlanmaydi), faqat qo'shiladi (model, QuerySet va PostgreSQL trigger), indekslar (obyekt, vaqt) va (actor, vaqt), Django Admin'da faqat o'qish; `django.contrib.admin` ilovasi yoqildi (URL — R0-05).
 - Kuzatuvchanlik (R0-14; NFR-17, NFR-11): `X-Request-ID` middleware, stdout'ga JSON loglar (`LOG_LEVEL`), formatter'da Hemis ID va IP maskalash, parol/token/cookie/Authorization hech qachon yozilmaydi; `GET /readyz` (DB va Redis: 200/503); `docs/learn/observability.md`.
 - Lokal servislar (R0-03): `compose.yaml` — PostgreSQL 16.10 va Redis 7.4 (healthcheck, nomli volume'lar, portlar faqat `127.0.0.1`, soxta dev parol `.env.example` bilan mos); `docs/learn/docker.md`.
 - Custom User (R0-04; AUTH-01, AUTH-03, NFR-10): `accounts.User` (login — 12 xonali Hemis ID), `Direction`, rollar (`super_admin`, `admin`, `instructor`, `student`), Argon2 xesh; DB CHECK cheklovlari; loyihaning birinchi migratsiyasi `accounts.0001`; testlarda Faker; `docs/learn/custom-user-argon2.md`.

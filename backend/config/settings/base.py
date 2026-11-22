@@ -22,9 +22,11 @@ REDIS_URL = env.required("REDIS_URL")
 CSRF_TRUSTED_ORIGINS = env.optional_list("CSRF_TRUSTED_ORIGINS")
 DEBUG = False
 
-# django.contrib.admin R0-05 da qo'shiladi: u AUTH_USER_MODEL'ga bog'liq migratsiyaga ega;
-# custom User (R0-04, accounts.0001) shu sababli birinchi migratsiya bo'ldi.
+# django.contrib.admin AUTH_USER_MODEL'ga bog'liq migratsiyaga ega, shuning uchun custom User
+# (R0-04, accounts.0001) birinchi migratsiya bo'ldi. Admin ilovasi R0-12 da yoqildi (audit — faqat
+# o'qish); admin URL'i va rollar bo'yicha kirish R0-05 da ulanadi.
 INSTALLED_APPS = [
+    "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
@@ -32,6 +34,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework",
     "apps.accounts",
+    "apps.audit",
 ]
 
 # AUTH-01: login — Hemis ID (R0-04). Loyihaning birinchi migratsiyasi shu modelda.
