@@ -1,0 +1,50 @@
+# compose.yaml — egasining kompyuterida lokal servislar (R0-03).
+# Ishga tushirish: docker compose up -d db redis
+# To'xtatish (ma'lumot saqlanadi): docker compose down
+# DIQQAT: "down" buyrug'iga volume'larni o'chirish bayrog'i qo'shilsa, baza ma'lumoti butunlay
+# yo'qoladi — docs/learn/docker.md ga qarang.
+#
+# Parol faqat soxta dev qiymati (.env.example dagi DATABASE_URL bilan mos: mlab:mlab).
+# Portlar faqat 127.0.0.1 ga ochiladi — tarmoqdagi boshqa kompyuterlar ulana olmaydi.
+# Prod uchun alohida fayl: deploy/compose.prod.yaml (R0-15).
+
+name: mlab
+
+services:
+  db:
+    image: postgres:16.10-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-mlab}
+      POSTGRES_USER: ${POSTGRES_USER:-mlab}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-mlab}
+      TZ: Asia/Tashkent
+    ports:
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+
+  redis:
+    image: redis:7.4-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "127.0.0.1:${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+
+volumes:
+  db-data:
+  redis-data:
