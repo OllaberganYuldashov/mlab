@@ -3,8 +3,8 @@
 > Har sessiya oxirida Claude yangilaydi. Yangi sessiya ishni shu fayldan davom ettiradi.
 
 ## Sog'liq
-- Holat: **Yashil** (2026-11-21). main'da hali ilova kodi yo'q; PR #22 va #23 da `ci` va gitleaks yashil.
-- Oxirgi yashil nuqta: — (birinchi `good-*` teg #22 merge bo'lgach `known-good` tomonidan qo'yiladi)
+- Holat: **Yashil** (2026-11-22). main'da backend va frontend skeleti, `ci` yashil.
+- Oxirgi yashil nuqta: `good-2026-11-22-0850-0944fc9`
 - Tuzatish urinishlari: 0
 - Ochiq `alert:main-guard` / `alert:red-light`: yo'q
 
@@ -12,18 +12,22 @@
 - Reliz: R0 — Poydevor (I0)
 - TZ: SRS v2 tasdiqlangan → `docs/SRS.md`
 - GitHub: label'lar va R0-01..R0-17 issue'lari (#5–#21), "📋 Kunlik hisobotlar" (#4) yaratildi
-- Oxirgi tugagan task: R0-01 (#5) — PR #22, `needs:owner`, egasi merge qiladi
-- Jarayonda: R0-02 (#6) — PR #23 (R0-01 branch'i ustida, egasining "B" qarori), `needs:owner`
+- Oxirgi tugagan tasklar: R0-01 (#5) — PR #22 (egasi merge qildi); R0-02 (#6) — PR #23 (Claude merge qildi, egasining ruxsati bilan)
 
 ## Keyingi task
-- #22 → #23 merge bo'lgach (egasi): R0-03 (#7, compose.yaml), R0-04 (#8, custom User — birinchi migratsiya), R0-14 (#18).
+- Tayyor (bog'liqligi yopilgan): R0-03 (#7), R0-04 (#8, custom User — birinchi migratsiya, birinchi bo'lib olinsin), R0-14 (#18).
 - R0-04 dan keyin: R0-05 (#9), R0-12 (#16), R0-13 (#17).
 
-## Egasining qarorlari (2026-11-21, sessiyada)
+## Egasining qarorlari (2026-11-21/22, sessiyada)
 - Lockout kaliti — Hemis ID + IP (#11 izohi).
 - Hemis ID — 12 xonali, faqat raqam (#8 izohi).
 - INT-02: tushunish savollari R1 da variantga bog'liq, oldindan tayyorlangan (I3).
-- Merge: Claude `scripts/merge-if-green.sh` bilan merge qiladi; `needs:owner` PR'larni egasi merge qiladi.
+- Merge (2026-11-22, "B"): oddiy PR'larni Claude `merge-if-green.sh` bilan merge qiladi; `needs:owner` PR'larni egasi.
+  ("A" — hamma merge Claude'da — rad etildi: auto-mode xavfsizlik tekshiruvi o'z-o'zini merge qilishni bloklagan.)
+- Run'lar: har tunda 2 ta (23:23 har kuni, 03:23 dush–shan; yakshanba 03:23 — haftalik review). Hajm: ≥ 2 M yoki 4 S.
+- Egasi kunlik hisobotni o'qiydi, savollarga javob beradi va `needs:owner` PR'larni merge qiladi.
+- Scheduled task'lar "MLab tungi runlar" sessiyasiga (session_016ErEP48sYh335V6WwbWk5T) xabar yuboradi:
+  connector'siz trigger yangi sessiyada repo'ga kira olmaydi, shuning uchun doimiy sessiya ishlatiladi.
 
 ## Bloklar (egasining javobi kerak)
 - Setup skript: sessiya boshida PostgreSQL/Redis ishlamayotgan va `mlab` foydalanuvchisi yo'q edi — muhitdagi

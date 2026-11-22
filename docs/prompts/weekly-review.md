@@ -1,8 +1,8 @@
 # Haftalik review prompti (scheduled task)
 
-> Jadval: `CRON_TZ=Asia/Tashkent 47 1 * * 0` (yakshanba 01:47). Model: Opus.
-> Shu kechasi oddiy tungi run o'chirib qo'yilmaydi — ikkalasi bir vaqtda ishlamasligi uchun
-> tungi run cron'ini `47 1 * * 1-6` (dushanba–shanba) qiling.
+> Jadval: scheduled task "MLab haftalik review" — `CRON_TZ=Asia/Tashkent 23 3 * * 0` (yakshanba 03:23).
+> Shu kuni 2-tungi run ishlamaydi (`23 3 * * 1-6`); 1-run (23:23) har kuni ishlaydi.
+> Model: sessiya modeli.
 
 ```text
 Bu haftalik review run. Yangi funksiya yozma.

@@ -2,7 +2,8 @@
 
 ## Bu nima
 Claude o'z PR'ini o'zi merge qiladi, lekin qaror Claude'ning fikriga emas, GitHub'dagi qat'iy tekshiruvlarga tayanadi.
-Siz faqat kunlik hisobotni o'qiysiz va kamdan-kam hollarda (`needs:owner`) bitta tugmani bosasiz.
+Siz kunlik hisobotni o'qiysiz, savollarga javob berasiz va kamdan-kam hollarda (`needs:owner`) bitta tugmani bosasiz
+(2026-11-22: egasi "B" variantini tanladi — himoyalangan fayllar egasida qoladi).
 
 ## Nega shunday
 Egasi har kuni merge qilishga ulgurmasligi mumkin — ish to'xtab qolmasligi kerak (2026-11-22 qarori).

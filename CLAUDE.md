@@ -65,8 +65,9 @@ Django ilovalari (`backend/apps/`): `accounts`, `sections`, `courses`, `labs`, `
 1. **main'ga hech qachon push qilma.** Har task `claude/` bilan boshlanadigan branch'da, natija PR.
    **Merge faqat `scripts/merge-if-green.sh <PR>` orqali** (egasining 2026-11-22 qarori). Skript merge-gate, ci, secret-scan
    va boshqa barcha tekshiruvlar yashil bo'lmasa merge qilmaydi. Boshqa yo'l bilan merge qilish (`gh api .../merge`,
-   `gh pr merge`, veb) taqiqlangan. `needs:owner` label'li PR'ni (himoyalangan fayllar: workflow'lar, `.claude/settings.json`,
-   `CLAUDE.md`, `docs/SRS.md`, `docs/RECOVERY.md`, `deploy/`, shu skript) faqat egasi merge qiladi — kutmasdan keyingi taskga o't.
+   `gh pr merge`, MCP merge, veb) taqiqlangan. `needs:owner` label'li PR'ni (himoyalangan fayllar: workflow'lar, `.claude/settings.json`,
+   `CLAUDE.md`, `docs/SRS.md`, `docs/RECOVERY.md`, `deploy/`, shu skript) faqat egasi merge qiladi — kutmasdan keyingi taskga o't,
+   PR tavsifida "Nega himoyalangan fayl o'zgardi" bo'limi bo'ladi (egasining 2026-11-22 tanlovi: "B").
    Tekshiruvni o'tkazish uchun testni o'chirish, `skip`/`xfail` qo'shish yoki coverage chegarasini tushirish — qoidabuzarlik.
 2. **Secret'lar bilan ishlamaysan.** `.env`ni o'qima, yozma, chiqarma. Yangi sozlama: kodda muhit o'zgaruvchisidan o'qi, `.env.example`ga faqat nomi va soxta qiymat, `docs/SECURITY.md` jadvaliga qator. Ilova majburiy sozlama yo'q bo'lsa darhol to'xtaydi (fail fast).
 3. **Haqiqiy shaxsiy ma'lumot ishlatilmaydi.** FIO va Hemis ID testlarda faqat factory/Faker bilan. Haqiqiy talaba ro'yxati, baholar yoki loglar repoga, bulut sessiyasiga va promptga tushmaydi.
@@ -99,13 +100,18 @@ Django ilovalari (`backend/apps/`): `accounts`, `sections`, `courses`, `labs`, `
 1. `git pull`, keyin shu fayl va `docs/PROGRESS.md`. Ochiq `alert:main-guard` yoki `alert:red-light` issue bo'lsa — birinchi navbatda o'sha.
 2. `docs/RECOVERY.md` bo'yicha sog'liq tekshiruvi; natija PROGRESS.md'ga.
 3. `status:ready` label'li, bog'liqligi yopilgan eng kichik issue olinadi va `status:in-progress` qilinadi.
+   Boshqa run'ning `status:in-progress` issue'si (oxirgi yangilanishi 6 soatdan yangi) olinmaydi — har tunda 2 run bor.
 4. Issue katta bo'lsa: kod yozilmaydi, subtask issue'larga bo'linadi — bu o'sha sessiyaning to'liq ishi.
 5. `claude/<issue-raqami>-<qisqa-nom>` branch, darhol draft PR.
 6. Test → kod → testlar, lint, xavfsizlik yashil → hujjatlar → commit va push. Har tugagan bosqich alohida commit.
-7. Limit yetsa keyingi issue, yetmasa to'xtash.
-8. PR "ready for review" → `scripts/merge-if-green.sh <PR>`. Kod 0: merge bo'ldi, issue yopiladi (`Closes #`), keyingi task
-   yangilangan main'dan boshlanadi. Kod 1: qizil — sababini tuzat (Sariq qoidasi, ko'pi bilan 2 urinish). Kod 2: tekshiruvlar
-   tugamadi — keyingi taskka o't, oxirida qayta urin. `needs:owner` bo'lsa: issue `status:review`, kunlik hisobotda ko'rsat.
+7. **Run hajmi** (egasining 2026-11-22 qarori, 2× oshirilgan): har run kamida **2 ta `size:M` yoki 4 ta `size:S`**
+   (M = 2 ball, S = 1 ball; maqsad ≥ 4 ball). Maqsadga yetgach ham limit qolsa — keyingi issue. Limit tugasa —
+   yangi issue boshlanmaydi, boshlangani DoD bilan yopiladi yoki draft PR va PROGRESS.md'da aniq to'xtash nuqtasi.
+8. PR "ready for review" → `scripts/merge-if-green.sh <PR>`.
+   Kod 0: merge bo'ldi, issue yopiladi (`Closes #`), keyingi task yangilangan main'dan boshlanadi.
+   Kod 1: qizil — sababini tuzat (Sariq qoidasi, ko'pi bilan 2 urinish). Kod 2: tekshiruvlar tugamadi — keyingi taskka o't,
+   oxirida qayta urin. `needs:owner` bo'lsa: issue `status:review`, kunlik hisobotda ko'rsat va keyingi taskka o't.
+   Run oxirida ham merge bo'lmagan PR — kunlik hisobotda sababi bilan.
 9. Yakunda: `docs/PROGRESS.md` va `docs/learn/JOURNAL.md` yangilanadi (ular ham PR orqali) va **kunlik hisobot** yoziladi (11-bo'lim).
 
 ## 8. Vazifalar (GitHub Issues)
@@ -151,8 +157,12 @@ To'liq tartib: `docs/RECOVERY.md`. Qisqasi:
 ## 11. Hisobot
 
 - **Kunlik hisobot** — har run oxirida "📋 Kunlik hisobotlar" issue'siga bitta izoh (issue bo'lmasa yaratiladi, `report` label bilan):
-  sog'liq (Yashil/Sariq/Qizil), merge bo'lgan PR'lar va bajarilgan talab ID'lari, egasini kutayotgan PR'lar (`needs:owner`),
+  sog'liq (Yashil/Sariq/Qizil), merge bo'lgan PR'lar va bajarilgan talab ID'lari, egasini kutayotgan PR'lar (`needs:owner` —
+  qaysi himoyalangan fayl va nega), merge bo'lmagan boshqa PR'lar va sababi,
   javob kutayotgan savollar (`status:blocked`), keyingi tasklar, egasi o'qishi kerak bo'lgan dars. 10–15 qator, oddiy tilda.
+  Ikkala tungi run ham yozadi: sarlavhada sana va run (`1/2` yoki `2/2`).
+- **Egasi kunlik hisobotni o'qiydi, savollarga javob beradi va `needs:owner` PR'larni merge qiladi** (2026-11-22 qarori). Shuning uchun har savol hisobotda
+  issue havolasi, qisqa kontekst, 2–3 variant va Claude tavsiyasi bilan yoziladi; javob kutilayotganda ish boshqa issue bilan davom etadi.
 - Run boshida draft PR, har tugagan bosqichda tushunarli commit.
 - PR tavsifi shablon bo'yicha, o'zbek tilida, bajarilgan talab ID'lari bilan.
 - `docs/learn/JOURNAL.md`: har run uchun qisqa yozuv — nima qilindi, qaysi skill nima uchun ishlatildi, egasi nimani o'rganishi kerak.
