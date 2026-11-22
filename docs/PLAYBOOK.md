@@ -7,7 +7,7 @@
 
 | Rol | Kim | Vazifasi |
 | --- | --- | --- |
-| Product Owner / CTO | Egasi (siz) | G'oya, yo'nalish, kunlik hisobotni o'qish va undagi savollarga javob berish (merge'lar Claude'da — 2026-11-22) |
+| Product Owner / CTO | Egasi (siz) | G'oya, yo'nalish, kunlik hisobotni o'qish, savollarga javob berish, `needs:owner` PR'larni merge qilish |
 | Tech lead va jamoa | Claude | Reja, arxitektura, kod, test, hujjat, hisobot, o'qitish |
 | Mustaqil reviewer | Agentlar: security-reviewer, schema-reviewer, incident-thinker | Muhim o'zgarishlarni alohida tekshirish |
 | Xotira | Repo va GitHub | Holat, qarorlar, tarix, zaxira |
@@ -90,9 +90,7 @@ Secret oqib ketsa — darhol almashtiriladi (rotate). Git tarixidan o'chirishnin
   - `main-guard` workflow: main'ga PR'siz commit yoki force push tushsa, darhol `alert:main-guard` issue ochadi;
   - `weekly-backup` workflow: har yakshanba 01:17 (Toshkent) to'liq git bundle nusxasi, 90 kun saqlanadi.
 - Claude `claude/` bilan boshlanadigan branch'larga push qiladi, PR ochadi va uni `scripts/merge-if-green.sh` orqali merge qiladi.
-  Himoyalangan fayllarni o'zgartirgan PR `needs:owner` oladi — uni ham Claude `scripts/merge-protected.sh` bilan merge qiladi
-  (egasining 2026-11-22 qarori). Faqat himoya mexanizmining o'zi (`.claude/settings.json`, `scripts/merge-*.sh`,
-  nazorat workflow'lari) o'zgargan PR'ni egasi merge qiladi.
+  Himoyalangan fayllarni o'zgartirgan PR `needs:owner` oladi — uni egasi merge qiladi (2026-11-22: "B" varianti).
 - Ochiq `alert:main-guard` issue — keyingi run'ning birinchi ishi.
 - `known-good` workflow main'dagi har to'liq yashil commit'ga `good-*` teg qo'yadi (yashil nuqta).
 

@@ -10,8 +10,7 @@ Bu haftalik review run. Yangi funksiya yozma.
 1. CLAUDE.md, docs/PLAYBOOK.md, docs/PROGRESS.md'ni o'qi.
 2. Oxirgi 7 kunda merge bo'lgan o'zgarishlarni code-review qil (xavfsizlik, test sifati,
    N+1, xatolarni boshqarish). Topilgan har muammo uchun status:ready issue yarat.
-2b. Claude merge qilgan PR'larni alohida tekshir (merge-if-green va, ayniqsa, merge-protected bilan merge
-   qilingan needs:owner PR'lar — ci.yml, CLAUDE.md, deploy/ o'zgarishlari): test o'chirilmaganmi, skip/xfail
+2b. merge-gate orqali avtomatik merge bo'lgan PR'larni alohida tekshir: test o'chirilmaganmi, skip/xfail
    qo'shilmaganmi, coverage tushmaganmi, talab ID'lari to'g'rimi. Shubha bo'lsa — alert:red-light emas,
    status:ready tuzatish issue'si va hisobotda alohida qator.
 3. tech-debt bo'yicha eng muhim 3 ta qarzni issue qilib yoz.

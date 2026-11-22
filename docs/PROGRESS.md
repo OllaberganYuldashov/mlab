@@ -22,10 +22,12 @@
 - Lockout kaliti — Hemis ID + IP (#11 izohi).
 - Hemis ID — 12 xonali, faqat raqam (#8 izohi).
 - INT-02: tushunish savollari R1 da variantga bog'liq, oldindan tayyorlangan (I3).
-- Merge: hamma merge Claude'da (2026-11-22): oddiy PR — `merge-if-green.sh`, `needs:owner` — `merge-protected.sh` (main'dagi nusxa).
-  Himoya mexanizmining o'zi (`.claude/settings.json`, `scripts/merge-*.sh`, nazorat workflow'lari) — faqat egasi.
+- Merge (2026-11-22, "B"): oddiy PR'larni Claude `merge-if-green.sh` bilan merge qiladi; `needs:owner` PR'larni egasi.
+  ("A" — hamma merge Claude'da — rad etildi: auto-mode xavfsizlik tekshiruvi o'z-o'zini merge qilishni bloklagan.)
 - Run'lar: har tunda 2 ta (23:23 har kuni, 03:23 dush–shan; yakshanba 03:23 — haftalik review). Hajm: ≥ 2 M yoki 4 S.
-- Egasi faqat kunlik hisobotni o'qiydi va savollarga javob beradi.
+- Egasi kunlik hisobotni o'qiydi, savollarga javob beradi va `needs:owner` PR'larni merge qiladi.
+- Scheduled task'lar "MLab tungi runlar" sessiyasiga (session_016ErEP48sYh335V6WwbWk5T) xabar yuboradi:
+  connector'siz trigger yangi sessiyada repo'ga kira olmaydi, shuning uchun doimiy sessiya ishlatiladi.
 
 ## Bloklar (egasining javobi kerak)
 - Setup skript: sessiya boshida PostgreSQL/Redis ishlamayotgan va `mlab` foydalanuvchisi yo'q edi — muhitdagi

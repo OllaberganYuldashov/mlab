@@ -88,8 +88,7 @@ Qoidalar:
 ## 7. Ortga qaytgandan keyin
 
 1. Rollback PR'ida testlar va CI yashil ekani ko'rsatiladi. Egasining "Ruxsat: X" izohidan keyin Claude uni faqat
-   `scripts/merge-if-green.sh` orqali merge qiladi Tiklash PR'i himoyalangan fayllarni o'zgartirsa — uni
-   egasi merge qiladi: qizil holatda `merge-protected.sh` hech narsani merge qilmaydi.
+   `scripts/merge-if-green.sh` orqali merge qiladi (himoyalangan fayllar o'zgargan bo'lsa — egasi merge qiladi).
 2. `known-good` yangi yashil nuqta qo'yadi.
 3. `docs/LESSONS.md`ga post-mortem: nima bo'ldi, nega erta sezilmadi, qaysi qoida qo'shiladi.
 4. Bekor qilingan ishlar kichikroq task'larga bo'linib backlog'ga qaytadi.
