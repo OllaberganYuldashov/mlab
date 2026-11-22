@@ -22,7 +22,7 @@ Har run oxirida `JOURNAL.md`ga qisqa yozuv qo'shiladi.
 | --- | --- | --- |
 | `django.md`, `drf.md` | R0 | Backend va API asosi |
 | `react-typescript.md` | R0 | Talaba va o'qituvchi interfeysi |
-| `docker.md`, `caddy.md`, `server.md` | R0 | Universitet serverida ishga tushirish, zaxira |
+| `docker.md` ✅, `caddy.md`, `server.md` | R0 | Universitet serverida ishga tushirish, zaxira |
 | `celery-channels.md` | R0–I1 | Fon vazifalari va real vaqt (WebSocket) |
 | `pyodide.md` | I2 | Python brauzerda qanday ishlaydi |
 | `sandbox.md` | I3 | Begona kodni xavfsiz bajarish |
