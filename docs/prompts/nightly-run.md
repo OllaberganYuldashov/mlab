@@ -22,7 +22,7 @@ Talablarning yagona manbai docs/SRS.md; joriy reliz va tasklar docs/BACKLOG.md v
 3. Issue bitta runga sig'maydigan bo'lsa: kod yozma. Uni subtask issue'larga bo'l
    (har biri acceptance criteria bilan, status:ready), asl issue'ga izoh yoz va to'xta.
 4. claude/<issue-raqami>-<qisqa-nom> branch och va darhol draft PR yarat.
-5. CLAUDE.md 5 va 8-bo'limlariga amal qil: avval test, keyin kod; kerakli skill'larni yukla.
+5. CLAUDE.md 5, 6 va 7-bo'limlariga (qoidalar, DoD, run protokoli) amal qil: avval test, keyin kod; kerakli skill'larni yukla.
    Har tugagan bosqichni alohida commit qilib push qil.
 6. Testlar, lint, type check yashil bo'lgach: hujjatlarni yangila (CHANGELOG, OpenAPI,
    docs/learn, kerak bo'lsa ADR), PR tavsifini shablon bo'yicha to'ldir, PR'ni ready for review qil.
