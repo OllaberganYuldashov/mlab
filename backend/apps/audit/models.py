@@ -26,6 +26,7 @@ class Action(models.TextChoices):
     LOGIN_FAILED = "login_failed", _("Muvaffaqiyatsiz kirish")
     LOGOUT = "logout", _("Chiqish")
     ROLE_CHANGED = "role_changed", _("Rol o'zgardi")
+    USER_ACTIVE_CHANGED = "user_active_changed", _("Akkaunt faolligi o'zgardi")
     PASSWORD_RESET = "password_reset", _("Parol tiklandi")
     PASSWORD_CHANGED = "password_changed", _("Parol almashtirildi")
     INSTRUCTOR_CREATED = "instructor_created", _("O'qituvchi akkaunti yaratildi")
