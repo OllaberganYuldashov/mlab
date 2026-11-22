@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "apps.accounts",
     "apps.audit",
+    "apps.courses",
 ]
 
 # AUTH-01: login — Hemis ID (R0-04). Loyihaning birinchi migratsiyasi shu modelda.

@@ -1,8 +1,15 @@
 # content/ — MLab kurs kontenti (kod sifatida)
 
-> Format R0-13 taskida ADR-0002 bilan aniqlanadi. Kontent Markdown va YAML fayllarida, Git'da versiyalanadi,
+> Format: `docs/adr/0002-content-format.md` (R0-13). Import: `cd backend && uv run python manage.py import_content ../content`.
+> Kontent Markdown va YAML fayllarida, Git'da versiyalanadi,
 > `import_content` buyrug'i bilan bazaga yuklanadi. Fan dasturidan faqat mavzular ro'yxati olingan;
 > yetishmayotgan kontentni Claude sodda va minimal holda yozadi (SRS CNT-04).
+
+## Ma'ruza fayli qanday yoziladi
+
+`topics/<KOD>-<slug>/meta.yaml` — `code` (masalan, `M01`), `title`, `order`.
+`topics/<KOD>-<slug>/lecture.md` — birinchi qator `# Ma'ruza nomi`, keyin har `## Qadam sarlavhasi` — bitta qadam
+(CNT-02: 5–10 qadam). Kod bloki (```) ichidagi `##` qadam hisoblanmaydi.
 
 ## Rejalashtirilgan tuzilma
 
