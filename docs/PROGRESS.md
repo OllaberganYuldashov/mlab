@@ -3,8 +3,8 @@
 > Har sessiya oxirida Claude yangilaydi. Yangi sessiya ishni shu fayldan davom ettiradi.
 
 ## Sog'liq
-- Holat: **Yashil** (2026-11-22, tungi run 1/2 boshida): main `ci` yashil, backend 44 / frontend 8 test o'tdi,
-  bug va rad etilgan PR yo'q. Run oxirida ham yashil (4 PR merge, har biri `ci` yashil).
+- Holat: **Yashil** (2026-11-22, tungi run 2/2 boshida va oxirida): main `ci` yashil, backend 143 → 220 test,
+  frontend 8 test; bug va rad etilgan PR yo'q.
 - Oxirgi yashil nuqta: `good-2026-11-22-2341-4e4f41c` (PR #31 dan keyingisi `known-good` tomonidan qo'yiladi)
 - Tuzatish urinishlari: 0
 - Ochiq `alert:main-guard` / `alert:red-light`: yo'q
@@ -13,7 +13,7 @@
 - Reliz: R0 — Poydevor (I0)
 - TZ: SRS v2 tasdiqlangan → `docs/SRS.md`
 - GitHub: label'lar va R0-01..R0-17 issue'lari (#5–#21), "📋 Kunlik hisobotlar" (#4) yaratildi
-- Oxirgi tugagan tasklar: R0-04 (#8) — PR #28; R0-03 (#7) — PR #29; R0-14 (#18) — PR #30; R0-12 (#16) — PR #31
+- Oxirgi tugagan tasklar: R0-05 (#9) — PR #33; R0-13 (#17) — PR #35 (run 2/2). Run 1/2: R0-04 (#8) — PR #28; R0-03 (#7) — PR #29; R0-14 (#18) — PR #30; R0-12 (#16) — PR #31
   (hammasi `merge-if-green.sh` bilan). Oldin: R0-01 (#5) — PR #22, R0-02 (#6) — PR #23.
 
 ## Tezlik va MVP prognozi
@@ -24,8 +24,8 @@
 | 2026-11-22 (boshlang'ich) | 4 (R0-01, R0-02) | 1 interaktiv | ~394 (R0 24 + R1 kodi 240 + kontent 130) | 8–10 hafta (2027 yanvar oxiri – fevral boshi) |
 
 ## Keyingi task
-- Tayyor (bog'liqligi yopilgan): R0-05 (#9, rollar + admin URL), R0-13 (#17, kontent importi), R0-11 (#15), R0-17 (#21).
-- R0-05 dan keyin: R0-06 (#10), R0-07 (#11), R0-08 (#12), R0-09 (#13).
+- Tayyor (bog'liqligi yopilgan): R0-06 (#10), R0-07 (#11 — security-reviewer izohi bilan: admin login ham lockout va audit),
+  R0-08 (#12), R0-09 (#13), R0-11 (#15), R0-17 (#21), R0-15 (#19).
 
 ## Egasining qarorlari (2026-11-21/22, sessiyada)
 - Lockout kaliti — Hemis ID + IP (#11 izohi).
@@ -46,8 +46,12 @@
   sertifikatda logotip ruxsati (I5 gacha).
 
 ## Eslatmalar keyingi sessiya uchun
-- R0-05: `django.contrib.admin` allaqachon INSTALLED_APPS'da (R0-12), `AuditLogAdmin` ro'yxatdan o'tgan; qolgani —
-  admin URL va rolga qarab kirish. `User.is_staff` roldan hisoblanadi (super_admin, admin).
+- Ruxsatlar faqat rol bo'yicha: `apps/accounts/permissions.py` (DRF) va `admin_access.RoleAccessAdmin` (admin).
+  `User.has_perm*` doim `False`, `Group` admin yo'q. Rolni o'zgartiradigan har yangi yo'l audit yozishi shart
+  (hozir faqat admin `save_model` yozadi) — bitta servis funksiyasi orqali.
+- Kontent: `apps/courses/content.py` (ADR-0002). Mavzu fayldan o'chsa bazadan ham o'chadi — R1 da progress FK
+  qo'shilganda `PROTECT` + aniq xato.
+- gitleaks: testda `secret = "..."` kabi nom ham `generic-api-key` beradi — o'zgaruvchiga boshqa nom va `uuid`/`secrets`.
 - Foydalanuvchi API'da URL'ga chiqsa, tashqi `public_id` (UUIDv7) kerakmi — R0-05/R0-06 da hal qilinadi (schema-reviewer tavsiyasi).
 - Audit: tarixi bor foydalanuvchi o'chirilmaydi (`PROTECT`), trigger UPDATE/DELETE'ni bloklaydi — ma'lumot o'chirish
   siyosati (SRS 7) kelganda alohida migratsiya.
@@ -67,6 +71,7 @@
 ## Tarix
 | Sana | Sessiya | Natija |
 | --- | --- | --- |
+| 2026-11-22 | Tungi run 2/2 | Yashil; R0-05 (#33), R0-13 (#35) merge — 4 ball |
 | 2026-11-22 | Tungi run 1/2 | Yashil; R0-04 (#28), R0-03 (#29), R0-14 (#30), R0-12 (#31) merge — 5 ball |
 | 2026-11-22 | Tayyorgarlik (chat) | SRS v2 tasdiqlandi, L1 loyiha fayllari tayyorlandi |
 | 2026-11-21 | Birinchi sessiya (interaktiv) | Label'lar, issue'lar #4–#21; R0-01 → PR #22; R0-02 → PR #23; PR #24 (hujjat) skript bilan merge |
