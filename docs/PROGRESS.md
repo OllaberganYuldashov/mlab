@@ -13,7 +13,6 @@
 - TZ: SRS v2 tasdiqlangan → `docs/SRS.md`
 - GitHub: label'lar va R0-01..R0-17 issue'lari (#5–#21), "📋 Kunlik hisobotlar" (#4) yaratildi
 - Oxirgi tugagan tasklar: R0-01 (#5) — PR #22 (egasi merge qildi); R0-02 (#6) — PR #23 (Claude merge qildi, egasining ruxsati bilan)
-- Oxirgi yashil nuqta: `good-2026-11-22-0850-0944fc9`
 
 ## Keyingi task
 - Tayyor (bog'liqligi yopilgan): R0-03 (#7), R0-04 (#8, custom User — birinchi migratsiya, birinchi bo'lib olinsin), R0-14 (#18).
