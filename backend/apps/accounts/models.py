@@ -175,6 +175,18 @@ class User(AbstractBaseUser, PermissionsMixin):
         """Django Admin'ga kirish rolga bog'liq — alohida bayroq sinxronlashmay qolmasin."""
         return self.role in STAFF_ROLES
 
+    # Ruxsatlar faqat rol bo'yicha (apps/accounts/permissions.py, admin_access.py). Django'ning
+    # guruh/ruxsat jadvallari va "superuser hammasiga ruxsat" yorlig'i ataylab o'chirilgan:
+    # aks holda shell yoki fixture orqali berilgan ruxsat rol modelini aylanib o'tadi.
+    def has_perm(self, perm: str, obj: Any = None) -> bool:
+        return False
+
+    def has_perms(self, perm_list: Any, obj: Any = None) -> bool:
+        return False
+
+    def has_module_perms(self, app_label: str) -> bool:
+        return False
+
     def clean(self) -> None:
         super().clean()
         self.full_name = normalize_full_name(self.full_name)

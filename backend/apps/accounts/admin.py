@@ -12,6 +12,8 @@ from __future__ import annotations
 from typing import Any
 
 from django.contrib import admin
+from django.contrib.auth.models import Group
+from django.db.models import QuerySet
 from django.forms import ModelForm
 from django.http import HttpRequest
 from django.utils.translation import gettext_lazy as _
@@ -27,6 +29,9 @@ admin.site.site_header = _("MLab boshqaruvi")
 admin.site.site_title = _("MLab boshqaruvi")
 admin.site.index_title = _("Boshqaruv paneli")
 
+# Django guruh/ruxsat jadvallari ishlatilmaydi (ruxsat faqat rol bo'yicha) — muharriri yo'q.
+admin.site.unregister(Group)
+
 
 @admin.register(Direction)
 class DirectionAdmin(RoleAccessAdmin):
@@ -35,6 +40,10 @@ class DirectionAdmin(RoleAccessAdmin):
     fields = ("name",)
     search_fields = ("name",)
     ordering = ("name",)
+
+
+# Audit qilinadigan maydonlar (ADM-02): rol va akkaunt faolligi.
+_AUDITED = {"role": Action.ROLE_CHANGED, "is_active": Action.USER_ACTIVE_CHANGED}
 
 
 @admin.register(User)
@@ -58,10 +67,21 @@ class UserAdmin(RoleAccessAdmin):
     )
     _always_readonly = ("hemis_id", "date_joined", "last_login", "updated_at")
 
+    def get_queryset(self, request: HttpRequest) -> QuerySet[User]:
+        qs = super().get_queryset(request)
+        if request.user.role == Role.ADMIN:  # type: ignore[union-attr]
+            # Admin faqat o'qituvchi va talabalarni boshqaradi; boshqa xodimlar unga ko'rinmaydi.
+            return qs.filter(role__in=(Role.INSTRUCTOR, Role.STUDENT))
+        return qs
+
     def get_readonly_fields(self, request: HttpRequest, obj: Any = None) -> tuple[str, ...]:
-        if request.user.role == Role.SUPER_ADMIN:  # type: ignore[union-attr]
-            return self._always_readonly
-        return (*self._always_readonly, "role")
+        readonly: tuple[str, ...] = self._always_readonly
+        if request.user.role != Role.SUPER_ADMIN:  # type: ignore[union-attr]
+            readonly = (*readonly, "role")
+        if obj is not None and obj.pk == request.user.pk:
+            # O'zini pasaytirish yoki o'chirib qo'yish — tizimni boshqaruvchisiz qoldirishi mumkin.
+            readonly = (*readonly, "role", "is_active")
+        return tuple(dict.fromkeys(readonly))
 
     def has_change_permission(self, request: HttpRequest, obj: Any = None) -> bool:
         if not super().has_change_permission(request, obj):
@@ -73,15 +93,18 @@ class UserAdmin(RoleAccessAdmin):
     def save_model(
         self, request: HttpRequest, obj: User, form: ModelForm[User], change: bool
     ) -> None:
-        previous_role = form.initial.get("role", obj.role)
+        previous = {key: form.initial.get(key) for key in _AUDITED}
         # DB cheklovi: is_superuser <=> super_admin — rol bilan birga sinxronlanadi.
         obj.is_superuser = obj.role == Role.SUPER_ADMIN
         super().save_model(request, obj, form, change)
-        if change and previous_role != obj.role:
-            record(
-                Action.ROLE_CHANGED,
-                actor=request.user,  # type: ignore[arg-type]
-                target=obj,
-                before={"role": previous_role},
-                after={"role": obj.role},
-            )
+        if not change:
+            return
+        for key, action in _AUDITED.items():
+            if key in form.changed_data:
+                record(
+                    action,
+                    actor=request.user,  # type: ignore[arg-type]
+                    target=obj,
+                    before={key: previous[key]},
+                    after={key: getattr(obj, key)},
+                )

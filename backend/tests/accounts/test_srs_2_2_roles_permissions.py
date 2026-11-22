@@ -174,7 +174,9 @@ def test_srs_2_2_admin_cannot_edit_staff_accounts(client: Client, target_role: R
         f"/admin/accounts/user/{other.pk}/change/",
         {"full_name": "Boshqa Ism", "role": target_role, "is_active": "on"},
     )
-    assert response.status_code == 403
+    # Xodim akkauntlari admin'ning queryset'ida yo'q: "topilmadi" -> admin indeksiga qaytaradi.
+    assert response.status_code == 302
+    assert response["Location"] == "/admin/"
     other.refresh_from_db()
     assert other.full_name != "Boshqa Ism"
 
@@ -241,3 +243,62 @@ def test_srs_2_2_no_user_add_or_delete_in_admin(client: Client) -> None:
     student = make_user(direction=make_direction())
     assert client.get("/admin/accounts/user/add/").status_code == 403
     assert client.get(f"/admin/accounts/user/{student.pk}/delete/").status_code == 403
+
+
+# --- security-reviewer tavsiyalari ---
+
+
+def test_srs_2_2_group_admin_not_exposed(client: Client) -> None:
+    client.force_login(_user(Role.SUPER_ADMIN, direction=None))
+    assert client.get("/admin/auth/group/").status_code == 404
+
+
+def test_srs_2_2_django_perms_never_bypass_roles() -> None:
+    from django.contrib.auth.models import Permission
+
+    admin_user = _user(Role.ADMIN, direction=None)
+    admin_user.user_permissions.add(Permission.objects.get(codename="view_auditlog"))
+    boss = _user(Role.SUPER_ADMIN, direction=None)
+    assert not admin_user.has_perm("audit.view_auditlog")
+    assert not boss.has_perm("audit.delete_auditlog")
+    assert not boss.has_module_perms("audit")
+
+
+def test_srs_2_2_super_admin_cannot_demote_or_deactivate_self(client: Client) -> None:
+    boss = _user(Role.SUPER_ADMIN, direction=None)
+    client.force_login(boss)
+    response = client.post(
+        f"/admin/accounts/user/{boss.pk}/change/",
+        {"full_name": boss.full_name, "role": Role.STUDENT},  # is_active yo'q = o'chirishga urinish
+    )
+    assert response.status_code == 302
+    boss.refresh_from_db()
+    assert boss.role == Role.SUPER_ADMIN
+    assert boss.is_active
+
+
+def test_srs_2_2_deactivation_is_audited(client: Client) -> None:
+    client.force_login(_user(Role.ADMIN, direction=None))
+    student = make_user()
+    client.post(
+        f"/admin/accounts/user/{student.pk}/change/",
+        {"full_name": student.full_name, "direction": student.direction_id},
+    )
+    student.refresh_from_db()
+    assert not student.is_active
+    entry = AuditLog.objects.get(action=Action.USER_ACTIVE_CHANGED, target_id=str(student.pk))
+    assert entry.before == {"is_active": True}
+    assert entry.after == {"is_active": False}
+
+
+def test_srs_2_2_admin_does_not_see_staff_accounts(client: Client) -> None:
+    client.force_login(_user(Role.ADMIN, direction=None))
+    other_admin = _user(Role.ADMIN, direction=None)
+    boss = _user(Role.SUPER_ADMIN, direction=None)
+    body = client.get("/admin/accounts/user/").content.decode()
+    assert other_admin.hemis_id not in body
+    assert boss.hemis_id not in body
+    # To'g'ridan-to'g'ri URL ham ochilmaydi (IDOR).
+    response = client.get(f"/admin/accounts/user/{boss.pk}/change/")
+    assert response.status_code == 302  # "obyekt topilmadi" — admin indeksiga qaytaradi
+    assert boss.full_name not in client.get(response["Location"]).content.decode()
