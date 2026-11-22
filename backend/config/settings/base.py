@@ -22,8 +22,8 @@ REDIS_URL = env.required("REDIS_URL")
 CSRF_TRUSTED_ORIGINS = env.optional_list("CSRF_TRUSTED_ORIGINS")
 DEBUG = False
 
-# django.contrib.admin R0-05 da qo'shiladi: u AUTH_USER_MODEL'ga bog'liq migratsiyaga ega,
-# custom User (R0-04) esa loyihaning birinchi migratsiyasi bo'lishi shart.
+# django.contrib.admin R0-05 da qo'shiladi: u AUTH_USER_MODEL'ga bog'liq migratsiyaga ega;
+# custom User (R0-04, accounts.0001) shu sababli birinchi migratsiya bo'ldi.
 INSTALLED_APPS = [
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -31,7 +31,11 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework",
+    "apps.accounts",
 ]
+
+# AUTH-01: login — Hemis ID (R0-04). Loyihaning birinchi migratsiyasi shu modelda.
+AUTH_USER_MODEL = "accounts.User"
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -69,6 +73,13 @@ CACHES = {
         "LOCATION": REDIS_URL,
     }
 }
+
+# AUTH-03/NFR-10: Argon2id birinchi — yangi xeshlar shu bilan;
+# qolganlari faqat eski xeshlarni o'qish uchun.
+PASSWORD_HASHERS = [
+    "django.contrib.auth.hashers.Argon2PasswordHasher",
+    "django.contrib.auth.hashers.PBKDF2PasswordHasher",
+]
 
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
