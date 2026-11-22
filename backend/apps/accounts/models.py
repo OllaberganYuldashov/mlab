@@ -12,8 +12,9 @@ from typing import Any, ClassVar
 
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
 from django.contrib.auth.models import PermissionsMixin
+from django.core.validators import RegexValidator
 from django.db import models
-from django.db.models import Q
+from django.db.models import F, Func, Q, TextField
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
@@ -40,6 +41,14 @@ def normalize_full_name(raw: str) -> str:
     return unicodedata.normalize("NFC", raw).strip()
 
 
+def _is_canonical_text(field: str) -> Q:
+    """DB: matn NFC shaklida va chetida bo'sh joy yo'q (save()'ni aylanib o'tgan yozuv uchun)."""
+    canonical = Func(
+        F(field), template="normalize(btrim(%(expressions)s), NFC)", output_field=TextField()
+    )
+    return Q(**{field: canonical})
+
+
 class Role(models.TextChoices):
     SUPER_ADMIN = "super_admin", _("Super admin")
     ADMIN = "admin", _("Admin")
@@ -64,15 +73,20 @@ class Direction(models.Model):
             models.CheckConstraint(
                 condition=Q(name__regex=r"\S"), name="accounts_direction_name_not_blank"
             ),
+            models.CheckConstraint(
+                condition=_is_canonical_text("name"), name="accounts_direction_name_canonical"
+            ),
         ]
 
     def __str__(self) -> str:
         return self.name
 
+    def save(self, *args: Any, **kwargs: Any) -> None:
+        self.name = normalize_full_name(self.name)
+        super().save(*args, **kwargs)
+
 
 class UserManager(BaseUserManager["User"]):
-    use_in_migrations = True
-
     def _create(self, hemis_id: str, password: str | None, **extra: Any) -> User:
         user = self.model(hemis_id=normalize_hemis_id(hemis_id), **extra)
         user.set_password(password)
@@ -92,7 +106,15 @@ class UserManager(BaseUserManager["User"]):
 
 
 class User(AbstractBaseUser, PermissionsMixin):
-    hemis_id = models.CharField(_("Hemis ID"), max_length=12, unique=True)
+    hemis_id = models.CharField(
+        _("Hemis ID"),
+        max_length=12,
+        unique=True,
+        validators=[
+            RegexValidator(HEMIS_ID_DB_REGEX, _("Hemis ID 12 ta raqamdan iborat bo'lishi kerak."))
+        ],
+        error_messages={"unique": _("Bu Hemis ID bilan foydalanuvchi allaqachon bor.")},
+    )
     full_name = models.TextField(_("FIO"))
     role = models.CharField(_("rol"), max_length=16, choices=Role.choices, default=Role.STUDENT)
     direction = models.ForeignKey(
@@ -105,6 +127,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     )
     is_active = models.BooleanField(_("faol"), default=True)
     date_joined = models.DateTimeField(_("ro'yxatdan o'tgan vaqt"), default=timezone.now)
+    updated_at = models.DateTimeField(_("o'zgartirilgan vaqt"), auto_now=True)
 
     objects: ClassVar[UserManager] = UserManager()
 
@@ -120,7 +143,12 @@ class User(AbstractBaseUser, PermissionsMixin):
                 name="accounts_user_hemis_id_12_digits",
             ),
             models.CheckConstraint(
-                condition=Q(full_name__regex=r"\S"), name="accounts_user_full_name_not_blank"
+                condition=Q(full_name__regex=r"\S"),
+                name="accounts_user_full_name_not_blank",
+                violation_error_message=_("FIO bo'sh bo'lmasligi kerak."),
+            ),
+            models.CheckConstraint(
+                condition=_is_canonical_text("full_name"), name="accounts_user_full_name_canonical"
             ),
             models.CheckConstraint(
                 condition=Q(role__in=Role.values), name="accounts_user_role_valid"
@@ -128,10 +156,13 @@ class User(AbstractBaseUser, PermissionsMixin):
             models.CheckConstraint(
                 condition=~Q(role=Role.STUDENT) | Q(direction__isnull=False),
                 name="accounts_user_student_has_direction",
+                violation_error_message=_("Talaba uchun yo'nalish tanlanishi shart."),
             ),
+            # Ikki tomonlama: super_admin <=> is_superuser (bayroq va rol bir-biriga zid bo'lmaydi).
             models.CheckConstraint(
-                condition=Q(is_superuser=False) | Q(role=Role.SUPER_ADMIN),
-                name="accounts_user_superuser_is_super_admin",
+                condition=(Q(role=Role.SUPER_ADMIN) & Q(is_superuser=True))
+                | (~Q(role=Role.SUPER_ADMIN) & Q(is_superuser=False)),
+                name="accounts_user_superuser_iff_super_admin",
             ),
         ]
 

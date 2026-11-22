@@ -20,6 +20,7 @@
 - Testlar hech qachon haqiqiy parol yoki tokenga bog'liq emas; `APP_ENV=test`, `AI_PROVIDER=fake`.
 - Gemini doim `fake` provayder bilan; haqiqiy chaqiruv faqat deploy'dan keyingi smoke testda.
 - Pyodide frontend unit testlarida mock worker bilan; haqiqiy Pyodide faqat Playwright testida.
+- Shaxsiy ma'lumot (FIO, Hemis ID) faqat Faker bilan: `backend/tests/accounts/factories.py` (`make_user`, `make_direction`); parollar `secrets.token_urlsafe()` bilan, literal emas (gitleaks).
 - Ilova ishga tushganda majburiy sozlamalar yo'qligini darhol aniqlaydi (fail fast) — buning testi bor.
 
 ## Muhim invariantlar (har biri alohida test)

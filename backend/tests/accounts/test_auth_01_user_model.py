@@ -9,6 +9,7 @@ import secrets
 
 import pytest
 from django.contrib.auth import authenticate, get_user_model
+from django.core.exceptions import ValidationError
 from django.db import DataError, IntegrityError, transaction
 from django.db.models import ProtectedError
 from django.test import override_settings
@@ -200,3 +201,51 @@ def test_auth_03_password_hash_is_argon2_and_never_plaintext() -> None:
         assert user.password.startswith("argon2")
         assert PASSWORD not in user.password
         assert user.check_password(PASSWORD)
+
+
+def test_auth_01_super_admin_role_requires_superuser_flag_at_db_level() -> None:
+    with pytest.raises(IntegrityError), transaction.atomic():
+        User.objects.bulk_create(
+            [
+                User(
+                    hemis_id="123456789012",
+                    full_name="X",
+                    role=Role.SUPER_ADMIN,
+                    is_superuser=False,
+                )
+            ]
+        )
+
+
+@pytest.mark.parametrize("raw", ["Jo\u0301rayev", " Karimov", "Karimov "])
+def test_auth_01_non_canonical_full_name_rejected_at_db_level(raw: str) -> None:
+    # save()'ni aylanib o'tgan yozuv (bulk_create, raw SQL) ham NFC va trim'siz saqlanmaydi.
+    direction = make_direction()
+    with pytest.raises(IntegrityError), transaction.atomic():
+        User.objects.bulk_create(
+            [User(hemis_id="123456789012", full_name=raw, role=Role.STUDENT, direction=direction)]
+        )
+
+
+def test_auth_01_direction_name_normalized_and_canonical_at_db_level() -> None:
+    assert make_direction("  Sun\u02bciy intellekt ").name == "Sun\u02bciy intellekt"
+    with pytest.raises(IntegrityError), transaction.atomic():
+        Direction.objects.bulk_create([Direction(name=" Matematika")])
+
+
+def test_auth_01_full_clean_reports_readable_uzbek_errors() -> None:
+    user = User(hemis_id="12ab", full_name="X", role=Role.STUDENT, direction=None)
+    user.set_unusable_password()
+    with pytest.raises(ValidationError) as exc:
+        user.full_clean()
+    messages = str(exc.value.message_dict)
+    assert "12 ta raqam" in messages
+    assert "yo'nalish tanlanishi shart" in messages
+
+
+def test_auth_01_updated_at_changes_on_save() -> None:
+    user = make_user()
+    before = user.updated_at
+    user.full_name = "Yangi Ism"
+    user.save()
+    assert user.updated_at > before
