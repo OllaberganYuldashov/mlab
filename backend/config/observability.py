@@ -97,13 +97,13 @@ def mask_text(text: str) -> str:
     return _HEMIS_ID_RE.sub(lambda m: "********" + m.group(0)[-4:], text)
 
 
-def _is_sensitive_key(key: str) -> bool:
+def is_sensitive_key(key: str) -> bool:
     lowered = key.lower()
     return any(part in lowered for part in _SENSITIVE_KEY_PARTS)
 
 
 def mask_value(key: str, value: Any) -> Any:
-    if _is_sensitive_key(key):
+    if is_sensitive_key(key):
         return REDACTED
     if isinstance(value, dict):
         return {str(k): mask_value(str(k), v) for k, v in value.items()}

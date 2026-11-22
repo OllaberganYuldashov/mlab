@@ -29,6 +29,13 @@ bazada parolning o'zi emas, undan hisoblangan, orqaga qaytarib bo'lmaydigan "bar
    Apostrof variantlari (`'`, `ʻ`, `ʼ`, `‘`) esa o'zgartirilmaydi — talaba nima yozgan bo'lsa, shuni ko'radi.
 5. **Testlarda tez xesh.** Argon2 ataylab sekin; testlarda MD5 ishlatiladi, Argon2 esa alohida testda tekshiriladi.
 
+## Qo'shimcha: audit jurnali (R0-12)
+`backend/apps/audit/` — muhim harakatlar (rol, parol tiklash, baho, kirish oynasi) "kim, nima, qachon"
+ko'rinishida yoziladi. Jadval **faqat qo'shiladi**: Python kodi ham, to'g'ridan-to'g'ri SQL ham yozuvni
+o'zgartira yoki o'chira olmaydi — buni PostgreSQL **trigger**i (`0002_append_only_trigger.py`) ta'minlaydi.
+Parol va token kabi maydonlar jurnalga umuman tushmaydi. Tarixi bor foydalanuvchini o'chirib bo'lmaydi
+(`PROTECT`) — ma'lumot o'chirish siyosati keyin egasi bilan hal qilinadi.
+
 ## Rasmiy hujjat va yaxshi manbalar
 - Django: "Customizing authentication" — Substituting a custom User model.
 - Django: "Password management" — Using Argon2.
