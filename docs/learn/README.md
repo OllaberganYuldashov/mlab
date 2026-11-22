@@ -22,6 +22,7 @@ Har run oxirida `JOURNAL.md`ga qisqa yozuv qo'shiladi.
 | --- | --- | --- |
 | `django.md`, `drf.md` | R0 | Backend va API asosi |
 | `custom-user-argon2.md` | R0 | Foydalanuvchi modeli, DB cheklovlari, parol xeshi |
+| `roles-permissions.md` | R0 | Rollar, DRF ruxsatlari, Django Admin'ga kirish |
 | `react-typescript.md` | R0 | Talaba va o'qituvchi interfeysi |
 | `docker.md` ✅, `caddy.md`, `server.md` | R0 | Universitet serverida ishga tushirish, zaxira |
 | `celery-channels.md` | R0–I1 | Fon vazifalari va real vaqt (WebSocket) |
