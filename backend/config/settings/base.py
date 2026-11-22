@@ -38,6 +38,8 @@ INSTALLED_APPS = [
 AUTH_USER_MODEL = "accounts.User"
 
 MIDDLEWARE = [
+    # Birinchi: keyingi har log qatorida request_id bo'ladi (R0-14).
+    "config.observability.RequestIdMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.locale.LocaleMiddleware",
@@ -113,4 +115,25 @@ REST_FRAMEWORK = {
     # Ochiq endpoint faqat aniq belgilanadi (CLAUDE.md 5.6).
     "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.IsAuthenticated"],
     "DEFAULT_RENDERER_CLASSES": ["rest_framework.renderers.JSONRenderer"],
+}
+
+# --- Loglar (NFR-17, R0-14): stdout'ga bir qator JSON; maskalash formatter'da ---
+LOG_LEVEL = env.optional("LOG_LEVEL", "INFO").upper()
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {"json": {"()": "config.observability.JsonFormatter"}},
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "stream": "ext://sys.stdout",
+            "formatter": "json",
+        }
+    },
+    "root": {"handlers": ["console"], "level": LOG_LEVEL},
+    "loggers": {
+        # Django'ning o'z handler'lari o'rniga root (JSON) ishlatiladi — qatorlar takrorlanmaydi.
+        "django": {"handlers": [], "level": LOG_LEVEL, "propagate": True},
+        "django.server": {"handlers": ["console"], "level": LOG_LEVEL, "propagate": False},
+    },
 }

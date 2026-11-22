@@ -17,6 +17,7 @@ Chat, repo, log, PR, issue, bulut muhiti o'zgaruvchilari va scheduled task promp
 | ALLOWED_HOSTS, CSRF_TRUSTED_ORIGINS | Domen (prod'da `*` taqiqlangan) | localhost | Server .env |
 | DEBUG | Faqat dev (prod'da doim false) | .env.example | — |
 | TIME_ZONE | Vaqt zonasi (default Asia/Tashkent) | .env.example | Server .env |
+| LOG_LEVEL | Log darajasi (default INFO), secret emas | .env.example | Server .env |
 | SECURE_SSL_REDIRECT | Prod: HTTP → HTTPS yo'naltirish (default true) | — | Server .env |
 | GEMINI_API_KEY | AI tutor | bo'sh (AI_PROVIDER=fake) | Server .env |
 | AI_PROVIDER, GEMINI_MODEL, AI_DAILY_LIMIT_PER_STUDENT | AI sozlamalari | .env.example | Server .env |
@@ -35,6 +36,8 @@ Chat, repo, log, PR, issue, bulut muhiti o'zgaruvchilari va scheduled task promp
 - FIO, Hemis ID, IP, qurilma — shaxsiy ma'lumot. Faqat universitet serverida (O'zbekiston).
 - Testda faqat factory/Faker. Haqiqiy ro'yxatlar, baholar va loglar repoga, bulut sessiyasiga va promptga tushmaydi.
 - Loglarda Hemis ID va IP maskalanadi; parol, token, cookie hech qachon loglanmaydi.
+  Bu `backend/config/observability.py` dagi `JsonFormatter` da majburiy (har log qatori undan o'tadi),
+  testlar: `backend/tests/test_nfr_17_observability.py`.
 - Gemini'ga faqat savol, kod va mavzu konteksti; FIO va Hemis ID yuborilmaydi (AI-04).
 - Saqlash muddatlari: faollik jurnali 12 oy, AI murojaatlari 6 oy (kurs tugagach) — Celery vazifasi tozalaydi.
 - Parolni hech kim ko'rmaydi: faqat bir martalik vaqtinchalik parol va majburiy almashtirish (AUTH-04).
