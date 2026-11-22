@@ -82,3 +82,8 @@ UserSettings/
 *.onnx
 mlruns/
 data/raw/
+
+# ---- Playwright ----
+playwright-report/
+test-results/
+blob-report/
