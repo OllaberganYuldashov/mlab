@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import shutil
+import uuid
 from io import StringIO
 from pathlib import Path
 
@@ -200,11 +201,11 @@ def test_cnt_01_yaml_tags_cannot_build_python_objects(content: Path) -> None:
 
 
 def test_agr_05_private_dirs_never_imported(content: Path) -> None:
-    secret = "MAXFIY-YECHIM-123"
+    marker = f"yashirin-{uuid.uuid4().hex}"
     for private in PRIVATE_DIRS:
-        _write(content, f"topics/M01-birinchi/{private}/x.py", secret)
+        _write(content, f"topics/M01-birinchi/{private}/x.py", marker)
     import_content(content)
-    assert not LectureStep.objects.filter(body__contains=secret).exists()
+    assert not LectureStep.objects.filter(body__contains=marker).exists()
     assert PRIVATE_DIRS == ("tests/hidden", "solutions")
 
 
