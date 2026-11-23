@@ -65,7 +65,7 @@
 
 ## Eslatmalar keyingi sessiya uchun
 - Frontend: `src/api.ts` (CSRF, `fieldErrors`), kichik router `src/router.ts` + `Link.tsx` (react-router faqat ADR bilan). E2E soxta API bilan (`e2e/auth.spec.ts`) — frontend CI job'ida backend yo'q; backend oqimi `backend/tests` da. Testda parol literali yozma: gitleaks `generic-api-key` beradi — `crypto.randomUUID()` dan yasa.
-- `/policy` da "Mas'ul shaxs" aloqa ma'lumoti yo'q — egasi bergach `policy.s1.body` (`uz.json`) ga qo'shiladi.
+- `/policy` "Mas'ul shaxs" aloqa ma'lumoti: kafedra email'i (egasi bergan, 2026-11-23), `policy.s1.body` da.
 - Ruxsatlar faqat rol bo'yicha: `apps/accounts/permissions.py` (DRF) va `admin_access.RoleAccessAdmin` (admin).
   `User.has_perm*` doim `False`, `Group` admin yo'q. Rolni o'zgartiradigan har yangi yo'l audit yozishi shart
   (hozir faqat admin `save_model` yozadi) — bitta servis funksiyasi orqali.
