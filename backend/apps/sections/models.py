@@ -50,9 +50,8 @@ class Section(models.Model):
             ),
         ]
         indexes: ClassVar[list[models.Index]] = [
-            models.Index(
-                fields=["instructor", "-created_at", "-id"], name="sections_by_instructor"
-            ),
+            # Ro'yxat: o'qituvchining guruhlari, yangisi birinchi (keyset — `id` bo'yicha).
+            models.Index(fields=["instructor", "-id"], name="sections_by_instructor_id"),
         ]
 
     def __str__(self) -> str:

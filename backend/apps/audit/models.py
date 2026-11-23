@@ -33,6 +33,17 @@ class Action(models.TextChoices):
     STUDENT_LIMIT_CHANGED = "student_limit_changed", _("Talaba limiti o'zgardi")
     GRADE_CHANGED = "grade_changed", _("Baho o'zgardi")
     ACCESS_WINDOW_CHANGED = "access_window_changed", _("Kirish oynasi o'zgardi")
+    # I1: guruhlar va a'zolik (SEC, SET)
+    SECTION_CREATED = "section_created", _("Guruh yaratildi")
+    SECTION_UPDATED = "section_updated", _("Guruh o'zgartirildi")
+    JOIN_TOKEN_ROTATED = "join_token_rotated", _("Qo'shilish havolasi yangilandi")
+    JOIN_TOKEN_DISABLED = "join_token_disabled", _("Qo'shilish havolasi o'chirildi")
+    MEMBERSHIP_APPROVED = "membership_approved", _("A'zolik tasdiqlandi")
+    MEMBERSHIP_REJECTED = "membership_rejected", _("A'zolik rad etildi")
+    MEMBERSHIP_MOVED = "membership_moved", _("Talaba boshqa guruhga o'tkazildi")
+    MEMBERSHIP_REMOVED = "membership_removed", _("Talaba guruhdan chiqarildi")
+    SECTION_SETTINGS_CHANGED = "section_settings_changed", _("Guruh sozlamalari o'zgardi")
+    DEADLINE_CHANGED = "deadline_changed", _("Topshirish muddati o'zgardi")
 
 
 class AuditLogQuerySet(models.QuerySet["AuditLog"]):
