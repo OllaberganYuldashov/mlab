@@ -25,7 +25,8 @@ def ensure_capacity(instructor: User, current_students: int, adding: int = 1) ->
     """
     if not transaction.get_connection().in_atomic_block:
         raise RuntimeError("ensure_capacity faqat transaction.atomic() ichida chaqiriladi.")
-    locked = User.objects.select_for_update().filter(pk=instructor.pk).first()
+    # NO KEY UPDATE: a'zolik yozuvlarining FK tekshiruvi (KEY SHARE) bilan deadlock bermaydi.
+    locked = User.objects.select_for_update(no_key=True).filter(pk=instructor.pk).first()
     if locked is None or locked.role != Role.INSTRUCTOR or locked.student_limit is None:
         raise ValueError("Limit faqat o'qituvchi uchun tekshiriladi.")
     if adding < 1 or current_students < 0:

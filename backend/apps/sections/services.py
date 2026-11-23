@@ -5,9 +5,13 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from django.db import IntegrityError, transaction
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
+from apps.accounts.limits import StudentLimitExceeded, ensure_capacity
 from apps.accounts.models import User
+from apps.audit import record
+from apps.audit.models import Action
 from apps.sections.models import Membership, MembershipStatus, Section
 
 OTHER_SECTION = _("Siz boshqa guruhga a'zosiz. O'tish uchun o'qituvchingizga murojaat qiling.")
@@ -30,7 +34,7 @@ def request_membership(student: User, section_id: int) -> tuple[Membership, bool
     """
     try:
         with transaction.atomic():
-            section = Section.objects.select_for_update().filter(pk=section_id).first()
+            section = Section.objects.select_for_update(no_key=True).filter(pk=section_id).first()
             if section is None:  # token tekshirilgandan keyin o'chirilgan
                 raise Section.DoesNotExist
             active = Membership.objects.active().filter(student=student).first()
@@ -59,3 +63,69 @@ def request_membership(student: User, section_id: int) -> tuple[Membership, bool
         if active.section_id != section_id:
             raise JoinRefused("other_section", str(OTHER_SECTION)) from None
         return active, False
+
+
+@dataclass(frozen=True)
+class Decision:
+    approved: list[int]
+    rejected: list[int]
+    skipped: list[int]
+
+
+def decide_memberships(actor: User, section_id: int, ids: list[int], approve: bool) -> Decision:
+    """SEC-04: bittalab yoki ommaviy qaror. Hammasi bitta tranzaksiyada.
+
+    Qulf tartibi (deadlock'siz): o'qituvchi → guruh → a'zoliklar. Sig'im (SEC-06) va o'qituvchining
+    umumiy limiti (SEC-08) qulflardan keyin hisoblanadi; oshsa — hech kim tasdiqlanmaydi.
+    Shu guruhda kutilayotgan bo'lmagan id'lar (begona, eskirgan, yo'q) — `skipped`, ta'sirsiz.
+    """
+    with transaction.atomic():
+        section = Section.objects.select_related("instructor").get(pk=section_id)
+        # NO KEY UPDATE: FK tekshiruvi (`decided_by`, `student` → KEY SHARE) bilan to'qnashmaydi —
+        # oddiy FOR UPDATE parallel qarorlarda deadlock berdi (test_sec_06_parallel_...).
+        instructor = User.objects.select_for_update(no_key=True).get(pk=section.instructor_id)
+        section = Section.objects.select_for_update(no_key=True).get(pk=section_id)
+        targets = list(
+            Membership.objects.select_for_update(no_key=True)
+            .filter(section=section, status=MembershipStatus.PENDING, pk__in=ids)
+            .order_by("id")
+        )
+        found = {m.pk for m in targets}
+        skipped = sorted(set(ids) - found)
+        if approve and targets:
+            current = approved_count(section)
+            if current + len(targets) > section.capacity:
+                raise JoinRefused(
+                    "section_full",
+                    str(
+                        _("Guruh sig'imi ({capacity}) yetmaydi: bo'sh joy {free} ta.").format(
+                            capacity=section.capacity, free=max(section.capacity - current, 0)
+                        )
+                    ),
+                )
+            total = Membership.objects.approved().filter(section__instructor=instructor).count()
+            try:
+                ensure_capacity(instructor, current_students=total, adding=len(targets))
+            except StudentLimitExceeded as exc:
+                raise JoinRefused("instructor_limit", str(exc)) from exc
+        new_status = MembershipStatus.APPROVED if approve else MembershipStatus.REJECTED
+        action = Action.MEMBERSHIP_APPROVED if approve else Action.MEMBERSHIP_REJECTED
+        now = timezone.now()
+        for membership in targets:
+            membership.status = new_status
+            membership.decided_at = now
+            membership.decided_by = actor
+            membership.save(update_fields=["status", "decided_at", "decided_by"])
+            record(
+                action,
+                actor=actor,
+                target=membership,
+                before={"status": MembershipStatus.PENDING.value},
+                after={"status": new_status.value},
+            )
+        decided = sorted(found)
+        return Decision(
+            approved=decided if approve else [],
+            rejected=[] if approve else decided,
+            skipped=skipped,
+        )
