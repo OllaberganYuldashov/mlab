@@ -38,6 +38,9 @@ Talablarning yagona manbai docs/SRS.md; joriy reliz va tasklar docs/BACKLOG.md v
 7. Run hajmi: kamida 2 ta size:M yoki 4 ta size:S (M = 2 ball, S = 1 ball; maqsad ≥ 4 ball).
    Maqsadga yetgach ham limit qolsa — 2-qadamga qayt. Limit tugasa yangi issue boshlama.
 8. Yakunda docs/PROGRESS.md va docs/learn/JOURNAL.md'ni yangila (alohida kichik PR, skript bilan merge).
+   Shu PR'da holat dashboard'ini ham yangila (docs/status/README.md): plan.py dagi task holatlari, PR raqamlari,
+   meta (as_of, current_iteration, next_task; yangi iteratsiya issue'larga bo'linganda epik o'rniga tasklar),
+   so'ng `python3 docs/status/build.py`, 4 ta JSON'ni "MLab loyiha holati" dashboard'iga yukla va dataset'larni yangila.
 9. Kunlik hisobot: "📋 Kunlik hisobotlar" issue'siga izoh yoz (bo'lmasa yarat, label: report).
    Sarlavha: sana va run (1/2 yoki 2/2). Tarkibi: sog'liq, merge bo'lgan PR'lar va talab ID'lari, egasini kutayotgan
    needs:owner PR'lar (qaysi himoyalangan fayl va nega), merge bo'lmagan boshqa PR'lar va sababi, status:blocked

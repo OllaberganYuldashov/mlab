@@ -1,0 +1,400 @@
+<meta name="dash-one-writer">
+<style>
+  .ml { display: grid; gap: var(--cds-gap-xl); font-family: var(--font-anthropic-sans); color: var(--color-fg); }
+  .ml-title { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); margin: 0; text-wrap: balance; }
+  .ml-lede { margin: var(--cds-gap-sm) 0 0; color: var(--color-fg-muted); max-width: 70ch; line-height: 1.5; }
+  .ml-lede b { color: var(--color-fg); font-weight: var(--cds-font-weight-medium); }
+  .ml-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: var(--cds-gap-md); }
+  .ml-tile { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-lg); display: grid; gap: var(--cds-gap-xs); min-width: 0; }
+  .ml-tile-label { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); letter-spacing: .02em; }
+  .ml-tile-value { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: 2rem; font-variant-numeric: tabular-nums; line-height: 1.1; }
+  .ml-tile-note { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+  .ml-h2 { font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); margin: 0 0 var(--cds-gap-xs); }
+  .ml-sub { margin: 0 0 var(--cds-gap-md); color: var(--color-fg-muted); font-size: var(--cds-font-size-body); }
+  .ml-chart { min-height: 220px; position: relative; }
+  .ml-chart svg text { fill: var(--cds-text-secondary); font-size: var(--cds-font-size-caption); font-family: var(--font-anthropic-sans); }
+  .ml-chart svg text.ml-strong { fill: var(--color-fg); font-weight: var(--cds-font-weight-medium); }
+  .ml-tip { position: absolute; pointer-events: none; background: var(--cds-surface-popover); border: 1px solid var(--cds-border); box-shadow: var(--cds-shadow-popover); border-radius: var(--cds-radius); padding: var(--cds-pad-sm) var(--cds-pad-md); font-size: var(--cds-font-size-caption); max-width: 280px; line-height: 1.4; }
+  .ml-tip b { display: block; color: var(--color-fg); }
+  .ml-rel { display: grid; gap: var(--cds-gap-md); }
+  .ml-rel-row { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--cds-gap-xs); }
+  .ml-rel-head { display: flex; flex-wrap: wrap; gap: var(--cds-gap-sm); align-items: baseline; justify-content: space-between; }
+  .ml-rel-name { font-weight: var(--cds-font-weight-medium); }
+  .ml-rel-meta { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); font-variant-numeric: tabular-nums; }
+  .ml-bar { height: 10px; border-radius: 5px; background: var(--cds-chart-muted); overflow: hidden; }
+  .ml-bar > span { display: block; height: 100%; border-radius: 5px; }
+  .ml-rel-out { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); margin: 0; }
+  .ml-tools { display: flex; flex-wrap: wrap; gap: var(--cds-gap-sm); align-items: center; margin-bottom: var(--cds-gap-md); }
+  .ml-tablewrap { overflow-x: auto; }
+  .ml-table { border-collapse: collapse; width: 100%; font-size: var(--cds-font-size-body); }
+  .ml-table th { text-align: left; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); font-weight: var(--cds-font-weight-medium); padding: var(--cds-pad-xs) var(--cds-pad-sm); border-bottom: 1px solid var(--color-border-line); white-space: nowrap; }
+  .ml-table td { padding: var(--cds-pad-sm); border-bottom: 1px solid var(--color-border-line); vertical-align: top; }
+  .ml-table td.ml-num { font-variant-numeric: tabular-nums; text-align: right; }
+  .ml-muted { color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); }
+  .ml-chip { display: inline-block; font-size: var(--cds-font-size-caption); padding: 1px 8px; border-radius: 999px; border: 1px solid var(--color-border-line); white-space: nowrap; }
+  .ml-chip[data-s="done"] { color: var(--color-ok); border-color: var(--color-ok); }
+  .ml-chip[data-s="in_progress"] { color: var(--color-warn); border-color: var(--color-warn); }
+  .ml-chip[data-s="blocked"] { color: var(--color-bad); border-color: var(--color-bad); }
+  .ml-chip[data-s="planned"] { color: var(--color-fg-muted); }
+  .ml-legend { display: flex; flex-wrap: wrap; gap: var(--cds-gap-md); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+  .ml-legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
+  .ml-foot summary { cursor: pointer; color: var(--color-fg-muted); }
+  .ml-foot p { color: var(--color-fg-muted); max-width: 70ch; line-height: 1.5; }
+</style>
+
+<div class="ml">
+  <header id="top">
+    <h1 class="ml-title">MLab loyiha holati</h1>
+    <p class="ml-lede" data-read lang="uz">
+      Hozir <b data-draw="cur-release" data-source="meta" data-field="current_release" data-row="0">—</b> relizi,
+      <b data-draw="cur-iter" data-source="meta" data-field="current_iteration" data-row="0">—</b> iteratsiyasi.
+      MVP (R1) <b data-draw="r1-pct" data-source="releaseProgress" data-field="pct" data-where="release=R1">—</b>% tayyor,
+      prognoz bo'yicha <b data-draw="r1-eta" data-source="releaseProgress" data-field="eta" data-where="release=R1">—</b> atrofida tugaydi.
+      Keyingi task: <span data-draw="next" data-source="meta" data-field="next_task" data-row="0">—</span>.
+    </p>
+  </header>
+
+  <section class="ml-tiles" id="tiles" aria-label="Asosiy ko'rsatkichlar">
+    <div class="ml-tile">
+      <span class="ml-tile-label">R0 · Poydevor</span>
+      <span class="ml-tile-value"><span data-draw="r0-pct" data-source="releaseProgress" data-field="pct" data-where="release=R0">—</span>%</span>
+      <span class="ml-tile-note">Server tayyor bo'lgach: birinchi deploy</span>
+    </div>
+    <div class="ml-tile">
+      <span class="ml-tile-label">R1 · MVP</span>
+      <span class="ml-tile-value"><span data-draw="r1-pct2" data-source="releaseProgress" data-field="pct" data-where="release=R1">—</span>%</span>
+      <span class="ml-tile-note"><span data-draw="r1-done" data-source="releaseProgress" data-field="done" data-where="release=R1">—</span> / <span data-draw="r1-total" data-source="releaseProgress" data-field="total" data-where="release=R1">—</span> ball</span>
+    </div>
+    <div class="ml-tile">
+      <span class="ml-tile-label">Joriy iteratsiya</span>
+      <span class="ml-tile-value"><span data-draw="i-pct">—</span>%</span>
+      <span class="ml-tile-note" data-draw="i-name">—</span>
+    </div>
+    <div class="ml-tile">
+      <span class="ml-tile-label">MVP gacha qolgan</span>
+      <span class="ml-tile-value"><span data-draw="r1-left" data-source="releaseProgress" data-field="remaining" data-where="release=R1">—</span></span>
+      <span class="ml-tile-note">ball · <span data-draw="r1-days" data-source="releaseProgress" data-field="days_left" data-where="release=R1">—</span> kun (taxmin)</span>
+    </div>
+  </section>
+
+  <section id="releases">
+    <h2 class="ml-h2">Relizlar</h2>
+    <p class="ml-sub">Har reliz tugaganda nima ishlay boshlaydi va qancha qismi tayyor.</p>
+    <div class="ml-rel" data-draw="releases" data-source="releaseProgress releases"></div>
+  </section>
+
+  <section id="forecast">
+    <h2 class="ml-h2">Iteratsiyalar va taxminiy tugash sanasi</h2>
+    <p class="ml-sub">Ball bo'yicha bajarilgan va qolgan qism. Kontent kod bilan parallel yoziladi, uning ballari I2–I5 ga taqsimlangan.</p>
+    <div class="ml-legend" aria-hidden="true">
+      <span><i style="background: var(--color-ok)"></i>Bajarildi</span>
+      <span><i style="background: var(--cds-chart-muted)"></i>Qolgan</span>
+    </div>
+    <div class="ml-chart" data-draw="iter-chart" data-source="progress"></div>
+  </section>
+
+  <section id="tasks">
+    <h2 class="ml-h2">Tasklar va natijalari</h2>
+    <p class="ml-sub">Issue'larga bo'lingan tasklar va hali bo'linmagan epiklar (taxminiy ball bilan).</p>
+    <div class="ml-tools">
+      <select class="dash-select" id="iter-filter" data-draw="iter-filter" data-source="iterations" aria-label="Iteratsiya"></select>
+      <span class="ml-muted" data-draw="task-count">—</span>
+    </div>
+    <div class="ml-tablewrap">
+      <table class="ml-table" data-source="tasks" data-row-key="key">
+        <thead>
+          <tr>
+            <th data-field="key">Kod</th>
+            <th data-field="title">Task</th>
+            <th data-field="outcome">Natija</th>
+            <th data-field="req">Talablar</th>
+            <th data-field="points">Ball</th>
+            <th data-field="status">Holat</th>
+            <th data-field="pr">PR</th>
+          </tr>
+        </thead>
+        <tbody data-draw="task-rows"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <details class="ml-foot" id="method">
+    <summary>Prognoz qanday hisoblanadi</summary>
+    <p>Har task hajmi ball bilan o'lchanadi: S = 1, M = 2. Hali issue'larga bo'linmagan iteratsiyalarning hajmi taxminiy. Tugash sanasi = holat sanasi + qolgan ball ÷ kunlik tezlik. Kunlik tezlik haftalik review'da haqiqiy natija bo'yicha yangilanadi. Sahifa har run oxirida yangilanadi.</p>
+    <p>Tezlik: <span data-draw="vel" data-source="meta" data-field="velocity_per_day" data-row="0">—</span> ball/kun. Holat sanasi: <span data-draw="asof" data-source="meta" data-field="as_of" data-row="0">—</span>.</p>
+  </details>
+</div>
+
+<script>
+  window.ML = {
+    STATUS: { done: 'Bajarildi', in_progress: 'Jarayonda', ready: 'Navbatda', planned: 'Rejada', blocked: 'Kutilmoqda' },
+    num: (v) => (v === null || v === undefined || v === '' ? 0 : Number(v)),
+    addDays: (iso, days) => {
+      const d = new Date(iso + 'T00:00:00Z');
+      d.setUTCDate(d.getUTCDate() + Math.ceil(days));
+      return d.toISOString().slice(0, 10);
+    },
+    fmtDate: (iso) => {
+      if (!iso) return '—';
+      const months = ['yanvar', 'fevral', 'mart', 'aprel', 'may', 'iyun', 'iyul', 'avgust', 'sentyabr', 'oktyabr', 'noyabr', 'dekabr'];
+      const d = new Date(iso + 'T00:00:00Z');
+      return d.getUTCDate() + '-' + months[d.getUTCMonth()] + ' ' + d.getUTCFullYear();
+    },
+  };
+
+  // Iteratsiyalar: bajarilgan/jami ball, prognoz sanasi. Kontent ballari I2–I5 ga ulushiga qarab qo'shiladi.
+  dash.calc('progress', {
+    title: 'Iteratsiyalar bo\'yicha progress va prognoz',
+    description: 'Tasklar ballini iteratsiya bo\'yicha yig\'adi; tugash sanasi qolgan ballni kunlik tezlikka bo\'lib, ketma-ket hisoblanadi.',
+    inputs: ['tasks', 'iterations', 'meta'],
+    fn: (tasks, iterations, meta) => {
+      const m = meta[0] || {};
+      const vel = Number(m.velocity_per_day) || 1;
+      const sum = (it, done) => tasks.filter((t) => t.iteration === it && (!done || t.status === 'done'))
+        .reduce((a, t) => a + Number(t.points || 0), 0);
+      const r1code = iterations.filter((i) => i.release === 'R1' && i.iteration !== 'KONTENT');
+      const contentLeft = sum('KONTENT') - sum('KONTENT', true);
+      const laterEst = r1code.filter((i) => i.order >= 2).reduce((a, i) => a + Number(i.est_points || 0), 0) || 1;
+      let cumulative = 0;
+      return iterations
+        .filter((i) => i.est_points !== null && i.iteration !== 'KONTENT')
+        .sort((a, b) => a.order - b.order)
+        .map((i) => {
+          const total = sum(i.iteration);
+          const done = sum(i.iteration, true);
+          let remaining = total - done;
+          if (i.release === 'R1' && i.order >= 2) remaining += contentLeft * Number(i.est_points) / laterEst;
+          const blockedOnly = tasks.filter((t) => t.iteration === i.iteration && t.status !== 'done').every((t) => t.status === 'blocked');
+          if (!blockedOnly) cumulative += remaining;
+          return {
+            iteration: i.iteration,
+            release: i.release,
+            name: i.name,
+            outcome: i.outcome,
+            total: Math.round(total + (i.release === 'R1' && i.order >= 2 ? sum('KONTENT') * Number(i.est_points) / laterEst : 0)),
+            done,
+            remaining: Math.round(remaining),
+            pct: total ? Math.round((100 * done) / (total + (i.release === 'R1' && i.order >= 2 ? sum('KONTENT') * Number(i.est_points) / laterEst : 0))) : 0,
+            eta: blockedOnly ? null : (remaining <= 0 ? m.as_of : ML.addDays(m.as_of, cumulative / vel)),
+          };
+        });
+    },
+  });
+
+  dash.calc('releaseProgress', {
+    title: 'Relizlar bo\'yicha progress',
+    description: 'Har reliz tasklari ballini yig\'adi; tugash sanasi — shu relizning oxirgi iteratsiyasi prognozi.',
+    inputs: ['tasks', 'releases', 'meta'],
+    fn: (tasks, releases, meta) => {
+      const m = meta[0] || {};
+      const vel = Number(m.velocity_per_day) || 1;
+      let cumulative = 0;
+      return releases.slice().sort((a, b) => a.order - b.order).map((r) => {
+        const mine = tasks.filter((t) => t.release === r.release);
+        const total = mine.reduce((a, t) => a + Number(t.points || 0), 0);
+        const done = mine.filter((t) => t.status === 'done').reduce((a, t) => a + Number(t.points || 0), 0);
+        const remaining = total - done;
+        const blockedLeft = mine.filter((t) => t.status === 'blocked').reduce((a, t) => a + Number(t.points || 0), 0);
+        cumulative += remaining - blockedLeft;
+        return {
+          release: r.release,
+          total,
+          done,
+          remaining,
+          pct: total ? Math.round((100 * done) / total) : 0,
+          days_left: total ? Math.ceil(cumulative / vel) : null,
+          eta: total && remaining - blockedLeft > 0 ? ML.addDays(m.as_of, cumulative / vel) : null,
+        };
+      });
+    },
+  });
+</script>
+
+<script>
+  const one = (id, field, key, value) => {
+    const d = dash.data(id);
+    if (d.status !== 'ok' || !d.data) return null;
+    const row = key === undefined ? d.data[0] : d.data.find((r) => r[key] === value);
+    return row ? row[field] : null;
+  };
+  const text = (name, get) => dash.draw(name, (el) => {
+    const v = get();
+    el.textContent = v === null || v === undefined || v === '' ? '—' : String(v);
+  });
+
+  text('cur-release', () => one('meta', 'current_release'));
+  text('cur-iter', () => one('meta', 'current_iteration'));
+  text('next', () => one('meta', 'next_task'));
+  text('vel', () => one('meta', 'velocity_per_day'));
+  text('asof', () => one('meta', 'as_of'));
+  text('r1-pct', () => one('releaseProgress', 'pct', 'release', 'R1'));
+  text('r1-pct2', () => one('releaseProgress', 'pct', 'release', 'R1'));
+  text('r0-pct', () => one('releaseProgress', 'pct', 'release', 'R0'));
+  text('r1-done', () => one('releaseProgress', 'done', 'release', 'R1'));
+  text('r1-total', () => one('releaseProgress', 'total', 'release', 'R1'));
+  text('r1-left', () => one('releaseProgress', 'remaining', 'release', 'R1'));
+  text('r1-days', () => one('releaseProgress', 'days_left', 'release', 'R1'));
+  text('r1-eta', () => { const v = one('releaseProgress', 'eta', 'release', 'R1'); return v ? ML.fmtDate(v) : null; });
+  // Joriy iteratsiya meta'dan: belgisi (data-where) ham chizish ichida qo'yiladi.
+  const currentIter = (field) => (el) => {
+    const cur = one('meta', 'current_iteration');
+    const v = cur ? one('progress', field, 'iteration', cur) : null;
+    const span = document.createElement('span');
+    span.textContent = v === null || v === undefined ? '—' : String(v);
+    if (cur) {
+      span.setAttribute('data-source', 'progress');
+      span.setAttribute('data-field', field);
+      span.setAttribute('data-where', 'iteration=' + encodeURIComponent(cur));
+    }
+    el.replaceChildren(span);
+  };
+  dash.draw('i-pct', currentIter('pct'));
+  dash.draw('i-name', currentIter('name'));
+
+  dash.draw('releases', (el) => {
+    const p = dash.data('releaseProgress');
+    const r = dash.data('releases');
+    if (p.status !== 'ok' || r.status !== 'ok') {
+      el.textContent = p.status === 'error' || r.status === 'error' ? 'Relizlar ma\'lumoti yuklanmadi.' : '—';
+      return;
+    }
+    const byRel = new Map(p.data.map((x) => [x.release, x]));
+    el.replaceChildren();
+    r.data.slice().sort((a, b) => a.order - b.order).forEach((rel) => {
+      const pr = byRel.get(rel.release) || {};
+      const row = document.createElement('div');
+      row.className = 'ml-rel-row';
+      row.id = 'rel-' + rel.release;
+      const head = document.createElement('div');
+      head.className = 'ml-rel-head';
+      const name = document.createElement('span');
+      name.className = 'ml-rel-name';
+      name.textContent = rel.release + ' — ' + rel.name;
+      const meta = document.createElement('span');
+      meta.className = 'ml-rel-meta';
+      if (pr.total) {
+        const pct = document.createElement('span');
+        pct.textContent = pr.pct + '%';
+        pct.setAttribute('data-source', 'releaseProgress');
+        pct.setAttribute('data-field', 'pct');
+        pct.setAttribute('data-where', 'release=' + encodeURIComponent(rel.release));
+        meta.append(pct, ' · ' + pr.done + ' / ' + pr.total + ' ball' + (pr.eta ? ' · taxminan ' + ML.fmtDate(pr.eta) : pr.remaining > 0 ? ' · server kutilmoqda' : ''));
+      } else {
+        meta.textContent = 'Rejada · ' + rel.size_text;
+      }
+      head.append(name, meta);
+      const bar = document.createElement('div');
+      bar.className = 'ml-bar';
+      bar.setAttribute('role', 'img');
+      bar.setAttribute('aria-label', rel.release + ': ' + (pr.pct || 0) + '% tayyor');
+      const fill = document.createElement('span');
+      fill.style.width = (pr.pct || 0) + '%';
+      fill.style.background = 'var(--color-ok)';
+      bar.append(fill);
+      const out = document.createElement('p');
+      out.className = 'ml-rel-out';
+      out.textContent = rel.goal + '. ' + rel.outcome;
+      row.append(head, bar, out);
+      el.append(row);
+    });
+  });
+
+  dash.draw('iter-chart', (el) => {
+    const d = dash.data('progress');
+    if (d.status !== 'ok') {
+      el.textContent = d.status === 'error' ? 'Iteratsiyalar ma\'lumoti yuklanmadi.' : '—';
+      return;
+    }
+    el.replaceChildren();
+    const rows = d.data;
+    const W = Math.max(280, el.clientWidth);
+    const rowH = 34;
+    const svg = d3.select(el).append('svg')
+      .attr('width', '100%').attr('viewBox', `0 0 ${W} ${rows.length * rowH + 24}`)
+      .attr('role', 'img').attr('aria-label', 'Iteratsiyalar bo\'yicha bajarilgan va qolgan ball, taxminiy tugash sanasi bilan');
+    const labels = svg.append('g');
+    labels.selectAll('text').data(rows).join('text')
+      .attr('x', 0).attr('y', (_, i) => i * rowH + 21).attr('class', 'ml-strong')
+      .text((r) => r.iteration);
+    const right = svg.append('g');
+    const etaText = right.selectAll('text').data(rows).join('text')
+      .attr('y', (_, i) => i * rowH + 21).attr('text-anchor', 'end').attr('x', W)
+      .text((r) => (r.eta ? ML.fmtDate(r.eta) : r.remaining > 0 ? 'server kutilmoqda' : 'tayyor'));
+    let leftW = 0, rightW = 0;
+    labels.selectAll('text').each(function () { leftW = Math.max(leftW, this.getComputedTextLength()); });
+    etaText.each(function () { rightW = Math.max(rightW, this.getComputedTextLength()); });
+    const x0 = leftW + 12, x1 = W - rightW - 12;
+    const max = d3.max(rows, (r) => r.total) || 1;
+    const x = d3.scaleLinear().domain([0, max]).range([0, Math.max(40, x1 - x0)]);
+    const g = svg.append('g');
+    const tip = d3.select(el).append('div').attr('class', 'ml-tip').attr('hidden', true);
+    const groups = g.selectAll('g').data(rows).join('g').attr('transform', (_, i) => `translate(${x0},${i * rowH + 8})`);
+    groups.append('rect').attr('height', 18).attr('rx', 3).attr('width', (r) => x(r.total)).style('fill', 'var(--cds-chart-muted)');
+    groups.append('rect').attr('height', 18).attr('rx', 3).attr('width', (r) => x(r.done)).style('fill', 'var(--color-ok)');
+    groups.append('text').attr('x', (r) => x(r.total) + 6).attr('y', 13)
+      .text((r) => r.pct + '%');
+    groups.on('pointermove', (ev, r) => {
+      const [mx, my] = d3.pointer(ev, el);
+      tip.attr('hidden', null).html('');
+      tip.append('b').text(r.iteration + ' · ' + r.name);
+      tip.append('div').text(r.done + ' / ' + r.total + ' ball bajarildi, qolgani ' + r.remaining);
+      tip.append('div').text(r.outcome);
+      const box = el.getBoundingClientRect();
+      tip.style('left', Math.min(mx + 12, box.width - 290) + 'px').style('top', (my + 12) + 'px');
+    }).on('pointerleave', () => tip.attr('hidden', true));
+  });
+
+  dash.draw('iter-filter', (sel) => {
+    const it = dash.data('iterations');
+    const prev = sel.value || 'all-open';
+    sel.replaceChildren(new Option('Joriy va ochiq tasklar', 'all-open'), new Option('Hammasi', 'all'));
+    if (it.status === 'ok') {
+      it.data.slice().sort((a, b) => a.order - b.order).forEach((i) => sel.append(new Option(i.iteration + ' — ' + i.name, i.iteration)));
+    }
+    sel.value = [...sel.options].some((o) => o.value === prev) ? prev : 'all-open';
+    sel.onchange = () => { dash.draw('task-rows'); dash.draw('task-count'); };
+  });
+
+  const visibleTasks = () => {
+    const d = dash.data('tasks');
+    if (d.status !== 'ok') return null;
+    const sel = document.getElementById('iter-filter');
+    const f = sel ? sel.value : 'all-open';
+    const cur = one('meta', 'current_iteration');
+    if (f === 'all') return d.data;
+    if (f === 'all-open') return d.data.filter((t) => t.iteration === cur || (t.status !== 'done' && t.status !== 'planned'));
+    return d.data.filter((t) => t.iteration === f);
+  };
+
+  dash.draw('task-count', (el) => {
+    const rows = visibleTasks();
+    el.textContent = rows ? rows.length + ' ta · ' + rows.reduce((a, t) => a + Number(t.points || 0), 0) + ' ball' : '—';
+  });
+
+  dash.draw('task-rows', (tb) => {
+    const rows = visibleTasks();
+    tb.replaceChildren();
+    if (!rows) {
+      const tr = tb.insertRow();
+      const td = tr.insertCell();
+      td.colSpan = 7;
+      td.textContent = dash.data('tasks').status === 'error' ? 'Tasklar yuklanmadi.' : '—';
+      return;
+    }
+    rows.forEach((t) => {
+      const tr = tb.insertRow();
+      tr.setAttribute('data-key', encodeURIComponent(t.key));
+      const cKey = tr.insertCell();
+      cKey.textContent = t.key;
+      if (t.issue) { const s = document.createElement('div'); s.className = 'ml-muted'; s.textContent = t.issue; cKey.append(s); }
+      tr.insertCell().textContent = t.title;
+      const cOut = tr.insertCell(); cOut.className = 'ml-muted'; cOut.textContent = t.outcome;
+      const cReq = tr.insertCell(); cReq.className = 'ml-muted'; cReq.textContent = t.req;
+      const cPts = tr.insertCell(); cPts.className = 'ml-num'; cPts.textContent = String(t.points);
+      const cSt = tr.insertCell();
+      const chip = document.createElement('span'); chip.className = 'ml-chip'; chip.setAttribute('data-s', t.status);
+      chip.textContent = ML.STATUS[t.status] || t.status; cSt.append(chip);
+      const cPr = tr.insertCell(); cPr.className = 'ml-muted'; cPr.textContent = t.pr || '';
+    });
+  });
+</script>
