@@ -2,6 +2,17 @@
 
 > Har run oxirida Claude qo'shadi. Eng yangisi yuqorida.
 
+### 2026-11-23 — kunduzgi run 3/3 (navbatdan tashqari)
+- **Bajarilgan issue'lar va PR:** R0-10 (#14) → PR #48; R0-11 (#15) → PR #49 (ikkalasi `merge-if-green.sh` bilan). 3 ball.
+- **Nima qilindi (oddiy tilda):** Talaba brauzerda ro'yxatdan o'ta, kira, parolini almashtira oladi (rozilik matni va
+  siyosat sahifasi bilan). Backend'ga siyosat versiyasini beruvchi kichik endpoint qo'shildi.
+- **Ishlatilgan skill'lar va nima uchun:** testing-with-discernment (brauzer oqimi e2e, soxta API chegarasi aniq yozildi),
+  security-discipline + security-reviewer (logout xatosi va majburiy parol almashtirish tuzatildi; Hemis ID band xabari
+  ma'lum xavf sifatida SECURITY.md ga yozildi).
+- **Yangi texnologiya / tushuncha:** `docs/learn/react-typescript.md` (kirish sahifalari bo'limi).
+- **Ertalab nimani ko'rish kerak:** ro'yxatdan o'tish formasi va `/policy` (lokal `npm run dev`); #34 tuzatishini qo'llash.
+- **Savollar / bloklar:** siyosatdagi "Mas'ul shaxs" uchun aloqa ma'lumoti kerak (PROGRESS).
+
 ### 2026-11-23 — kunduzgi run 2/3 (navbatdan tashqari)
 - **Bajarilgan issue'lar va PR:** R0-08 #12 → PR #44; R0-09 #13 → PR #45; R0-17 #21 → PR #46 (4 ball: M + 2 S).
 - **Nima qilindi (oddiy tilda):** Parolni tiklash (bir martalik, 24 soatlik vaqtinchalik parol; talaba yangisini
