@@ -12,6 +12,9 @@ dependencies = [
     "pyyaml>=6.0.2,<7",
     "drf-spectacular>=0.28,<0.30",
     "uvicorn>=0.34,<1",
+    "channels>=4.2,<5",
+    "channels-redis>=4.2,<5",
+    "websockets>=13,<16",
 ]
 
 [dependency-groups]
@@ -53,8 +56,13 @@ plugins = ["mypy_django_plugin.main", "mypy_drf_plugin.main"]
 exclude = ["^\\.venv/"]
 
 [[tool.mypy.overrides]]
-module = ["environ", "environ.*"]
+module = ["environ", "environ.*", "channels.*", "channels_redis.*"]
 ignore_missing_imports = true
+
+# asgiref.testing tiplanmagan — faqat WebSocket testlari ishlatadi.
+[[tool.mypy.overrides]]
+module = ["tests.sections.test_acc_05_realtime"]
+disallow_untyped_calls = false
 
 [tool.django-stubs]
 django_settings_module = "config.settings.test"

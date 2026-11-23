@@ -12,6 +12,7 @@ from apps.accounts.limits import StudentLimitExceeded, ensure_capacity
 from apps.accounts.models import User
 from apps.audit import record
 from apps.audit.models import Action
+from apps.sections import realtime
 from apps.sections.models import Membership, MembershipStatus, Section
 
 OTHER_SECTION = _("Siz boshqa guruhga a'zosiz. O'tish uchun o'qituvchingizga murojaat qiling.")
@@ -171,6 +172,7 @@ def move_membership(actor: User, membership_id: int, source_id: int, target_id: 
             decided_by=actor,
         )
         moved.refresh_from_db()
+        realtime.membership_changed(membership.student_id)
         record(
             Action.MEMBERSHIP_MOVED,
             actor=actor,
@@ -194,6 +196,7 @@ def remove_membership(actor: User, membership_id: int, section_id: int) -> None:
         membership.decided_at = Now()
         membership.decided_by = actor
         membership.save(update_fields=["status", "decided_at", "decided_by"])
+        realtime.membership_changed(membership.student_id)
         record(
             Action.MEMBERSHIP_REMOVED,
             actor=actor,
