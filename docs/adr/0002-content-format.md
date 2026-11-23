@@ -21,7 +21,7 @@ Laboratoriya topshiriqlarining yashirin testlari va yechimlari hech qachon brauz
 
 ```text
 content/
-  course.yaml                     # slug, title, version
+  course.yaml                     # slug, title, version; ixtiyoriy defaults: (SET, I1-07)
   topics/<CODE>-<slug>/meta.yaml  # code, title, order
   topics/<CODE>-<slug>/lecture.md # "# Sarlavha", keyin har "## Qadam" — bitta qadam
   labs/<CODE>-<slug>/...          # R1 (I3): assignment.yaml, variants/, tests/visible/, tests/hidden/, solutions/

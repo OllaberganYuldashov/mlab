@@ -13,17 +13,48 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 
+class AiMode(models.TextChoices):
+    """AI-01 rejimlari, kuchayish tartibida (chegara solishtirish shu tartib bo'yicha)."""
+
+    OFF = "off", _("O'chiq")
+    GUIDE = "guide", _("Yo'naltiruvchi")
+    EXPLAIN = "explain", _("Tushuntirish")
+    FULL = "full", _("To'liq yordam")
+
+
+AI_MODE_ORDER = [AiMode.OFF, AiMode.GUIDE, AiMode.EXPLAIN, AiMode.FULL]
+MAX_LATE_HOURS = 168  # 7 kun
+
+
 class Course(models.Model):
     slug = models.SlugField(_("slug"), max_length=50, unique=True)
     title = models.TextField(_("nomi"))
     version = models.CharField(_("kontent versiyasi"), max_length=32)
     content_hash = models.CharField(_("fayllar xeshi (SHA-256)"), max_length=64)
     imported_at = models.DateTimeField(_("import vaqti"), default=timezone.now)
+    # Kurs default sozlamalari (SET, `course.yaml` → `defaults:`); guruh override qiladi.
+    ai_enabled = models.BooleanField(_("AI tutor yoqilgan"), default=True)
+    ai_max_mode = models.CharField(
+        _("AI maksimal rejimi"), max_length=16, choices=AiMode.choices, default=AiMode.EXPLAIN
+    )
+    practice_after_close = models.BooleanField(_("yopilgandan keyin mashq"), default=False)
+    late_hours = models.PositiveSmallIntegerField(_("kechikish muddati (soat)"), default=0)
+    late_penalty_percent = models.PositiveSmallIntegerField(_("kechikish jarimasi (%)"), default=0)
+    chat_enabled = models.BooleanField(_("guruh chati"), default=True)
 
     class Meta:
         verbose_name = _("kurs")
         verbose_name_plural = _("kurslar")
         constraints: ClassVar[list[models.BaseConstraint]] = [
+            models.CheckConstraint(
+                condition=Q(ai_max_mode__in=AiMode.values), name="courses_course_ai_mode"
+            ),
+            models.CheckConstraint(
+                condition=Q(late_hours__lte=MAX_LATE_HOURS), name="courses_course_late_hours"
+            ),
+            models.CheckConstraint(
+                condition=Q(late_penalty_percent__lte=100), name="courses_course_late_penalty"
+            ),
             models.CheckConstraint(condition=Q(title__regex=r"\S"), name="courses_course_title"),
             models.CheckConstraint(
                 condition=Q(content_hash__regex=r"^[0-9a-f]{64}$"), name="courses_course_hash"

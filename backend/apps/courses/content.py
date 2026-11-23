@@ -11,13 +11,14 @@ import hashlib
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import yaml
 from django.db import transaction
+from django.db.models import Field
 from django.utils import timezone
 
-from apps.courses.models import Course, Lecture, LectureStep, Topic
+from apps.courses.models import MAX_LATE_HOURS, AiMode, Course, Lecture, LectureStep, Topic
 
 # AGR-05: bu papkalar ma'ruza importida o'qilmaydi va hech qachon API'ga chiqmaydi.
 PRIVATE_DIRS = ("tests/hidden", "solutions")
@@ -57,6 +58,7 @@ class CourseData:
     version: str
     content_hash: str
     topics: tuple[TopicData, ...]
+    defaults: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
@@ -98,7 +100,12 @@ class _Reader:
         self.digest.update(rel.encode() + b"\0" + text.encode() + b"\0")
         return text
 
-    def yaml(self, path: Path, schema: dict[str, type | tuple[type, ...]]) -> dict[str, Any]:
+    def yaml(
+        self,
+        path: Path,
+        schema: dict[str, type | tuple[type, ...]],
+        optional: frozenset[str] = frozenset(),
+    ) -> dict[str, Any]:
         rel, text = self.rel(path), self.read(path)
         try:
             node = yaml.compose(text, Loader=yaml.SafeLoader)
@@ -114,6 +121,8 @@ class _Reader:
                 raise ContentError(rel, lines.get(str(key)), f"noma'lum kalit '{key}'")
         for key, expected in schema.items():
             if key not in data:
+                if key in optional:
+                    continue
                 raise ContentError(rel, 1, f"'{key}' kaliti yo'q")
             value = data[key]
             if isinstance(value, bool) or not isinstance(value, expected):
@@ -168,7 +177,11 @@ def load_course(root: Path) -> CourseData:
     if not root.is_dir():
         raise ContentError(str(root), None, "papka topilmadi")
     reader = _Reader(root)
-    course = reader.yaml(root / "course.yaml", {"slug": str, "title": str, "version": str})
+    course = reader.yaml(
+        root / "course.yaml",
+        {"slug": str, "title": str, "version": str, "defaults": dict},
+        optional=frozenset({"defaults"}),
+    )
     if not _SLUG_RE.match(course["slug"]):
         raise ContentError("course.yaml", course["__lines__"]["slug"], "slug: a-z, 0-9 va '-'")
 
@@ -204,7 +217,38 @@ def load_course(root: Path) -> CourseData:
         version=course["version"].strip(),
         content_hash=reader.digest.hexdigest(),
         topics=tuple(sorted(topics, key=lambda t: t.order)),
+        defaults=_parse_defaults(course.get("defaults"), course["__lines__"].get("defaults")),
     )
+
+
+# SET: kurs default sozlamalari — kalit: (tur, tekshiruv, xato matni).
+_DEFAULTS: dict[str, tuple[type, Any, str]] = {
+    "ai_enabled": (bool, lambda v: True, "true yoki false"),
+    "ai_max_mode": (str, lambda v: v in AiMode.values, f"bittasi: {', '.join(AiMode.values)}"),
+    "practice_after_close": (bool, lambda v: True, "true yoki false"),
+    "late_hours": (int, lambda v: 0 <= v <= MAX_LATE_HOURS, f"0..{MAX_LATE_HOURS} soat"),
+    "late_penalty_percent": (int, lambda v: 0 <= v <= 100, "0..100"),
+    "chat_enabled": (bool, lambda v: True, "true yoki false"),
+}
+
+
+def _parse_defaults(raw: Any, line: int | None) -> dict[str, Any]:
+    if raw is None:
+        return {}
+    if not isinstance(raw, dict):
+        raise ContentError(
+            "course.yaml", line, "'defaults' kalit: qiymat ko'rinishida bo'lishi kerak"
+        )
+    result: dict[str, Any] = {}
+    for key, value in raw.items():
+        if key not in _DEFAULTS:
+            raise ContentError("course.yaml", line, f"defaults: noma'lum kalit '{key}'")
+        expected, valid, hint = _DEFAULTS[key]
+        # bool int'ning bolasi — `late_hours: true` ni rad etish uchun turini aniq solishtiramiz.
+        if type(value) is not expected or not valid(value):
+            raise ContentError("course.yaml", line, f"defaults.{key}: {hint}")
+        result[key] = value
+    return result
 
 
 # --- Bazaga yozish ---
@@ -224,13 +268,30 @@ def apply(data: CourseData) -> ImportReport:
     """Idempotent: bir xil fayllarni qayta import qilish hech narsani o'zgartirmaydi."""
     report = ImportReport()
     course = Course.objects.select_for_update().filter(slug=data.slug).first()
+    # Fayldan olib tashlangan default — model default'iga qaytadi (fayl — yagona manba).
+    defaults = {
+        name: data.defaults.get(
+            name, cast("Field[Any, Any]", Course._meta.get_field(name)).get_default()
+        )
+        for name in _DEFAULTS
+    }
     if course is None:
         course = Course.objects.create(
-            slug=data.slug, title=data.title, version=data.version, content_hash=data.content_hash
+            slug=data.slug,
+            title=data.title,
+            version=data.version,
+            content_hash=data.content_hash,
+            **defaults,
         )
         report.bump("created", "course")
     elif _sync(
-        course, {"title": data.title, "version": data.version, "content_hash": data.content_hash}
+        course,
+        {
+            "title": data.title,
+            "version": data.version,
+            "content_hash": data.content_hash,
+            **defaults,
+        },
     ):
         _sync(course, {"imported_at": timezone.now()})
         report.bump("updated", "course")
