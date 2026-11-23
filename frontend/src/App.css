@@ -25,3 +25,53 @@ body {
 .status {
   color: var(--color-muted);
 }
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-bottom: 1rem;
+  max-width: 24rem;
+}
+
+label {
+  font-weight: 600;
+}
+
+input:not([type="checkbox"]),
+select {
+  font: inherit;
+  padding: 0.5rem;
+  border: 1px solid #6b7280;
+  border-radius: 0.25rem;
+}
+
+:focus-visible {
+  outline: 3px solid #1d4ed8;
+  outline-offset: 2px;
+}
+
+button {
+  font: inherit;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.error {
+  color: #b91c1c;
+}
+
+.consent {
+  max-width: 40rem;
+  margin: 1rem 0;
+}
+
+.links {
+  display: flex;
+  gap: 1rem;
+}

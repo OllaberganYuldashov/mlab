@@ -1,12 +1,141 @@
+import { useCallback, useEffect, useState } from "react";
+import { api, type Me } from "./api";
 import { t } from "./i18n";
+import ChangePasswordPage from "./pages/ChangePasswordPage";
+import LoginPage from "./pages/LoginPage";
+import RegisterPage from "./pages/RegisterPage";
+import { Link } from "./Link";
+import { navigate, usePath } from "./router";
 import "./App.css";
 
-export default function App() {
+function Home({ me, onLogout }: { me: Me | null; onLogout: () => void }) {
   return (
     <main className="app">
       <h1>{t("app.title")}</h1>
       <p className="tagline">{t("app.tagline")}</p>
-      <p className="status">{t("app.status")}</p>
+      {me ? (
+        <>
+          <p>{t("app.greeting", { name: me.full_name })}</p>
+          <p>
+            <Link to="/change-password">{t("password.title")}</Link>
+          </p>
+          <button type="button" onClick={onLogout}>
+            {t("nav.logout")}
+          </button>
+        </>
+      ) : (
+        <>
+          <p className="status">{t("app.status")}</p>
+          <p className="links">
+            <Link to="/login">{t("nav.login")}</Link>
+            <Link to="/register">{t("nav.register")}</Link>
+          </p>
+        </>
+      )}
     </main>
   );
+}
+
+export default function App() {
+  const path = usePath();
+  const [me, setMe] = useState<Me | null>(null);
+  const [ready, setReady] = useState(false);
+
+  const refresh = useCallback(async () => {
+    try {
+      const result = await api<Me>("/api/auth/me");
+      setMe(result.ok ? result.data : null);
+    } catch {
+      setMe(null);
+    } finally {
+      setReady(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    let active = true;
+    void (async () => {
+      let user: Me | null = null;
+      try {
+        const result = await api<Me>("/api/auth/me");
+        if (result.ok) user = result.data;
+      } catch {
+        user = null;
+      }
+      if (active) {
+        setMe(user);
+        setReady(true);
+      }
+    })();
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  // Vaqtinchalik parol bilan kirgan foydalanuvchi parolni almashtirmaguncha boshqa sahifaga o'tmaydi (AUTH-04).
+  useEffect(() => {
+    if (ready && me?.must_change_password && path !== "/change-password") {
+      navigate("/change-password", true);
+    }
+  }, [ready, me, path]);
+
+  useEffect(() => {
+    if (ready && !me && path === "/change-password") navigate("/login", true);
+  }, [ready, me, path]);
+
+  async function logout() {
+    await api("/api/auth/logout", { method: "POST" });
+    setMe(null);
+    navigate("/login");
+  }
+
+  if (!ready) {
+    return (
+      <main className="app">
+        <p role="status">{t("common.loading")}</p>
+      </main>
+    );
+  }
+
+  switch (path) {
+    case "/":
+      return <Home me={me} onLogout={logout} />;
+    case "/login":
+      return (
+        <>
+          {new URLSearchParams(window.location.search).has("registered") && (
+            <p role="status" className="app">
+              {t("register.success")}
+            </p>
+          )}
+          <LoginPage
+            onLogin={(user) => {
+              setMe(user);
+              navigate(user.must_change_password ? "/change-password" : "/");
+            }}
+          />
+        </>
+      );
+    case "/register":
+      return <RegisterPage />;
+    case "/change-password":
+      if (!me) return null;
+      return (
+        <ChangePasswordPage
+          forced={me.must_change_password}
+          onChanged={() => {
+            void refresh().then(() => navigate("/"));
+          }}
+        />
+      );
+    default:
+      return (
+        <main className="app">
+          <h1>{t("notFound.title")}</h1>
+          <p>
+            <Link to="/">{t("notFound.back")}</Link>
+          </p>
+        </main>
+      );
+  }
 }
