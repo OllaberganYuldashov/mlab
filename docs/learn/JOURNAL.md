@@ -2,6 +2,20 @@
 
 > Har run oxirida Claude qo'shadi. Eng yangisi yuqorida.
 
+### 2026-11-23 — custom run'lar 1–3 (I1 boshlandi)
+- **Bajarilgan issue'lar va PR:** #57 (PR #73), #58 (#74), #59 (#75), #60 (#76, #77), #61 (#78), #62 (#79), #63 (#80), #64 (#81). 14 ball.
+- **Nima qilindi (oddiy tilda):** Guruhlar backend'i deyarli tayyor: o'qituvchi guruh yaratadi, havola beradi, talaba
+  havola orqali so'rov yuboradi, o'qituvchi tasdiqlaydi yoki rad etadi, talabani boshqa guruhga o'tkazadi; guruh
+  sozlamalari (AI tutorni bir tugma bilan o'chirish) va mavzular bo'yicha kirish oynalari (yopiq/hozir/jadval).
+- **Ishlatilgan skill'lar va nima uchun:** data-modeling-discipline va schema-reviewer (bitta faol guruh — DB'da),
+  auth-and-authorization va security-reviewer ×3 (IDOR, token faqat xesh, logda niqob, throttle talaba bo'yicha),
+  isolation-anomalies (parallel test **deadlock** ni ushladi → `FOR NO KEY UPDATE`), clocks-and-time (DB soati
+  `Now()`, oyna chegaralari).
+- **Yangi texnologiya / tushuncha:** yangi kutubxona yo'q. Tushunchalar: partial unique index, `FOR NO KEY UPDATE`,
+  cursor sahifalash, ikki darajali sozlamalar. Dars `docs/learn/sections.md` — #71 da.
+- **Ertalab nimani ko'rish kerak:** `content/course.yaml` dagi `defaults:` (AI chegarasi `explain` — o'zgartirish mumkin).
+- **Savollar / bloklar:** yangi blok yo'q.
+
 ### 2026-11-23 — custom run (R0 ni yopish)
 - **Bajarilgan issue'lar va PR:** R0-15 (#19) → PR #53; R0-16 (#20) → PR #54. Ikkalasi `needs:owner` (egasi merge qiladi).
 - **Nima qilindi (oddiy tilda):** Platformani serverda ishga tushirish uchun hamma narsa tayyorlandi: konteyner

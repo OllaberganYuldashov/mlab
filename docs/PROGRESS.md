@@ -3,9 +3,8 @@
 > Har sessiya oxirida Claude yangilaydi. Yangi sessiya ishni shu fayldan davom ettiradi.
 
 ## Sog'liq
-- Holat: **Yashil** (2026-11-23, kunduzgi run 3/3 boshida va oxirida): main `ci` yashil, backend 365 test,
-  frontend 36 test + 3 e2e; bug va rad etilgan PR yo'q. `alert:main-guard` #34 — yolg'on signal, tuzatish kodi
-  issue izohida (egasi qo'llaydi).
+- Holat: **Yashil** (2026-11-23, custom run'lar I1 1–3 boshida va oxirida): main `ci` yashil, backend 587 test (coverage 97%),
+  frontend 36 test + 3 e2e; bug va rad etilgan PR yo'q; ochiq alert yo'q (#34 yopildi).
 - Oxirgi yashil nuqta: `good-2026-11-22-2341-4e4f41c` (PR #31 dan keyingisi `known-good` tomonidan qo'yiladi)
 - Tuzatish urinishlari: 0
 - Ochiq `alert:main-guard` / `alert:red-light`: yo'q
@@ -14,7 +13,7 @@
 - Reliz: **R1 — MVP, I1** (R0 kodi yopildi 2026-11-23; serverga bog'liq qism — birinchi deploy, smoke, tiklash sinovi — server tayyor bo'lganda)
 - TZ: SRS v2 tasdiqlangan → `docs/SRS.md`
 - GitHub: label'lar va R0-01..R0-17 issue'lari (#5–#21), "📋 Kunlik hisobotlar" (#4) yaratildi
-- Oxirgi tugagan tasklar: R0-15 (#19) — PR #53 va R0-16 (#20) — PR #54 (`needs:owner`, egasi merge qiladi; custom run). R0-10 (#14) — PR #48; R0-11 (#15) — PR #49 (kunduzgi run 3/3). R0-08 (#12) — PR #44; R0-09 (#13) — PR #45; R0-17 (#21) — PR #46 (kunduzgi run 2/3).
+- Oxirgi tugagan tasklar: I1 custom run'lar (2026-11-23 kechqurun): #57 → PR #73, #58 → #74, #59 → #75, #60 → #76 (+#77 xavfsizlik), #61 → #78, #62 → #79, #63 → #80, #64 → #81 (14 ball). R0-15 (#19) — PR #53 va R0-16 (#20) — PR #54 (`needs:owner`, egasi merge qiladi; custom run). R0-10 (#14) — PR #48; R0-11 (#15) — PR #49 (kunduzgi run 3/3). R0-08 (#12) — PR #44; R0-09 (#13) — PR #45; R0-17 (#21) — PR #46 (kunduzgi run 2/3).
   Run 1/3: R0-06 (#10) — PR #37; R0-07 (#11) — PR #39. Run 2/2: R0-05 (#9) — PR #33; R0-13 (#17) — PR #35. Run 1/2: R0-04 (#8) — PR #28; R0-03 (#7) — PR #29; R0-14 (#18) — PR #30; R0-12 (#16) — PR #31
   (hammasi `merge-if-green.sh` bilan). Oldin: R0-01 (#5) — PR #22, R0-02 (#6) — PR #23.
 
@@ -26,11 +25,8 @@
 | 2026-11-22 (boshlang'ich) | 4 (R0-01, R0-02) | 1 interaktiv | ~394 (R0 24 + R1 kodi 240 + kontent 130) | 8–10 hafta (2027 yanvar oxiri – fevral boshi) |
 
 ## Keyingi task
-- R0: #19 (PR #53), #20 (PR #56) merge bo'ldi. Ochiq faqat serverga bog'liq qism (`docs/learn/server.md`).
-- **R1 I1 issue'lari (#57–#71, 13 M + 2 S ≈ 28 ball):** #57 sections modellari → #58 guruh API → #59 token → #60 qo'shilish →
-  #61 tasdiq → #62 o'tkazish; #63 sozlamalar; #64 oynalar → #65 haftalik slot → #66 topshirish siyosati; #67 Channels;
-  frontend #68 (o'qituvchi), #69 (talaba), #70 (sozlamalar va oynalar); #71 I1 yakuni (schema/security-reviewer, e2e).
-  Tartib: bog'liqligi yopilgan eng kichik raqam. Birinchi: #57.
+- I1 backend: tayyor #57–#64. Keyingi: **#65** (haftalik slot), #66 (topshirish siyosati), #67 (Channels), keyin frontend #68–#70, #71 yakun.
+- R0: faqat serverga bog'liq qism ochiq (birinchi deploy, smoke, tiklash sinovi — `docs/learn/server.md`).
 
 ## Egasining qarorlari (2026-11-23, sessiyada)
 - #38 (Hemis ID tasdiqlash): MVP uchun **A** — hozirgi oqim (o'qituvchi I1 da a'zolikni tasdiqlaydi, nizoda admin
