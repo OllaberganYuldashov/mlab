@@ -12,6 +12,7 @@ from apps.accounts.models import User
 from apps.accounts.net import client_ip
 
 LOCKED_ATTR = "_mlab_login_locked"
+FAILURES_ATTR = "_mlab_login_failures_before"
 
 
 def normalize_login(raw: Any) -> str:
@@ -29,14 +30,23 @@ class LockoutModelBackend(ModelBackend):
     ) -> User | None:
         hemis_id = normalize_login(kwargs.pop("hemis_id", None) or username)
         ip = client_ip(request) if request is not None else "-"
-        if lockout.is_locked(hemis_id, ip):
-            if request is not None:
-                setattr(request, LOCKED_ATTR, True)
-            return None
+        if lockout.over_rate(ip):
+            return self._reject(request)
+        attempt = lockout.begin(hemis_id, ip)
+        if not attempt.allowed:
+            return self._reject(request)
+        if request is not None:
+            setattr(request, FAILURES_ATTR, attempt.failures_before)
         user = super().authenticate(request, username=hemis_id, password=password, **kwargs)
         if user is None:
             # 5-xato javobi oddiy "noto'g'ri"; blok keyingi urinishdan boshlanadi.
-            lockout.register_failure(hemis_id, ip)
+            lockout.failed(hemis_id, ip, attempt)
             return None
-        lockout.reset(hemis_id, ip)
+        lockout.succeeded(hemis_id, ip)
         return user
+
+    @staticmethod
+    def _reject(request: HttpRequest | None) -> None:
+        if request is not None:
+            setattr(request, LOCKED_ATTR, True)
+        return None

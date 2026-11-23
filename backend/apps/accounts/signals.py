@@ -8,7 +8,8 @@ from django.contrib.auth.signals import user_logged_in, user_logged_out, user_lo
 from django.dispatch import receiver
 from django.http import HttpRequest
 
-from apps.accounts.backends import LOCKED_ATTR, normalize_login
+from apps.accounts.backends import FAILURES_ATTR, LOCKED_ATTR, normalize_login
+from apps.accounts.lockout import MAX_FAILURES
 from apps.accounts.models import User
 from apps.accounts.net import client_ip
 from apps.audit import record
@@ -35,12 +36,20 @@ def _on_logout(sender: Any, request: HttpRequest | None, user: User | None, **kw
 def _on_login_failed(
     sender: Any, credentials: dict[str, Any], request: HttpRequest | None = None, **kwargs: Any
 ) -> None:
-    # Faqat mavjud foydalanuvchi uchun (nishon kerak). Parol `credentials`dan hech qachon olinmaydi.
+    # Shovqin va DoS'ga qarshi faqat ikki hodisa yoziladi: oynadagi birinchi xato va blokni
+    # boshlagan 5-xato. Blok paytidagi rad etishlar yozilmaydi. Parol `credentials`dan hech qachon olinmaydi.
+    if request is None or getattr(request, LOCKED_ATTR, False):
+        return
+    failures_before = getattr(request, FAILURES_ATTR, None)
+    if failures_before not in (0, MAX_FAILURES - 1):
+        return
     hemis_id = normalize_login(credentials.get("hemis_id") or credentials.get("username"))
     target = User.objects.filter(hemis_id=hemis_id).first()
     if target is None:
         return
-    locked = bool(getattr(request, LOCKED_ATTR, False)) if request is not None else False
     record(
-        Action.LOGIN_FAILED, actor=None, target=target, after={"ip": _ip(request), "locked": locked}
+        Action.LOGIN_FAILED,
+        actor=None,
+        target=target,
+        after={"ip": _ip(request), "lock_started": failures_before == MAX_FAILURES - 1},
     )

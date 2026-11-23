@@ -147,6 +147,10 @@ AUTH_REGISTER_RATE = env.optional("AUTH_REGISTER_RATE", "60/hour")
 AUTH_REGISTER_GLOBAL_RATE = env.optional("AUTH_REGISTER_GLOBAL_RATE", "300/hour")
 # AUTH-02: login so'rovlari IP bo'yicha (Hemis ID + IP lockout'dan tashqari; xona bitta NAT ortida).
 AUTH_LOGIN_RATE = env.optional("AUTH_LOGIN_RATE", "120/minute")
+# Hamma IP uchun umumiy login chegarasi (Argon2 xotira/CPU narxi; dars boshida 30 talaba bemalol).
+AUTH_LOGIN_GLOBAL_RATE = env.optional("AUTH_LOGIN_GLOBAL_RATE", "600/minute")
+# Sessiya 12 soat (kompyuter xonasida unutilgan sessiya uzoq yashamasin).
+SESSION_COOKIE_AGE = 12 * 60 * 60
 # Lockout (5 xato -> 15 daqiqa) API va Django Admin login'ida bir xil ishlaydi.
 AUTHENTICATION_BACKENDS = ["apps.accounts.backends.LockoutModelBackend"]
 

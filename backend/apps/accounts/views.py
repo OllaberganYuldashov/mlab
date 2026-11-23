@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import ipaddress
 import logging
 
 from django.conf import settings
@@ -22,6 +21,7 @@ from rest_framework.views import APIView
 
 from apps.accounts.backends import LOCKED_ATTR
 from apps.accounts.models import Direction, User
+from apps.accounts.net import client_ip
 from apps.accounts.serializers import (
     DirectionSerializer,
     LoginSerializer,
@@ -33,15 +33,8 @@ logger = logging.getLogger("mlab.accounts")
 
 
 def client_ident(request: Request, throttle: SimpleRateThrottle) -> str:
-    """Mijoz IP'si (NUM_PROXIES bo'yicha); IPv6 uchun /64 prefiks — bitta tarmoq, bitta kalit."""
-    ident = throttle.get_ident(request)
-    try:
-        address = ipaddress.ip_address(ident)
-    except ValueError:
-        return ident
-    if address.version == 6:
-        return str(ipaddress.ip_network(f"{address}/64", strict=False))
-    return ident
+    """Throttle kaliti: lockout va audit bilan bir xil IP qoidasi (`apps.accounts.net`)."""
+    return client_ip(request)
 
 
 class RegisterRateThrottle(SimpleRateThrottle):

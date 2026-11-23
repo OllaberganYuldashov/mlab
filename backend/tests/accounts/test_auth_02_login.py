@@ -273,3 +273,78 @@ def test_auth_02_client_ip_behind_one_trusted_proxy() -> None:
         assert client_ip(spoofed) == "10.9.8.7"
         assert client_ip(factory.get("/", REMOTE_ADDR="172.18.0.2")) == "172.18.0.2"
     assert client_ip(spoofed) == "172.18.0.2"
+
+
+# --- security-reviewer tavsiyalari ---
+
+
+def test_auth_02_parallel_guesses_cannot_exceed_5_attempts() -> None:
+    # Poyga: 20 ta parallel urinish — faqat 5 tasi parolni tekshirishgacha yetadi (atomik INCR).
+    from concurrent.futures import ThreadPoolExecutor
+
+    def attempt(_: int) -> bool:
+        return lockout.begin("123456789012", "10.0.0.1").allowed
+
+    with ThreadPoolExecutor(max_workers=20) as pool:
+        allowed = list(pool.map(attempt, range(20)))
+    assert allowed.count(True) == 5
+    assert lockout.is_locked("123456789012", "10.0.0.1")
+
+
+def test_auth_02_success_does_not_consume_attempts() -> None:
+    for _ in range(10):
+        attempt = lockout.begin("123456789012", "10.0.0.1")
+        assert attempt.allowed
+        lockout.succeeded("123456789012", "10.0.0.1")
+
+
+def test_auth_02_ip_rate_applies_to_admin_login_across_hemis_ids() -> None:
+    # Password spraying: bitta IP'dan ko'p Hemis ID — admin login'da ham IP chegarasi ishlaydi.
+    from django.test import override_settings
+
+    admin_user = make_user(role=Role.ADMIN, direction=None, password=PASSWORD)
+    client = Client()
+    with override_settings(AUTH_LOGIN_RATE="3/minute"):
+        for i in range(3):
+            client.post("/admin/login/", {"username": f"{i:012d}", "password": "x"})
+        client.post("/admin/login/", {"username": admin_user.hemis_id, "password": PASSWORD})
+    assert "_auth_user_id" not in client.session
+
+
+def test_auth_02_global_login_cap() -> None:
+    from django.test import override_settings
+
+    with override_settings(AUTH_LOGIN_GLOBAL_RATE="2/minute"):
+        assert not lockout.over_rate("10.0.0.1")
+        assert not lockout.over_rate("10.0.0.2")
+        assert lockout.over_rate("10.0.0.3")
+
+
+def test_auth_02_ipv6_lockout_per_64(csrf_client: Client, student: User) -> None:
+    _fail(csrf_client, 5, REMOTE_ADDR="2001:db8:1:2::1")
+    same_net = _login(csrf_client, student.hemis_id, PASSWORD, REMOTE_ADDR="2001:db8:1:2::abcd")
+    assert same_net.status_code == 429
+
+
+def test_auth_02_ipv4_mapped_ipv6_is_same_client() -> None:
+    from django.test import RequestFactory
+
+    from apps.accounts.net import client_ip
+
+    factory = RequestFactory()
+    assert client_ip(factory.get("/", REMOTE_ADDR="::ffff:10.0.0.5")) == "10.0.0.5"
+    assert client_ip(factory.get("/", REMOTE_ADDR="2001:db8:1:2::1")) == "2001:db8:1:2::/64"
+    assert client_ip(factory.get("/", REMOTE_ADDR="bad")) == "bad"
+
+
+def test_auth_02_failed_login_audit_only_first_and_lock(csrf_client: Client, student: User) -> None:
+    _fail(csrf_client, 5)
+    _login(csrf_client, student.hemis_id, PASSWORD)  # blok paytida — yozilmaydi
+    entries = list(AuditLog.objects.filter(action=Action.LOGIN_FAILED).order_by("id"))
+    assert [e.after["lock_started"] for e in entries] == [False, True]
+
+
+def test_auth_02_session_lifetime_12_hours() -> None:
+    from django.conf import settings
+
+    assert settings.SESSION_COOKIE_AGE == 12 * 60 * 60
