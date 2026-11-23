@@ -198,6 +198,6 @@ def test_nfr_08_deploy_workflow_is_manual_with_approval() -> None:
 def test_nfr_08_deploy_workflow_has_no_inline_secrets_or_injection() -> None:
     text = (ROOT / ".github" / "workflows" / "deploy.yml").read_text()
     assert "secrets." not in text
-    # `run:` ichiga kirish qiymati to'g'ridan-to'g'ri qo'yilmaydi (script injection): faqat env orqali.
+    # `run:` ichiga kirish qiymati qo'yilmaydi (script injection): faqat env orqali.
     for step in WORKFLOW["jobs"]["deploy"]["steps"]:
         assert "${{" not in step["run"]
