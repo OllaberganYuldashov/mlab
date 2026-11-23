@@ -16,5 +16,6 @@ urlpatterns: list[URLPattern] = [
     ),
     path("instructors", views.InstructorCreateView.as_view(), name="instructor-create"),
     path("instructors/<int:user_id>", views.InstructorLimitView.as_view(), name="instructor-limit"),
+    path("policy", views.PolicyVersionView.as_view(), name="policy-version"),
     path("directions", views.DirectionListView.as_view(), name="directions"),
 ]

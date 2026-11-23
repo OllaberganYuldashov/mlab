@@ -103,6 +103,20 @@ class DirectionListView(generics.ListAPIView[Direction]):
     pagination_class = None
 
 
+class PolicyVersionView(APIView):
+    """Ro'yxatdan o'tish formasi yuboradigan siyosat versiyasi — `Consent` bilan bir manba."""
+
+    permission_classes = (AllowAny,)
+    authentication_classes = ()
+
+    @extend_schema(
+        responses={200: inline_serializer("PolicyVersion", {"version": serializers.CharField()})},
+        summary="Joriy siyosat versiyasi",
+    )
+    def get(self, request: Request) -> Response:
+        return Response({"version": settings.PRIVACY_POLICY_VERSION})
+
+
 # --- Kirish va chiqish (AUTH-02) ---
 
 LOGIN_FAILED = _("Hemis ID yoki parol noto'g'ri.")
