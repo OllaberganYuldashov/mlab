@@ -25,7 +25,10 @@ DEFAULT_CAPACITY = 30
 
 class Section(models.Model):
     course = models.ForeignKey(Course, on_delete=models.PROTECT, related_name="sections")
-    instructor = models.ForeignKey(User, on_delete=models.PROTECT, related_name="sections")
+    # db_index=False: `sections_by_instructor` indeksining prefiksi FK indeksini takrorlaydi.
+    instructor = models.ForeignKey(
+        User, on_delete=models.PROTECT, related_name="sections", db_index=False
+    )
     direction = models.ForeignKey(Direction, on_delete=models.PROTECT, related_name="sections")
     name = models.TextField(_("nomi"))
     capacity = models.PositiveSmallIntegerField(_("sig'im"), default=DEFAULT_CAPACITY)
@@ -70,6 +73,7 @@ class MembershipStatus(models.TextChoices):
 
 
 ACTIVE_STATUSES = (MembershipStatus.PENDING, MembershipStatus.APPROVED)
+DECIDER_ROLES = frozenset({Role.INSTRUCTOR, Role.ADMIN, Role.SUPER_ADMIN})
 
 
 class MembershipQuerySet(models.QuerySet["Membership"]):
@@ -82,7 +86,10 @@ class MembershipQuerySet(models.QuerySet["Membership"]):
 
 class Membership(models.Model):
     student = models.ForeignKey(User, on_delete=models.PROTECT, related_name="memberships")
-    section = models.ForeignKey(Section, on_delete=models.PROTECT, related_name="memberships")
+    # db_index=False: `sections_members_by_status` prefiksi FK indeksini takrorlaydi.
+    section = models.ForeignKey(
+        Section, on_delete=models.PROTECT, related_name="memberships", db_index=False
+    )
     status = models.CharField(
         _("holat"),
         max_length=16,
@@ -125,6 +132,10 @@ class Membership(models.Model):
                 ),
                 name="sections_membership_decision",
             ),
+            models.CheckConstraint(
+                condition=Q(decided_at__isnull=True) | Q(decided_at__gte=models.F("requested_at")),
+                name="sections_membership_decided_after_request",
+            ),
         ]
         indexes: ClassVar[list[models.Index]] = [
             models.Index(fields=["section", "status", "id"], name="sections_members_by_status"),
@@ -136,4 +147,6 @@ class Membership(models.Model):
     def save(self, *args: Any, **kwargs: Any) -> None:
         if self.student.role != Role.STUDENT:
             raise ValueError("Guruh a'zosi faqat talaba bo'lishi mumkin.")
+        if self.decided_by is not None and self.decided_by.role not in DECIDER_ROLES:
+            raise ValueError("A'zolik bo'yicha qarorni faqat o'qituvchi yoki admin qiladi.")
         super().save(*args, **kwargs)

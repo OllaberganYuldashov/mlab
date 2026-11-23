@@ -177,3 +177,24 @@ def test_sec_07_active_members_query_uses_index_friendly_filter() -> None:
     make_membership(section=section)
     assert list(Membership.objects.approved().filter(section=section)) == [approved]
     assert Membership.objects.active().filter(section=section).count() == 2
+
+
+def test_sec_07_student_cannot_be_decider() -> None:
+    membership = make_membership()
+    membership.status = MembershipStatus.APPROVED
+    membership.decided_at = timezone.now()
+    membership.decided_by = make_user()
+    with pytest.raises(ValueError, match="qaror"):
+        membership.save()
+
+
+def test_sec_07_decision_cannot_precede_request_at_db_level() -> None:
+    from datetime import timedelta
+
+    membership = make_membership()
+    with pytest.raises(IntegrityError), transaction.atomic():
+        Membership.objects.filter(pk=membership.pk).update(
+            status=MembershipStatus.APPROVED,
+            decided_at=membership.requested_at - timedelta(seconds=1),
+            decided_by=membership.section.instructor,
+        )
