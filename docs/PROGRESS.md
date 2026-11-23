@@ -27,6 +27,18 @@
 ## Keyingi task
 - Tayyor (bog'liqligi yopilgan): R0-08 (#12), R0-09 (#13), R0-10 (#14), R0-11 (#15), R0-17 (#21), R0-15 (#19, ADR-0004).
 
+## Egasining qarorlari (2026-11-23, sessiyada)
+- #38 (Hemis ID tasdiqlash): MVP uchun **A** — hozirgi oqim (o'qituvchi I1 da a'zolikni tasdiqlaydi, nizoda admin
+  tuzatadi); **R3 da B** — ro'yxat + bir martalik faollashtirish kodi (#41).
+- Deploy: R0 dan keyin server tayyor bo'lishini **kutmasdan R1 ga o'tiladi**. R0-15 (Dockerfile, compose.prod,
+  Caddyfile) serversiz qilinadi va tekshiriladi; R0-16 dan serverga bog'liq qism (birinchi deploy, haqiqiy
+  smoke test, zaxira sinovi) server tayyor bo'lganda R1 orasida bajariladi. R0 shu qism bilan ochiq qoladi.
+- Monobloklar: Intel Core i5, 10–12-avlod (qolgan parametrlar — "Bloklar").
+- Rozilik matni (SRS 7-bo'lim, Claude taklifi) **yurist tomonidan ma'qullandi** — SRS 12-bo'limdagi bu ochiq
+  savol yopildi; matn o'zgarmaydi (`PRIVACY_POLICY_VERSION = 2026-11-22`).
+- #34: egasi hammasi avtomatlashgan bo'lishini xohlaydi; main-guard tuzatishi egasi tomonidan qo'llanadi
+  (himoyalangan fayl). Claude main-guard ogohlantirishlarini o'zi yopmaydi.
+
 ## Egasining qarorlari (2026-11-21/22, sessiyada)
 - Lockout kaliti — Hemis ID + IP (#11 izohi).
 - Hemis ID — 12 xonali, faqat raqam (#8 izohi).
@@ -39,13 +51,15 @@
   connector'siz trigger yangi sessiyada repo'ga kira olmaydi, shuning uchun doimiy sessiya ishlatiladi.
 
 ## Bloklar (egasining javobi kerak)
-- #38 — Hemis ID egasini tasdiqlash (begona ID bilan ro'yxatdan o'tish xavfi): variantlar A/B/C, tavsiya A (MVP).
-- #34 — main-guard yolg'on signali: workflow'ni tuzatish (himoyalangan fayl) kerakmi?
-- Setup skript: sessiya boshida PostgreSQL/Redis ishlamayotgan va `mlab` foydalanuvchisi yo'q edi — muhitdagi
-  setup skript qo'yilmagan bo'lishi mumkin. Yangilangan skript PR #23 da (`docs/prompts/setup-script.sh`).
-- SRS 12-bo'lim ochiq savollari: monobloklar parametrlari (I2 gacha), domen va HTTPS (R0-15/R0-16 gacha;
-  HSTS `includeSubDomains`/preload ham shunga bog'liq), rozilik matni yurist bilan (R1 oxirigacha),
-  sertifikatda logotip ruxsati (I5 gacha).
+- #34 — main-guard yolg'on signali: tuzatish kodi #34 izohida; `main-guard.yml` Claude uchun taqiqlangan —
+  egasi veb-muharrirda qo'llaydi va issue'ni yopadi.
+- Monobloklar: protsessor ma'lum (Intel Core i5, 10–12-avlod). I2 gacha aniqlanadi: operativ xotira (RAM),
+  operatsion tizim va brauzer (versiyasi). Pyodide laboratoriyasi shu parametrlarda sinaladi (NFR-02).
+- Server, domen va HTTPS — server boshqa lokal tarmoqdan ko'chirilmoqda (muddati noma'lum). Deploy shu
+  tayyor bo'lgach (R1 orasida); HSTS `includeSubDomains`/preload ham domenga bog'liq.
+- Sertifikatda universitet logotipidan foydalanish ruxsati (I5 gacha).
+- Setup skript: sessiya boshida PostgreSQL/Redis ishlamayotgan bo'lishi mumkin — har run boshida
+  `service postgresql start && service redis-server start` (yangilangan skript `docs/prompts/setup-script.sh`).
 
 ## Eslatmalar keyingi sessiya uchun
 - Ruxsatlar faqat rol bo'yicha: `apps/accounts/permissions.py` (DRF) va `admin_access.RoleAccessAdmin` (admin).
