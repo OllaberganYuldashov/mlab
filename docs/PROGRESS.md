@@ -3,9 +3,9 @@
 > Har sessiya oxirida Claude yangilaydi. Yangi sessiya ishni shu fayldan davom ettiradi.
 
 ## Sog'liq
-- Holat: **Yashil** (2026-11-23, kunduzgi run 1/3 boshida va oxirida): main `ci` yashil, backend 220 → 296 test,
-  frontend 8 test; bug va rad etilgan PR yo'q. `alert:main-guard` #34 — yolg'on signal (PR #33 commit'lari),
-  izoh yozildi; yopish egasida.
+- Holat: **Yashil** (2026-11-23, kunduzgi run 2/3 boshida va oxirida): main `ci` yashil, backend 296 → 363 test,
+  frontend 8 test; bug va rad etilgan PR yo'q. `alert:main-guard` #34 — yolg'on signal, tuzatish kodi
+  issue izohida (egasi qo'llaydi).
 - Oxirgi yashil nuqta: `good-2026-11-22-2341-4e4f41c` (PR #31 dan keyingisi `known-good` tomonidan qo'yiladi)
 - Tuzatish urinishlari: 0
 - Ochiq `alert:main-guard` / `alert:red-light`: yo'q
@@ -14,7 +14,8 @@
 - Reliz: R0 — Poydevor (I0)
 - TZ: SRS v2 tasdiqlangan → `docs/SRS.md`
 - GitHub: label'lar va R0-01..R0-17 issue'lari (#5–#21), "📋 Kunlik hisobotlar" (#4) yaratildi
-- Oxirgi tugagan tasklar: R0-06 (#10) — PR #37; R0-07 (#11) — PR #39 (kunduzgi run 1/3). Run 2/2: R0-05 (#9) — PR #33; R0-13 (#17) — PR #35. Run 1/2: R0-04 (#8) — PR #28; R0-03 (#7) — PR #29; R0-14 (#18) — PR #30; R0-12 (#16) — PR #31
+- Oxirgi tugagan tasklar: R0-08 (#12) — PR #44; R0-09 (#13) — PR #45; R0-17 (#21) — PR #46 (kunduzgi run 2/3).
+  Run 1/3: R0-06 (#10) — PR #37; R0-07 (#11) — PR #39. Run 2/2: R0-05 (#9) — PR #33; R0-13 (#17) — PR #35. Run 1/2: R0-04 (#8) — PR #28; R0-03 (#7) — PR #29; R0-14 (#18) — PR #30; R0-12 (#16) — PR #31
   (hammasi `merge-if-green.sh` bilan). Oldin: R0-01 (#5) — PR #22, R0-02 (#6) — PR #23.
 
 ## Tezlik va MVP prognozi
@@ -25,7 +26,8 @@
 | 2026-11-22 (boshlang'ich) | 4 (R0-01, R0-02) | 1 interaktiv | ~394 (R0 24 + R1 kodi 240 + kontent 130) | 8–10 hafta (2027 yanvar oxiri – fevral boshi) |
 
 ## Keyingi task
-- Tayyor (bog'liqligi yopilgan): R0-08 (#12), R0-09 (#13), R0-10 (#14), R0-11 (#15), R0-17 (#21), R0-15 (#19, ADR-0004).
+- Tayyor (bog'liqligi yopilgan): R0-10 (#14, frontend sahifalari), R0-11 (#15), R0-15 (#19, ADR-0004; `needs:owner`),
+  R0-16 (#20, serversiz qismi). Keyin R1 I1 (guruhlar: `policies.instructor_teaches`, `limits.ensure_capacity` tayyor).
 
 ## Egasining qarorlari (2026-11-23, sessiyada)
 - #38 (Hemis ID tasdiqlash): MVP uchun **A** — hozirgi oqim (o'qituvchi I1 da a'zolikni tasdiqlaydi, nizoda admin
@@ -71,6 +73,9 @@
   IP qoidasi `net.py` (throttle, lockout, audit uchun bir xil). R0-08 da admin `password_change` → `PASSWORD_CHANGED` audit.
 - OpenAPI: API o'zgarsa `cd backend && uv run python manage.py spectacular --validate --file ../docs/openapi.yaml`
   (test eskirgan faylni ushlaydi). ADR-0003 — OpenAPI; deploy ADR'i — 0004.
+- Draft PR "ready" qilinganda draft paytidagi merge-gate natijasi qizil qoladi — `merge-if-green.sh` ni
+  qayta ishga tushirish kerak (yangi merge-gate yashil bo'lgach o'tadi).
+- SQL CHECK'da NULL: `x >= 1` NULL bo'lsa CHECK o'tib ketadi — `IS NOT NULL` aniq yoziladi (R0-09).
 - Bash'da `sleep` bloklangan; merge skripti tekshiruvlarni o'zi kutadi.
 - gitleaks: testda `secret = "..."` kabi nom ham `generic-api-key` beradi — o'zgaruvchiga boshqa nom va `uuid`/`secrets`.
 - Foydalanuvchi API'da URL'ga chiqsa, tashqi `public_id` (UUIDv7) kerakmi — R0-05/R0-06 da hal qilinadi (schema-reviewer tavsiyasi).
@@ -92,6 +97,7 @@
 ## Tarix
 | Sana | Sessiya | Natija |
 | --- | --- | --- |
+| 2026-11-23 | Kunduzgi run 2/3 | Yashil; R0-08 (#44), R0-09 (#45), R0-17 (#46) merge — 4 ball |
 | 2026-11-23 | Kunduzgi run 1/3 | Yashil; R0-06 (#37), R0-07 (#39) merge — 4 ball |
 | 2026-11-22 | Tungi run 2/2 | Yashil; R0-05 (#33), R0-13 (#35) merge — 4 ball |
 | 2026-11-22 | Tungi run 1/2 | Yashil; R0-04 (#28), R0-03 (#29), R0-14 (#30), R0-12 (#31) merge — 5 ball |
