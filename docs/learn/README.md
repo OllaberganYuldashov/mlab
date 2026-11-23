@@ -24,6 +24,7 @@ Har run oxirida `JOURNAL.md`ga qisqa yozuv qo'shiladi.
 | `custom-user-argon2.md` | R0 | Foydalanuvchi modeli, DB cheklovlari, parol xeshi |
 | `content-format.md` | R0 | Kontent kod sifatida: Markdown + YAML, import |
 | `openapi.md` | R0 | API shartnomasi: OpenAPI va drf-spectacular |
+| `sessions-csrf.md` | R0 | Kirish: sessiya cookie, CSRF, lockout |
 | `roles-permissions.md` | R0 | Rollar, DRF ruxsatlari, Django Admin'ga kirish |
 | `react-typescript.md` | R0 | Talaba va o'qituvchi interfeysi |
 | `docker.md` ✅, `caddy.md`, `server.md` | R0 | Universitet serverida ishga tushirish, zaxira |
