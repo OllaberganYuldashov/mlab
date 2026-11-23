@@ -135,8 +135,8 @@ paths:
   /api/users/{user_id}/reset-password:
     post:
       operationId: users_reset_password_create
-      description: Vaqtinchalik parol faqat shu javobda bir marta qaytadi; hech qayerda
-        saqlanmaydi va loglanmaydi.
+      description: Vaqtinchalik parol faqat shu javobda bir marta qaytadi; saqlanmaydi
+        va loglanmaydi.
       summary: Parolni tiklash
       parameters:
       - in: path
