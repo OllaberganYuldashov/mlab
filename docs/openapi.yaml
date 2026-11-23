@@ -397,6 +397,79 @@ paths:
       responses:
         '204':
           description: No response body
+  /api/sections/{section_id}/members:
+    get:
+      operationId: sections_members_list
+      parameters:
+      - name: cursor
+        required: false
+        in: query
+        description: The pagination cursor value.
+        schema:
+          type: string
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - in: path
+        name: section_id
+        schema:
+          type: integer
+        required: true
+      - in: query
+        name: status
+        schema:
+          type: string
+          enum:
+          - approved
+          - pending
+          default: pending
+      tags:
+      - sections
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedMemberList'
+          description: ''
+  /api/sections/{section_id}/members/decide:
+    post:
+      operationId: sections_members_decide_create
+      summary: So'rovlarni tasdiqlash yoki rad etish (bittalab yoki ommaviy)
+      parameters:
+      - in: path
+        name: section_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - sections
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DecideRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DecideResult'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DecideRefused'
+          description: ''
   /api/users/{user_id}/reset-password:
     post:
       operationId: users_reset_password_create
@@ -436,6 +509,58 @@ components:
       required:
       - new_password
       - old_password
+    DecideRefused:
+      type: object
+      properties:
+        code:
+          type: string
+        detail:
+          type: string
+      required:
+      - code
+      - detail
+    DecideRequest:
+      type: object
+      properties:
+        ids:
+          type: array
+          items:
+            type: integer
+            minimum: 1
+          maxItems: 500
+          minItems: 1
+        decision:
+          $ref: '#/components/schemas/DecisionEnum'
+      required:
+      - decision
+      - ids
+    DecideResult:
+      type: object
+      properties:
+        approved:
+          type: array
+          items:
+            type: integer
+        rejected:
+          type: array
+          items:
+            type: integer
+        skipped:
+          type: array
+          items:
+            type: integer
+      required:
+      - approved
+      - rejected
+      - skipped
+    DecisionEnum:
+      enum:
+      - approve
+      - reject
+      type: string
+      description: |-
+        * `approve` - approve
+        * `reject` - reject
     Direction:
       type: object
       properties:
@@ -634,6 +759,39 @@ components:
       - hemis_id
       - must_change_password
       - role
+    Member:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        student:
+          allOf:
+          - $ref: '#/components/schemas/StudentBrief'
+          readOnly: true
+        status:
+          allOf:
+          - $ref: '#/components/schemas/StatusEnum'
+          readOnly: true
+          default: pending
+          title: Holat
+        requested_at:
+          type: string
+          format: date-time
+          readOnly: true
+          title: So'ralgan
+        decided_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+          title: Qaror vaqti
+      required:
+      - decided_at
+      - id
+      - requested_at
+      - status
+      - student
     MyMembership:
       type: object
       properties:
@@ -666,6 +824,25 @@ components:
           $ref: '#/components/schemas/MyMembership'
       required:
       - membership
+    PaginatedMemberList:
+      type: object
+      required:
+      - results
+      properties:
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?cursor=cD00ODY%3D"
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?cursor=cj0xJnA9NDg3
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Member'
     PaginatedSectionList:
       type: object
       required:
@@ -886,6 +1063,31 @@ components:
       - id
       - instructor
       - name
+    StatusEnum:
+      enum:
+      - pending
+      - approved
+      - rejected
+      - removed
+      type: string
+      description: |-
+        * `pending` - Kutilmoqda
+        * `approved` - Tasdiqlangan
+        * `rejected` - Rad etilgan
+        * `removed` - Chiqarilgan
+    StudentBrief:
+      type: object
+      properties:
+        id:
+          type: integer
+        hemis_id:
+          type: string
+        full_name:
+          type: string
+      required:
+      - full_name
+      - hemis_id
+      - id
     TemporaryPassword:
       type: object
       properties:

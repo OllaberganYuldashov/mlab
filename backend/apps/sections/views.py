@@ -138,7 +138,7 @@ class SectionDetailView(generics.RetrieveUpdateAPIView[Section]):
 def _locked_visible_section(user: User, section_id: int) -> Section:
     """Foydalanuvchiga ko'rinadigan guruhni qulflab oladi; begona yoki yo'q — 404."""
     visible = sections_for(user).filter(pk=section_id).values_list("pk", flat=True)
-    section = Section.objects.select_for_update().filter(pk__in=list(visible)).first()
+    section = Section.objects.select_for_update(no_key=True).filter(pk__in=list(visible)).first()
     if section is None:
         raise NotFound
     return section
