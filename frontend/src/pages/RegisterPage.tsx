@@ -2,6 +2,7 @@ import { type FormEvent, useEffect, useState } from "react";
 import { api, fieldErrors } from "../api";
 import { t } from "../i18n";
 import { Link } from "../Link";
+import { nextParam } from "../nav";
 import { navigate } from "../router";
 
 interface Direction {
@@ -61,7 +62,8 @@ export default function RegisterPage() {
         },
       });
       if (result.ok) {
-        navigate("/login?registered=1");
+        const next = nextParam();
+        navigate(next ? `/login?registered=1&next=${encodeURIComponent(next)}` : "/login?registered=1");
       } else if (result.status === 400) {
         const found = fieldErrors(result.data);
         setErrors(found);
