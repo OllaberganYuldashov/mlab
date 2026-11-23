@@ -2,6 +2,17 @@
 
 > Har run oxirida Claude qo'shadi. Eng yangisi yuqorida.
 
+### 2026-11-23 — custom run 4 (I1)
+- **Bajarilgan issue'lar va PR:** #65 → PR #83 (haftalik slot), #66 → PR #84 (topshirish siyosati, muddatlar). 4 ball.
+- **Nima qilindi (oddiy tilda):** O'qituvchi "har seshanba 10:00, 80 daqiqa" deb kiritsa, mavzular avtomatik
+  jadvalga joylashadi (avval ko'rib chiqib, keyin saqlanadi). Har topshiriq uchun "o'z vaqtida / kechikkan /
+  mashq / yopiq" qarori bitta funksiyada; mustaqil topshiriqlarga guruh bo'yicha muddat.
+- **Ishlatilgan skill'lar va nima uchun:** clocks-and-time (chegaralar soniyagacha testda, Asia/Tashkent),
+  floating-point (jarima `Decimal`, 0.01, yarmi yuqoriga — float emas).
+- **Yangi texnologiya / tushuncha:** yarim ochiq vaqt oralig'i [ochilish, yopilish); qo'lda yopishda lahzani saqlash.
+- **Ertalab nimani ko'rish kerak:** `docs/ARCHITECTURE.md` — ACC-06 shartnomasi (I2/I3 shunga tayanadi).
+- **Savollar / bloklar:** yo'q.
+
 ### 2026-11-23 — custom run'lar 1–3 (I1 boshlandi)
 - **Bajarilgan issue'lar va PR:** #57 (PR #73), #58 (#74), #59 (#75), #60 (#76, #77), #61 (#78), #62 (#79), #63 (#80), #64 (#81). 14 ball.
 - **Nima qilindi (oddiy tilda):** Guruhlar backend'i deyarli tayyor: o'qituvchi guruh yaratadi, havola beradi, talaba
