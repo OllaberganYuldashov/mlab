@@ -2,6 +2,17 @@
 
 > Har run oxirida Claude qo'shadi. Eng yangisi yuqorida.
 
+### 2026-11-23 — kunduzgi run 1/3 (navbatdan tashqari)
+- **Bajarilgan issue'lar va PR:** R0-06 #10 → PR #37; R0-07 #11 → PR #39 (4 ball: 2 M). Skript bilan merge.
+- **Nima qilindi (oddiy tilda):** Talaba ro'yxatdan o'tishi (rozilik bilan) va kirish/chiqish API'si tayyor.
+  5 marta xato paroldan keyin 15 daqiqa blok — ham saytda, ham admin panelda. API "pasporti" (`docs/openapi.yaml`).
+- **Ishlatilgan skill'lar va nima uchun:** auth-and-authorization, security-discipline, parse-dont-validate,
+  clocks-and-time (soxta soat bilan blok muddati). security-reviewer ikki marta: muhim topilma — parallel so'rovlar
+  bilan blokni aylanib o'tish (atomik hisoblagich bilan tuzatildi) va admin login'da IP chegarasi yo'qligi.
+- **Yangi texnologiya / tushuncha:** drf-spectacular (ADR-0003) — `docs/learn/openapi.md`; `docs/learn/sessions-csrf.md`.
+- **Ertalab nimani ko'rish kerak:** #38 (Hemis ID tasdiqlash — qaror), #34 (main-guard yolg'on signal).
+- **Savollar / bloklar:** #38.
+
 ### 2026-11-22 — tungi run 2/2
 - **Bajarilgan issue'lar va PR:** R0-05 #9 → PR #33; R0-13 #17 → PR #35 (4 ball: 2 M). Skript bilan merge.
 - **Nima qilindi (oddiy tilda):** Har rol uchun ruxsat "qulflari" va `/admin/` boshqaruv paneli: unga faqat super
