@@ -358,6 +358,50 @@ paths:
               schema:
                 $ref: '#/components/schemas/SectionUpdate'
           description: ''
+  /api/sections/{section_id}/ai/disable:
+    post:
+      operationId: sections_ai_disable_create
+      description: 'SET-02: AI tutorni bir tugma bilan darhol o''chirish yoki yoqish
+        (tasdiq so''ralmaydi).'
+      parameters:
+      - in: path
+        name: section_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - sections
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SectionSettings'
+          description: ''
+  /api/sections/{section_id}/ai/enable:
+    post:
+      operationId: sections_ai_enable_create
+      description: 'SET-02: AI tutorni bir tugma bilan darhol o''chirish yoki yoqish
+        (tasdiq so''ralmaydi).'
+      parameters:
+      - in: path
+        name: section_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - sections
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SectionSettings'
+          description: ''
   /api/sections/{section_id}/join-token:
     post:
       operationId: sections_join_token_create
@@ -526,6 +570,52 @@ paths:
               schema:
                 $ref: '#/components/schemas/DecideRefused'
           description: ''
+  /api/sections/{section_id}/settings:
+    get:
+      operationId: sections_settings_retrieve
+      summary: Guruh sozlamalari
+      parameters:
+      - in: path
+        name: section_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - sections
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SectionSettings'
+          description: ''
+    patch:
+      operationId: sections_settings_partial_update
+      summary: Guruh override'larini o'zgartirish (null — kurs qiymati)
+      parameters:
+      - in: path
+        name: section_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - sections
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedOverridesRequest'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SectionSettings'
+          description: ''
   /api/users/{user_id}/reset-password:
     post:
       operationId: users_reset_password_create
@@ -551,6 +641,18 @@ paths:
           description: ''
 components:
   schemas:
+    AiMaxModeEnum:
+      enum:
+      - 'off'
+      - guide
+      - explain
+      - full
+      type: string
+      description: |-
+        * `off` - O'chiq
+        * `guide` - Yo'naltiruvchi
+        * `explain` - Tushuntirish
+        * `full` - To'liq yordam
     ChangePasswordRequest:
       type: object
       properties:
@@ -888,6 +990,9 @@ components:
           $ref: '#/components/schemas/MyMembership'
       required:
       - membership
+    NullEnum:
+      enum:
+      - null
     PaginatedMemberList:
       type: object
       required:
@@ -934,6 +1039,28 @@ components:
           maximum: 10000
           minimum: 1
           title: Talaba limiti
+    PatchedOverridesRequest:
+      type: object
+      properties:
+        ai_enabled:
+          type: boolean
+          nullable: true
+        ai_max_mode:
+          nullable: true
+          oneOf:
+          - $ref: '#/components/schemas/AiMaxModeEnum'
+          - $ref: '#/components/schemas/NullEnum'
+        practice_after_close:
+          type: boolean
+          nullable: true
+        late_hours:
+          type: integer
+          maximum: 168
+          minimum: 0
+          nullable: true
+        chat_enabled:
+          type: boolean
+          nullable: true
     PatchedSectionUpdateRequest:
       type: object
       properties:
@@ -1080,6 +1207,22 @@ components:
       required:
       - direction
       - name
+    SectionSettings:
+      type: object
+      properties:
+        course_defaults:
+          type: object
+          additionalProperties: {}
+        overrides:
+          type: object
+          additionalProperties: {}
+        effective:
+          type: object
+          additionalProperties: {}
+      required:
+      - course_defaults
+      - effective
+      - overrides
     SectionUpdate:
       type: object
       properties:

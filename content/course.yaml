@@ -2,3 +2,11 @@
 slug: machine-learning
 title: Machine Learning
 version: "2026.1"
+# Kurs default sozlamalari (SET, I1-07). Guruhda o'qituvchi override qiladi; kalit yo'q bo'lsa — model default'i.
+defaults:
+  ai_enabled: true
+  ai_max_mode: explain        # off | guide | explain | full (AI-01)
+  practice_after_close: false # ACC-08
+  late_hours: 0               # ACC-07: yopilgandan keyin necha soat topshirish mumkin (0..168)
+  late_penalty_percent: 0     # ACC-07: faqat kurs darajasida (0..100)
+  chat_enabled: true          # SET-05

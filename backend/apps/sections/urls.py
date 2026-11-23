@@ -1,6 +1,6 @@
 from django.urls import URLPattern, path
 
-from apps.sections import join_views, member_views, views
+from apps.sections import join_views, member_views, settings_views, views
 
 urlpatterns: list[URLPattern] = [
     path("join/<str:token>", join_views.JoinView.as_view(), name="section-join"),
@@ -26,6 +26,21 @@ urlpatterns: list[URLPattern] = [
         "sections/<int:section_id>/members/<int:membership_id>/remove",
         member_views.RemoveView.as_view(),
         name="section-member-remove",
+    ),
+    path(
+        "sections/<int:section_id>/settings",
+        settings_views.SectionSettingsView.as_view(),
+        name="section-settings",
+    ),
+    path(
+        "sections/<int:section_id>/ai/disable",
+        settings_views.AiSwitchView.as_view(enable=False),
+        name="section-ai-disable",
+    ),
+    path(
+        "sections/<int:section_id>/ai/enable",
+        settings_views.AiSwitchView.as_view(enable=True),
+        name="section-ai-enable",
     ),
     path(
         "sections/<int:section_id>/join-token",

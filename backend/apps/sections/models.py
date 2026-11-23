@@ -16,7 +16,7 @@ from django.db.models.functions import Now
 from django.utils.translation import gettext_lazy as _
 
 from apps.accounts.models import Direction, Role, User, _is_canonical_text, normalize_full_name
-from apps.courses.models import Course
+from apps.courses.models import MAX_LATE_HOURS, AiMode, Course
 
 MIN_CAPACITY = 1
 MAX_CAPACITY = 500
@@ -37,6 +37,16 @@ class Section(models.Model):
     join_token_hash = models.CharField(
         _("qo'shilish tokeni xeshi"), max_length=64, null=True, blank=True, unique=True
     )
+    # SET-01..05: guruh override'lari. NULL — kurs qiymati (`apps/sections/settings.py`).
+    # Kechikish jarimasi foizi faqat kurs darajasida (ACC-07) — bu yerda yo'q.
+    ai_enabled = models.BooleanField(_("AI tutor"), null=True, blank=True)
+    # DJ001: NULL ataylab — "kurs qiymati" ma'nosida (bo'sh satrdan farqli).
+    ai_max_mode = models.CharField(  # noqa: DJ001
+        _("AI maksimal rejimi"), max_length=16, choices=AiMode.choices, null=True, blank=True
+    )
+    practice_after_close = models.BooleanField(_("yopilgandan keyin mashq"), null=True, blank=True)
+    late_hours = models.PositiveSmallIntegerField(_("kechikish (soat)"), null=True, blank=True)
+    chat_enabled = models.BooleanField(_("guruh chati"), null=True, blank=True)
     created_at = models.DateTimeField(_("yaratilgan"), db_default=Now())
     updated_at = models.DateTimeField(_("yangilangan"), auto_now=True)
 
@@ -51,6 +61,14 @@ class Section(models.Model):
             models.CheckConstraint(
                 condition=Q(capacity__gte=MIN_CAPACITY) & Q(capacity__lte=MAX_CAPACITY),
                 name="sections_section_capacity",
+            ),
+            models.CheckConstraint(
+                condition=Q(ai_max_mode__isnull=True) | Q(ai_max_mode__in=AiMode.values),
+                name="sections_section_ai_mode",
+            ),
+            models.CheckConstraint(
+                condition=Q(late_hours__isnull=True) | Q(late_hours__lte=MAX_LATE_HOURS),
+                name="sections_section_late_hours",
             ),
             models.CheckConstraint(
                 condition=Q(join_token_hash__isnull=True)
