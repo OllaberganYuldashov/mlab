@@ -1,6 +1,6 @@
 from django.urls import URLPattern, path
 
-from apps.sections import join_views, member_views, settings_views, views
+from apps.sections import join_views, member_views, settings_views, views, window_views
 
 urlpatterns: list[URLPattern] = [
     path("join/<str:token>", join_views.JoinView.as_view(), name="section-join"),
@@ -41,6 +41,26 @@ urlpatterns: list[URLPattern] = [
         "sections/<int:section_id>/ai/enable",
         settings_views.AiSwitchView.as_view(enable=True),
         name="section-ai-enable",
+    ),
+    path(
+        "sections/<int:section_id>/windows",
+        window_views.WindowListView.as_view(),
+        name="section-windows",
+    ),
+    path(
+        "sections/<int:section_id>/windows/<str:code>",
+        window_views.WindowDetailView.as_view(),
+        name="section-window",
+    ),
+    path(
+        "sections/<int:section_id>/windows/<str:code>/open-now",
+        window_views.OpenNowView.as_view(),
+        name="section-window-open-now",
+    ),
+    path(
+        "sections/<int:section_id>/windows/<str:code>/close",
+        window_views.CloseView.as_view(),
+        name="section-window-close",
     ),
     path(
         "sections/<int:section_id>/join-token",

@@ -75,8 +75,7 @@
 - Ruxsatlar faqat rol bo'yicha: `apps/accounts/permissions.py` (DRF) va `admin_access.RoleAccessAdmin` (admin).
   `User.has_perm*` doim `False`, `Group` admin yo'q. Rolni o'zgartiradigan har yangi yo'l audit yozishi shart
   (hozir faqat admin `save_model` yozadi) — bitta servis funksiyasi orqali.
-- Kontent: `apps/courses/content.py` (ADR-0002). Mavzu fayldan o'chsa bazadan ham o'chadi — R1 da progress FK
-  qo'shilganda `PROTECT` + aniq xato.
+- Kontent: `apps/courses/content.py` (ADR-0002). Mavzuga `PROTECT` FK bor bo'lsa (kirish oynasi, keyin progress) import uni o'chirmaydi — `ContentError` bilan to'xtaydi.
 - Auth: yagona login yo'li `apps/accounts/backends.py` (API + admin); lockout `lockout.py` (atomik INCR);
   IP qoidasi `net.py` (throttle, lockout, audit uchun bir xil). R0-08 da admin `password_change` → `PASSWORD_CHANGED` audit.
 - OpenAPI: API o'zgarsa `cd backend && uv run python manage.py spectacular --validate --file ../docs/openapi.yaml`

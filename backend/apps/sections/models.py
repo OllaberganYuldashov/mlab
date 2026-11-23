@@ -176,3 +176,64 @@ class Membership(models.Model):
         if self.decided_by is not None and self.decided_by.role not in DECIDER_ROLES:
             raise ValueError("A'zolik bo'yicha qarorni faqat o'qituvchi yoki admin qiladi.")
         super().save(*args, **kwargs)
+
+
+class WindowMode(models.TextChoices):
+    """ACC-03: Yopiq; Hozir ochish (qo'lda yoki N daqiqadan keyin yopiladi); Jadval."""
+
+    CLOSED = "closed", _("Yopiq")
+    OPEN_NOW = "open_now", _("Hozir ochiq")
+    SCHEDULED = "scheduled", _("Jadval bo'yicha")
+
+
+class AccessWindow(models.Model):
+    """Guruh x mavzu laboratoriyasiga kirish oynasi (ACC-02). Yo'q bo'lsa — yopiq.
+
+    Vaqtlar `timestamptz` (UTC'da saqlanadi), Asia/Tashkent'da ko'rsatiladi. Holat faqat
+    `apps.sections.windows.window_state()` orqali hisoblanadi.
+    """
+
+    section = models.ForeignKey(Section, on_delete=models.PROTECT, related_name="windows")
+    topic = models.ForeignKey(
+        "courses.Topic", on_delete=models.PROTECT, related_name="access_windows"
+    )
+    mode = models.CharField(
+        _("rejim"), max_length=16, choices=WindowMode.choices, default=WindowMode.CLOSED
+    )
+    opens_at = models.DateTimeField(_("ochilish"), null=True, blank=True)
+    closes_at = models.DateTimeField(_("yopilish"), null=True, blank=True)
+    # ACC-09: nazorat rejimi (AI o'chadi, paste taqiq, tab qaydi) — amalda I2-I4 modullari o'qiydi.
+    proctored = models.BooleanField(_("nazorat rejimi"), default=False)
+    updated_at = models.DateTimeField(_("yangilangan"), auto_now=True)
+
+    class Meta:
+        verbose_name = _("kirish oynasi")
+        verbose_name_plural = _("kirish oynalari")
+        constraints: ClassVar[list[models.BaseConstraint]] = [
+            # Prefiks (section) FK indeksini ham almashtiradi.
+            models.UniqueConstraint(fields=["section", "topic"], name="sections_window_uniq"),
+            models.CheckConstraint(
+                condition=Q(mode__in=WindowMode.values), name="sections_window_mode"
+            ),
+            models.CheckConstraint(
+                condition=(
+                    Q(mode=WindowMode.CLOSED) & Q(opens_at__isnull=True) & Q(closes_at__isnull=True)
+                )
+                | (Q(mode=WindowMode.OPEN_NOW) & Q(opens_at__isnull=False))
+                | (
+                    Q(mode=WindowMode.SCHEDULED)
+                    & Q(opens_at__isnull=False)
+                    & Q(closes_at__isnull=False)
+                ),
+                name="sections_window_mode_fields",
+            ),
+            models.CheckConstraint(
+                condition=Q(closes_at__isnull=True)
+                | Q(opens_at__isnull=True)
+                | Q(closes_at__gt=models.F("opens_at")),
+                name="sections_window_order",
+            ),
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.section_id}/{self.topic_id}: {self.mode}"
