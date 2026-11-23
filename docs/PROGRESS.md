@@ -14,7 +14,7 @@
 - Reliz: R0 — Poydevor (I0)
 - TZ: SRS v2 tasdiqlangan → `docs/SRS.md`
 - GitHub: label'lar va R0-01..R0-17 issue'lari (#5–#21), "📋 Kunlik hisobotlar" (#4) yaratildi
-- Oxirgi tugagan tasklar: R0-10 (#14) — PR #48; R0-11 (#15) — PR #49 (kunduzgi run 3/3). R0-08 (#12) — PR #44; R0-09 (#13) — PR #45; R0-17 (#21) — PR #46 (kunduzgi run 2/3).
+- Oxirgi tugagan tasklar: R0-15 (#19) — PR #53 va R0-16 (#20) — PR #54 (`needs:owner`, egasi merge qiladi; custom run). R0-10 (#14) — PR #48; R0-11 (#15) — PR #49 (kunduzgi run 3/3). R0-08 (#12) — PR #44; R0-09 (#13) — PR #45; R0-17 (#21) — PR #46 (kunduzgi run 2/3).
   Run 1/3: R0-06 (#10) — PR #37; R0-07 (#11) — PR #39. Run 2/2: R0-05 (#9) — PR #33; R0-13 (#17) — PR #35. Run 1/2: R0-04 (#8) — PR #28; R0-03 (#7) — PR #29; R0-14 (#18) — PR #30; R0-12 (#16) — PR #31
   (hammasi `merge-if-green.sh` bilan). Oldin: R0-01 (#5) — PR #22, R0-02 (#6) — PR #23.
 
@@ -26,8 +26,9 @@
 | 2026-11-22 (boshlang'ich) | 4 (R0-01, R0-02) | 1 interaktiv | ~394 (R0 24 + R1 kodi 240 + kontent 130) | 8–10 hafta (2027 yanvar oxiri – fevral boshi) |
 
 ## Keyingi task
-- Tayyor (bog'liqligi yopilgan): R0-15 (#19, ADR-0004; `needs:owner`), R0-16 (#20, serversiz qismi). Keyin R1 I1.
-  (R0-10 va R0-11 tugadi.) Keyin R1 I1 (guruhlar: `policies.instructor_teaches`, `limits.ensure_capacity` tayyor).
+- R0 kodi tayyor: #19 (PR #53) va #20 (PR #54, #53 ustiga qurilgan) egasining merge'ini kutmoqda. Merge'dan keyin R0
+  faqat serverga bog'liq qism bilan ochiq: birinchi deploy, haqiqiy smoke test, zaxira tiklash sinovi (`docs/learn/server.md`).
+- Keyingi: R1 I1 (guruhlar; `policies.instructor_teaches` va `limits.ensure_capacity` tayyor) — tungi run 1/2 dan boshlanadi.
 
 ## Egasining qarorlari (2026-11-23, sessiyada)
 - #38 (Hemis ID tasdiqlash): MVP uchun **A** — hozirgi oqim (o'qituvchi I1 da a'zolikni tasdiqlaydi, nizoda admin
@@ -64,6 +65,7 @@
   `service postgresql start && service redis-server start` (yangilangan skript `docs/prompts/setup-script.sh`).
 
 ## Eslatmalar keyingi sessiya uchun
+- Prod: `deploy/` (compose, Caddyfile, deploy/smoke/backup skriptlari), ADR-0004. Bulutda docker daemon yo'q: image build va `caddy validate` sinalmagan; skriptlar soxta docker bilan testlangan. Celery worker va sandbox I3 da compose'ga qo'shiladi.
 - Frontend: `src/api.ts` (CSRF, `fieldErrors`), kichik router `src/router.ts` + `Link.tsx` (react-router faqat ADR bilan). E2E soxta API bilan (`e2e/auth.spec.ts`) — frontend CI job'ida backend yo'q; backend oqimi `backend/tests` da. Testda parol literali yozma: gitleaks `generic-api-key` beradi — `crypto.randomUUID()` dan yasa.
 - `/policy` "Mas'ul shaxs" aloqa ma'lumoti: kafedra email'i (egasi bergan, 2026-11-23), `policy.s1.body` da.
 - Ruxsatlar faqat rol bo'yicha: `apps/accounts/permissions.py` (DRF) va `admin_access.RoleAccessAdmin` (admin).

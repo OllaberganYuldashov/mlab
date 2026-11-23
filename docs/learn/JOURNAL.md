@@ -2,6 +2,18 @@
 
 > Har run oxirida Claude qo'shadi. Eng yangisi yuqorida.
 
+### 2026-11-23 — custom run (R0 ni yopish)
+- **Bajarilgan issue'lar va PR:** R0-15 (#19) → PR #53; R0-16 (#20) → PR #54. Ikkalasi `needs:owner` (egasi merge qiladi).
+- **Nima qilindi (oddiy tilda):** Platformani serverda ishga tushirish uchun hamma narsa tayyorlandi: konteyner
+  "retseptlari", eshik (Caddy), deploy skripti, kunlik zaxira va tiklash, hamda egasi uchun qadamma-qadam yo'riqnoma.
+  Server yo'q bo'lgani uchun skriptlar soxta docker bilan sinaldi.
+- **Ishlatilgan skill'lar va nima uchun:** docker-build-strategies va docker-compose-patterns (root'siz image, RAM limiti),
+  docker-destructive-guardrails (tiklash `--yes` talab qiladi, oldin joriy holat saqlanadi), security-discipline
+  (secret faqat serverdagi .env, workflow'da injection yo'q), idempotency-and-side-effects (takroriy deploy xavfsiz).
+- **Yangi texnologiya / tushuncha:** `docs/learn/server.md`, `docs/learn/caddy.md`, ADR-0004 (uvicorn, deploy usuli).
+- **Ertalab nimani ko'rish kerak:** PR #53 → merge, keyin #54. Kompyuteringizda `docker compose -f deploy/compose.prod.yaml --env-file <sinov env> build`.
+- **Savollar / bloklar:** deploy usuli (self-hosted runner yoki SSH); zaxirani boshqa joyga nusxalash.
+
 ### 2026-11-23 — kunduzgi run 3/3 (navbatdan tashqari)
 - **Bajarilgan issue'lar va PR:** R0-10 (#14) → PR #48; R0-11 (#15) → PR #49 (ikkalasi `merge-if-green.sh` bilan). 3 ball.
 - **Nima qilindi (oddiy tilda):** Talaba brauzerda ro'yxatdan o'ta, kira, parolini almashtira oladi (rozilik matni va
