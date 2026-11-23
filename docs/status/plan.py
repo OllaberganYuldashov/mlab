@@ -4,12 +4,12 @@ Issue raqami bor task — GitHub issue; `E-...` — hali issue'larga bo'linmagan
 """
 
 META = {
-    "as_of": "2026-11-23",
+    "as_of": "2026-11-24",
     "velocity_per_day": 9,  # ball/kun: kuniga 2 tungi run x ~4-5 ball (haftalik review aniqlaydi)
     "velocity_note": "Kuniga 2 tungi run, har biri ~4-5 ball (M=2, S=1). Yakshanba — 1 run + review.",
     "current_release": "R1",
     "current_iteration": "I1",
-    "next_task": "#67 Channels: real vaqt 'oyna ochildi' xabari",
+    "next_task": "#69 Frontend: talabaning havola orqali qo'shilishi",
 }
 
 RELEASES = [
@@ -91,8 +91,8 @@ TASKS = [
     _t("I1", "I1-08", "#64", "Kirish oynalari", "ACC-01..03, ACC-09, ACC-11", "M", "done", "Laboratoriya yopiq/hozir/jadval bo'yicha ochiladi", "#81"),
     _t("I1", "I1-09", "#65", "Haftalik jadval yordamchisi", "ACC-04", "M", "done", "Mavzular haftalik slotlarga avtomatik", "#83"),
     _t("I1", "I1-10", "#66", "Topshirish siyosati, muddatlar", "ACC-06..08, ACC-10", "M", "done", "O'z vaqtida / kechikkan / mashq / yopiq", "#84"),
-    _t("I1", "I1-11", "#67", "Real vaqt: 'oyna ochildi' xabari", "ACC-05", "M", "ready", "Talaba sahifani yangilamasdan xabar oladi"),
-    _t("I1", "I1-12", "#68", "Frontend: o'qituvchi guruhlari, QR", "SEC-01..05", "M", "ready", "Guruh yaratish, havola va QR, so'rovlar"),
+    _t("I1", "I1-11", "#67", "Real vaqt: 'oyna ochildi' xabari", "ACC-05", "M", "done", "Talaba sahifani yangilamasdan xabar oladi", "#87"),
+    _t("I1", "I1-12", "#68", "Frontend: o'qituvchi guruhlari, QR", "SEC-01..05", "M", "done", "Guruh yaratish, havola va QR, so'rovlar", "#89"),
     _t("I1", "I1-13", "#69", "Frontend: talaba qo'shilishi", "SEC-03, ACC-05", "M", "ready", "Havola → so'rov → holat, keyingi mavzu vaqti"),
     _t("I1", "I1-14", "#70", "Frontend: sozlamalar va oynalar", "SET, ACC-03, ACC-04", "M", "ready", "Oynalarni ochish/yopish, jadval, AI tugmasi"),
     _t("I1", "I1-15", "#71", "I1 yakuni: ko'rik va e2e", "I1", "S", "ready", "Xavfsizlik ko'rigi, uchidan-uchiga test, dars"),

@@ -2,6 +2,17 @@
 
 > Har run oxirida Claude qo'shadi. Eng yangisi yuqorida.
 
+### 2026-11-24 — tungi run 1/2
+- **Bajarilgan issue'lar va PR:** #67 → PR #87 (real vaqt), #68 → PR #89 (o'qituvchi guruhlari sahifasi). 4 ball. PR #88 — egasida.
+- **Nima qilindi (oddiy tilda):** O'qituvchi oynani ochsa, talaba ekranida xabar darhol paydo bo'ladi (WebSocket).
+  O'qituvchi brauzerda guruh yaratadi, QR'ni proyektorga chiqaradi va so'rovlarni bir tugmada tasdiqlaydi.
+- **Ishlatilgan skill'lar va nima uchun:** auth-and-authorization + security-reviewer (WebSocket: ruxsat faqat ulanishda
+  tekshirilardi → 15 daqiqa umr va a'zolik o'zgarsa uzish), testing-with-discernment (e2e soxta API bilan), boring-by-default
+  (QR — bitta kichik kutubxona, router — o'zimizniki; ADR-0005).
+- **Yangi texnologiya / tushuncha:** Django Channels (`docs/learn/celery-channels.md`), ADR-0005.
+- **Ertalab nimani ko'rish kerak:** PR #88 ni merge qiling (Caddy `/ws/*`).
+- **Savollar / bloklar:** yo'q.
+
 ### 2026-11-23 — custom run 4 (I1)
 - **Bajarilgan issue'lar va PR:** #65 → PR #83 (haftalik slot), #66 → PR #84 (topshirish siyosati, muddatlar). 4 ball.
 - **Nima qilindi (oddiy tilda):** O'qituvchi "har seshanba 10:00, 80 daqiqa" deb kiritsa, mavzular avtomatik
