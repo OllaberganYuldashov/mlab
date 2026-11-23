@@ -95,7 +95,10 @@ class RegisterSerializer(serializers.Serializer[User]):
                     role=Role.STUDENT,
                 )
                 Consent.objects.create(user=user, policy_version=validated_data["policy_version"])
-        except IntegrityError as exc:  # bir vaqtdagi ikki so'rov bir xil Hemis ID bilan
+        except IntegrityError as exc:
+            # Faqat bir vaqtdagi ikki so'rov (bir xil Hemis ID) — 400; boshqa cheklov xatosi — bug.
+            if not User.objects.filter(hemis_id=validated_data["hemis_id"]).exists():
+                raise
             raise serializers.ValidationError(
                 {"hemis_id": [self.error_messages["hemis_taken"]]}
             ) from exc

@@ -229,3 +229,69 @@ def test_auth_01_concurrent_duplicate_returns_400_not_500() -> None:
         serializer.save()
     assert "hemis_id" in exc.value.detail
     assert not Consent.objects.exists()
+
+
+# --- security-reviewer tavsiyalari ---
+
+
+@override_settings(AUTH_REGISTER_RATE="2/hour")
+def test_auth_01_spoofed_forwarded_for_does_not_bypass_throttle(api: APIClient) -> None:
+    # NUM_PROXIES=0: X-Forwarded-For e'tiborga olinmaydi — soxta IP limitni yangilamaydi.
+    statuses = [
+        api.post(
+            URL,
+            _payload(hemis_id=f"{i:012d}"),
+            format="json",
+            HTTP_X_FORWARDED_FOR=f"10.0.0.{i}",
+        ).status_code
+        for i in range(1, 4)
+    ]
+    assert statuses == [201, 201, 429]
+
+
+@override_settings(AUTH_REGISTER_RATE="1/hour")
+def test_auth_01_ipv6_throttled_per_64_prefix(api: APIClient) -> None:
+    first = api.post(
+        URL, _payload(hemis_id="000000000001"), format="json", REMOTE_ADDR="2001:db8:1:2::1"
+    )
+    same_net = api.post(
+        URL, _payload(hemis_id="000000000002"), format="json", REMOTE_ADDR="2001:db8:1:2::ffff"
+    )
+    other_net = api.post(
+        URL, _payload(hemis_id="000000000003"), format="json", REMOTE_ADDR="2001:db8:1:3::1"
+    )
+    assert (first.status_code, same_net.status_code, other_net.status_code) == (201, 429, 201)
+
+
+@override_settings(AUTH_REGISTER_RATE="100/hour", AUTH_REGISTER_GLOBAL_RATE="2/hour")
+def test_auth_01_global_register_cap(api: APIClient) -> None:
+    statuses = [
+        api.post(
+            URL, _payload(hemis_id=f"{i:012d}"), format="json", REMOTE_ADDR=f"10.1.0.{i}"
+        ).status_code
+        for i in range(1, 4)
+    ]
+    assert statuses == [201, 201, 429]
+
+
+def test_auth_01_form_encoded_post_rejected(api: APIClient) -> None:
+    # Boshqa saytdagi HTML forma (preflight'siz) ishlamaydi: faqat JSON.
+    response = api.post(URL, _payload())
+    assert response.status_code == 415
+    assert not User.objects.exists()
+
+
+def test_auth_01_non_duplicate_integrity_error_is_not_masked() -> None:
+    from unittest import mock
+
+    from django.db import IntegrityError
+
+    from apps.accounts.serializers import RegisterSerializer
+
+    serializer = RegisterSerializer(data=_payload())
+    assert serializer.is_valid(), serializer.errors
+    with (
+        mock.patch.object(User.objects, "create_user", side_effect=IntegrityError("boshqa")),
+        pytest.raises(IntegrityError),
+    ):
+        serializer.save()

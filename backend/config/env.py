@@ -84,7 +84,9 @@ def database(name: str = "DATABASE_URL") -> dict[str, Any]:
     return cast(dict[str, Any], environ.Env.db_url_config(url))
 
 
-def validate_production(*, secret_key: str, allowed_hosts: list[str]) -> None:
+def validate_production(
+    *, secret_key: str, allowed_hosts: list[str], trusted_proxy_count: int = 1
+) -> None:
     """Prod sozlamalarida dev qiymatlari bilan ishga tushishni taqiqlaydi."""
     weak = (
         len(secret_key) < _MIN_PROD_KEY_LENGTH
@@ -98,3 +100,7 @@ def validate_production(*, secret_key: str, allowed_hosts: list[str]) -> None:
         )
     if "*" in allowed_hosts:
         raise ImproperlyConfigured("ALLOWED_HOSTS prod'da '*' bo'lishi mumkin emas.")
+    if trusted_proxy_count < 1:
+        # Caddy ortida 0 bo'lsa, hamma mijoz bitta (Caddy) IP'si bilan ko'rinadi: throttle
+        # hammaga umumiy bo'lib qoladi va bitta hujumchi uni hamma uchun to'ldiradi.
+        raise ImproperlyConfigured("TRUSTED_PROXY_COUNT prod'da kamida 1 bo'lishi kerak (Caddy).")

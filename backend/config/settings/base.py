@@ -143,6 +143,8 @@ PRIVACY_POLICY_VERSION = "2026-11-22"
 # AUTH-01: ro'yxatdan o'tish cheklovi (IP bo'yicha). Kompyuter xonasi bitta NAT ortida —
 # kamida 60/soat.
 AUTH_REGISTER_RATE = env.optional("AUTH_REGISTER_RATE", "60/hour")
+# Hamma IP uchun umumiy chegara (taqsimlangan hujum, Argon2 xotira/CPU narxi).
+AUTH_REGISTER_GLOBAL_RATE = env.optional("AUTH_REGISTER_GLOBAL_RATE", "300/hour")
 
 # --- Loglar (NFR-17, R0-14): stdout'ga bir qator JSON; maskalash formatter'da ---
 LOG_LEVEL = env.optional("LOG_LEVEL", "INFO").upper()
