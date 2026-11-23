@@ -2,6 +2,18 @@
 
 > Har run oxirida Claude qo'shadi. Eng yangisi yuqorida.
 
+### 2026-11-23 — kunduzgi run 2/3 (navbatdan tashqari)
+- **Bajarilgan issue'lar va PR:** R0-08 #12 → PR #44; R0-09 #13 → PR #45; R0-17 #21 → PR #46 (4 ball: M + 2 S).
+- **Nima qilindi (oddiy tilda):** Parolni tiklash (bir martalik, 24 soatlik vaqtinchalik parol; talaba yangisini
+  qo'ymaguncha hech narsa ochilmaydi), admin o'qituvchi akkauntini yaratadi va talaba limitini belgilaydi,
+  DRF, Caddy, Celery/Channels darslari.
+- **Ishlatilgan skill'lar va nima uchun:** auth-and-authorization (kim kimni tiklaydi — `policies.py`, fail closed),
+  data-modeling-discipline (NULL-xavfsiz CHECK — test xatoni topdi), security-reviewer ikki marta (qator qulfi,
+  vaqtinchalik parol muddati, audit atomikligi, cheklovlar).
+- **Yangi texnologiya / tushuncha:** `docs/learn/drf.md`, `caddy.md`, `celery-channels.md`.
+- **Ertalab nimani ko'rish kerak:** `backend/apps/accounts/policies.py` (SRS 2.2 ga mosligi).
+- **Savollar / bloklar:** yangi yo'q.
+
 ### 2026-11-23 — kunduzgi run 1/3 (navbatdan tashqari)
 - **Bajarilgan issue'lar va PR:** R0-06 #10 → PR #37; R0-07 #11 → PR #39 (4 ball: 2 M). Skript bilan merge.
 - **Nima qilindi (oddiy tilda):** Talaba ro'yxatdan o'tishi (rozilik bilan) va kirish/chiqish API'si tayyor.
