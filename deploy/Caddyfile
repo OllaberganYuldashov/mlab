@@ -1,0 +1,52 @@
+# Caddyfile (R0-15; ADR-0004). Domen env'dan: SITE_ADDRESS (masalan mlab.example.uz) — domen tayyor bo'lgunga
+# qadar sinov uchun ":80" (HTTPS'siz, faqat ichki tarmoq). Domen berilsa Caddy sertifikatni o'zi oladi va yangilaydi.
+{
+	# Admin API tashqariga ochilmaydi.
+	admin off
+}
+
+# Faqat konteyner ichidagi sog'liq tekshiruvi uchun (port compose'da tashqariga chiqarilmaydi).
+:8081 {
+	respond /ping "ok" 200
+}
+
+{$SITE_ADDRESS::80} {
+	encode zstd gzip
+
+	# --- Xavfsizlik sarlavhalari ---
+	# HSTS: includeSubDomains/preload domen ma'lum bo'lgach alohida qaror bilan qo'shiladi (SRS 12).
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		Permissions-Policy "camera=(), microphone=(), geolocation=()"
+		# Pyodide (R1 I2) 'wasm-unsafe-eval' va CDN talab qilishi mumkin — shunda CSP shu yerda kengaytiriladi.
+		Content-Security-Policy "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
+		-Server
+	}
+
+	# --- API, Django Admin va sog'liq tekshiruvlari: Django'ga (ichki tarmoq) ---
+	# Caddy X-Forwarded-For ga mijoz IP'sini qo'shadi (TRUSTED_PROXY_COUNT=1).
+	@backend path /api/* /admin/* /healthz /readyz
+	handle @backend {
+		reverse_proxy web:8000
+	}
+
+	# --- Django statik fayllari (admin uchun), `collectstatic` natijasi umumiy volume'da ---
+	handle_path /static/* {
+		root * /srv/static
+		header Cache-Control "public, max-age=86400"
+		file_server
+	}
+
+	# --- React ilovasi: hash'li fayllar uzoq keshlanadi, qolgan hamma manzil — SPA fallback ---
+	handle {
+		root * /srv/frontend
+		@assets path /assets/*
+		header @assets Cache-Control "public, max-age=31536000, immutable"
+		header /index.html Cache-Control "no-cache"
+		try_files {path} /index.html
+		file_server
+	}
+}

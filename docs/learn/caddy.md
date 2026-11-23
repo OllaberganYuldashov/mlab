@@ -11,7 +11,7 @@ ADR-0001: konfiguratsiyasi qisqa va avtomatik HTTPS (Let's Encrypt) o'rnatilgan.
 uchun qulay, lekin bitta server uchun murakkabroq).
 
 ## Bizning loyihada qayerda ishlatiladi
-- Hali kodda yo'q: `deploy/Caddyfile` va `deploy/compose.prod.yaml` — R0-15 (#19) da yoziladi.
+- `deploy/Caddyfile` va `deploy/compose.prod.yaml` (R0-15, ADR-0004). Domen `SITE_ADDRESS` env'dan; image build va `caddy validate` hali docker bor muhitda sinalmagan.
 - Server va domen tayyor bo'lgach (egasining 2026-11-23 qarori bo'yicha R1 orasida) birinchi deploy.
 - Backend tomoni tayyor: Django Caddy ortida ishlashni biladi — `SECURE_PROXY_SSL_HEADER`
   (`backend/config/settings/prod.py`) va mijoz IP'si `TRUSTED_PROXY_COUNT=1` (`backend/apps/accounts/net.py`).
@@ -29,6 +29,6 @@ uchun qulay, lekin bitta server uchun murakkabroq).
 - https://caddyserver.com/docs/automatic-https
 
 ## Kichik mashq
-R0-15 tayyor bo'lgach: `deploy/Caddyfile` ni oching va har bir blok nimaga javob berishini (sayt, API, statik
+`deploy/Caddyfile` ni oching va har bir blok nimaga javob berishini (sayt, API, statik
 fayllar) o'z so'zlaringiz bilan yozing. Hozircha: `backend/apps/accounts/net.py` dagi izohni o'qib,
 nega `TRUSTED_PROXY_COUNT` prod'da 1 bo'lishi shartligini tushuntiring.
