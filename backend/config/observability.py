@@ -157,7 +157,8 @@ class RequestIdMiddleware:
                         "event": "request.finished",
                         "request_id": request_id,
                         "method": request.method,
-                        "path": request.path,  # query string ataylab yozilmaydi
+                        # Query string yozilmaydi; yo'ldagi secret (qo'shilish tokeni) niqoblanadi.
+                        "path": safe_path(request.path),
                         "status": response.status_code,
                         "duration_ms": round((time.monotonic() - started) * 1000, 1),
                     },
@@ -165,6 +166,14 @@ class RequestIdMiddleware:
             return response
         finally:
             _request_id.reset(token)
+
+
+# Yo'lda secret bo'ladigan manzillar: `/api/join/<token>` (I1-04). Token logga tushmaydi.
+_SECRET_PATH_RE = re.compile(r"^(/(?:api/)?join/)[^/]+")
+
+
+def safe_path(path: str) -> str:
+    return _SECRET_PATH_RE.sub(r"\1[REDACTED]", path)
 
 
 def _check_db() -> None:
