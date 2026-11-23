@@ -616,6 +616,116 @@ paths:
               schema:
                 $ref: '#/components/schemas/SectionSettings'
           description: ''
+  /api/sections/{section_id}/windows:
+    get:
+      operationId: sections_windows_retrieve
+      summary: Guruh mavzulari bo'yicha kirish oynalari
+      parameters:
+      - in: path
+        name: section_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - sections
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessWindowList'
+          description: ''
+  /api/sections/{section_id}/windows/{code}:
+    put:
+      operationId: sections_windows_update
+      summary: Oynani belgilash
+      parameters:
+      - in: path
+        name: code
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: section_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - sections
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WindowPutRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessWindowRow'
+          description: ''
+  /api/sections/{section_id}/windows/{code}/close:
+    post:
+      operationId: sections_windows_close_create
+      summary: Oynani yopish
+      parameters:
+      - in: path
+        name: code
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: section_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - sections
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessWindowRow'
+          description: ''
+  /api/sections/{section_id}/windows/{code}/open-now:
+    post:
+      operationId: sections_windows_open_now_create
+      summary: Hozir ochish
+      parameters:
+      - in: path
+        name: code
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: section_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - sections
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OpenNowRequest'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessWindowRow'
+          description: ''
   /api/users/{user_id}/reset-password:
     post:
       operationId: users_reset_password_create
@@ -641,6 +751,35 @@ paths:
           description: ''
 components:
   schemas:
+    AccessWindowList:
+      type: object
+      properties:
+        windows:
+          $ref: '#/components/schemas/AccessWindowRow'
+        server_time:
+          type: string
+          format: date-time
+      required:
+      - server_time
+      - windows
+    AccessWindowRow:
+      type: object
+      properties:
+        topic:
+          type: object
+          additionalProperties: {}
+        mode:
+          type: string
+        proctored:
+          type: boolean
+        state:
+          type: object
+          additionalProperties: {}
+      required:
+      - mode
+      - proctored
+      - state
+      - topic
     AiMaxModeEnum:
       enum:
       - 'off'
@@ -950,6 +1089,16 @@ components:
       - requested_at
       - status
       - student
+    ModeEnum:
+      enum:
+      - closed
+      - open_now
+      - scheduled
+      type: string
+      description: |-
+        * `closed` - Yopiq
+        * `open_now` - Hozir ochiq
+        * `scheduled` - Jadval bo'yicha
     MoveRequest:
       type: object
       properties:
@@ -993,6 +1142,13 @@ components:
     NullEnum:
       enum:
       - null
+    OpenNowRequest:
+      type: object
+      properties:
+        minutes:
+          type: integer
+          maximum: 10080
+          minimum: 1
     PaginatedMemberList:
       type: object
       required:
@@ -1303,6 +1459,24 @@ components:
           readOnly: true
       required:
       - temporary_password
+    WindowPutRequest:
+      type: object
+      properties:
+        mode:
+          $ref: '#/components/schemas/ModeEnum'
+        opens_at:
+          type: string
+          format: date-time
+          nullable: true
+        closes_at:
+          type: string
+          format: date-time
+          nullable: true
+        proctored:
+          type: boolean
+          default: false
+      required:
+      - mode
   securitySchemes:
     cookieAuth:
       type: apiKey

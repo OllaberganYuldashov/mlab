@@ -15,7 +15,7 @@ from typing import Any, cast
 
 import yaml
 from django.db import transaction
-from django.db.models import Field
+from django.db.models import Field, ProtectedError
 from django.utils import timezone
 
 from apps.courses.models import MAX_LATE_HOURS, AiMode, Course, Lecture, LectureStep, Topic
@@ -300,7 +300,17 @@ def apply(data: CourseData) -> ImportReport:
     wanted = {t.code for t in data.topics}
     stale = [t.pk for code, t in existing.items() if code not in wanted]
     if stale:
-        Topic.objects.filter(pk__in=stale).delete()
+        try:
+            with transaction.atomic():
+                Topic.objects.filter(pk__in=stale).delete()
+        except ProtectedError as exc:
+            # Guruhlarda kirish oynasi (keyin progress) bor mavzu jim o'chmaydi.
+            codes = sorted(code for code, t in existing.items() if t.pk in stale)
+            raise ContentError(
+                "topics/",
+                None,
+                f"mavzu(lar) {', '.join(codes)} guruhlarda ishlatilmoqda — o'chirib bo'lmaydi",
+            ) from exc
         report.bump("deleted", "topic", len(stale))
 
     for item in data.topics:
