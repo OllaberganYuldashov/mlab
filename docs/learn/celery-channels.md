@@ -12,11 +12,14 @@ yoki PostgreSQL'dagi navbat (oddiy, lekin bizda Redis baribir bor). Channels muq
 WebSocket serveri (ikkinchi til va auth), Server-Sent Events (faqat bir tomonlama).
 
 ## Bizning loyihada qayerda ishlatiladi
-- Hali kodda yo'q. Redis allaqachon ishlatiladi: kesh, lockout hisoblagichi (`backend/apps/accounts/lockout.py`),
-  so'rov cheklovlari va `/readyz` tekshiruvi.
+- **Channels (I1-11, ACC-05):** `backend/config/asgi.py` (HTTP + WebSocket), `apps/sections/consumers.py`
+  (`/ws/student`: faqat tasdiqlangan talaba, faqat o'z guruhi kanali `section-<id>`), `apps/sections/realtime.py`
+  (xabar `transaction.on_commit` bilan; Redis ishlamasa HTTP amali buzilmaydi). Kanal qatlami — Redis (`CHANNEL_LAYERS`).
+  Prod'da uvicorn WebSocket'ni `websockets` paketi bilan qabul qiladi; Caddy `/ws/*` ni Django'ga uzatishi kerak.
+- Redis yana: kesh, lockout hisoblagichi (`backend/apps/accounts/lockout.py`), so'rov cheklovlari, `/readyz`.
 - **Celery** — I3: avtobaholovchi (sandbox konteyneri, navbat, 2 ta parallel), I4: AI tutor chaqiruvlari.
   Talaba kodi hech qachon Django yoki Celery jarayonida bajarilmaydi — faqat sandbox'da (CLAUDE.md 5.5).
-- **Channels** — I1: kirish oynasi xabari; I4: jonli monitoring paneli, yordam navbati, guruh chati.
+- **Channels** — I1: kirish oynasi xabari (tayyor); I4: jonli monitoring paneli, yordam navbati, guruh chati.
 
 ## Asosiy tushunchalar
 1. **Navbat (queue).** Vazifa Redis'ga yoziladi, worker uni oladi va bajaradi; foydalanuvchi darhol javob oladi.

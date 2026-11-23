@@ -18,11 +18,13 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from apps.accounts.models import User
+from apps.accounts.permissions import IsStudent
 from apps.audit import record
 from apps.audit.models import Action
 from apps.courses.models import Topic
+from apps.sections import realtime
 from apps.sections.member_views import STAFF_OR_INSTRUCTOR
-from apps.sections.models import AccessWindow, Section, WindowMode
+from apps.sections.models import AccessWindow, Membership, Section, WindowMode
 from apps.sections.planning import MAX_SLOT_MINUTES, Slot, plan_slots
 from apps.sections.views import _locked_visible_section, sections_for
 from apps.sections.windows import window_state
@@ -92,6 +94,19 @@ def change_window(
             target=window,
             before=before,
             after=after,
+        )
+        # ACC-05: guruh talabalariga real vaqtda (JSON'ga tayyor qiymatlar).
+        row = _row(topic, window)
+        realtime.window_changed(
+            section.pk,
+            {
+                "topic": topic.code,
+                "mode": str(row["mode"]),
+                "state": {
+                    k: v.isoformat() if hasattr(v, "isoformat") else v
+                    for k, v in row["state"].items()
+                },
+            },
         )
     return window
 
@@ -325,3 +340,50 @@ class PlanView(APIView):
         if missing:
             raise serializers.ValidationError({"topics": [f"Noma'lum mavzu: {', '.join(missing)}"]})
         return [by_code[c] for c in codes]
+
+
+class MyNextWindowView(APIView):
+    """ACC-05: talaba ochiq laboratoriyalarni va keyingi ochiladigan mavzuni ko'radi.
+
+    `server_time` bilan: mijoz soat farqini hisoblab, qolgan vaqtni o'zi sanaydi va ochilish
+    lahzasida shu endpoint'ni qayta so'raydi (rejalashtirilgan ochilish push'i — I3, Celery beat).
+    """
+
+    permission_classes = (IsStudent,)
+
+    @extend_schema(
+        responses={
+            200: inline_serializer(
+                "MyNextWindow",
+                {
+                    "server_time": serializers.DateTimeField(),
+                    "open": WindowRow,
+                    "next": WindowRow,
+                },
+            )
+        },
+        summary="Mening ochiq va keyingi laboratoriyalarim",
+    )
+    def get(self, request: Request) -> Response:
+        now = timezone.now()
+        student = request.user
+        assert isinstance(student, User)  # IsStudent kafolatlaydi  # noqa: S101
+        membership = Membership.objects.approved().filter(student=student).first()
+        if membership is None:
+            return Response({"server_time": now, "open": [], "next": None})
+        windows = (
+            AccessWindow.objects.filter(section_id=membership.section_id)
+            .exclude(mode=WindowMode.CLOSED)
+            .select_related("topic")
+            .order_by("opens_at", "topic__order")
+        )
+        open_rows, upcoming = [], []
+        for window in windows:
+            status = window_state(window, now).status
+            if status == "open":
+                open_rows.append(_row(window.topic, window))
+            elif status == "upcoming":
+                upcoming.append(_row(window.topic, window))
+        return Response(
+            {"server_time": now, "open": open_rows, "next": upcoming[0] if upcoming else None}
+        )

@@ -266,6 +266,26 @@ paths:
               schema:
                 $ref: '#/components/schemas/MyMembershipEnvelope'
           description: ''
+  /api/me/next-window:
+    get:
+      operationId: me_next_window_retrieve
+      description: |-
+        ACC-05: talaba ochiq laboratoriyalarni va keyingi ochiladigan mavzuni ko'radi.
+
+        `server_time` bilan: mijoz soat farqini hisoblab, qolgan vaqtni o'zi sanaydi va ochilish
+        lahzasida shu endpoint'ni qayta so'raydi (rejalashtirilgan ochilish push'i — I3, Celery beat).
+      summary: Mening ochiq va keyingi laboratoriyalarim
+      tags:
+      - me
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MyNextWindow'
+          description: ''
   /api/policy:
     get:
       operationId: policy_retrieve
@@ -1294,6 +1314,19 @@ components:
           $ref: '#/components/schemas/MyMembership'
       required:
       - membership
+    MyNextWindow:
+      type: object
+      properties:
+        next:
+          allOf:
+          - $ref: '#/components/schemas/AccessWindowRow'
+          title: Open
+        server_time:
+          type: string
+          format: date-time
+      required:
+      - next
+      - server_time
     NullEnum:
       enum:
       - null

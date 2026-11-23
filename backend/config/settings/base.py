@@ -40,6 +40,15 @@ INSTALLED_APPS = [
     "apps.sections",
 ]
 
+# ACC-05 (I1-11): WebSocket — Django Channels, kanal qatlami Redis'da (ADR-0001).
+ASGI_APPLICATION = "config.asgi.application"
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {"hosts": [REDIS_URL], "prefix": "mlab:ws"},
+    }
+}
+
 # AUTH-01: login — Hemis ID (R0-04). Loyihaning birinchi migratsiyasi shu modelda.
 AUTH_USER_MODEL = "accounts.User"
 

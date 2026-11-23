@@ -13,6 +13,7 @@ urlpatterns: list[URLPattern] = [
     path("join/<str:token>", join_views.JoinView.as_view(), name="section-join"),
     path("me/membership", join_views.MyMembershipView.as_view(), name="my-membership"),
     path("me/deadlines", deadline_views.MyDeadlinesView.as_view(), name="my-deadlines"),
+    path("me/next-window", window_views.MyNextWindowView.as_view(), name="my-next-window"),
     path(
         "sections/<int:section_id>/deadlines",
         deadline_views.DeadlineListView.as_view(),
