@@ -187,7 +187,12 @@ def test_srs_2_2_super_admin_role_change_is_audited(client: Client) -> None:
     client.force_login(boss)
     response = client.post(
         f"/admin/accounts/user/{student.pk}/change/",
-        {"full_name": student.full_name, "role": Role.INSTRUCTOR, "is_active": "on"},
+        {
+            "full_name": student.full_name,
+            "role": Role.INSTRUCTOR,
+            "student_limit": "25",
+            "is_active": "on",
+        },
     )
     assert response.status_code == 302
     student.refresh_from_db()

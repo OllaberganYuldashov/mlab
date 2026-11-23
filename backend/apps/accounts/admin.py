@@ -11,6 +11,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from django import forms
 from django.contrib import admin
 from django.contrib.auth.models import Group
 from django.db.models import QuerySet
@@ -42,14 +43,35 @@ class DirectionAdmin(RoleAccessAdmin):
     ordering = ("name",)
 
 
-# Audit qilinadigan maydonlar (ADM-02): rol va akkaunt faolligi.
-_AUDITED = {"role": Action.ROLE_CHANGED, "is_active": Action.USER_ACTIVE_CHANGED}
+# Audit qilinadigan maydonlar (ADM-02): rol, akkaunt faolligi, o'qituvchi talaba limiti.
+_AUDITED = {
+    "role": Action.ROLE_CHANGED,
+    "is_active": Action.USER_ACTIVE_CHANGED,
+    "student_limit": Action.STUDENT_LIMIT_CHANGED,
+}
+
+
+class UserAdminForm(forms.ModelForm):  # type: ignore[type-arg]  # runtime generic emas
+    def clean(self) -> dict[str, Any]:
+        data = super().clean() or {}
+        role = data.get("role", getattr(self.instance, "role", None))
+        if "student_limit" in data:
+            if role != Role.INSTRUCTOR:
+                # Limit faqat o'qituvchida (DB CHECK): boshqa rolga o'tganda o'zi tozalanadi.
+                data["student_limit"] = None
+            elif not data.get("student_limit"):
+                self.add_error("student_limit", _("O'qituvchi uchun talaba limiti majburiy."))
+        direction = data.get("direction", getattr(self.instance, "direction", None))
+        if role == Role.STUDENT and direction is None:
+            self.add_error("direction", _("Talaba uchun yo'nalish tanlanishi shart."))
+        return data
 
 
 @admin.register(User)
 class UserAdmin(RoleAccessAdmin):
     view_roles = change_roles = STAFF
-    list_display = ("hemis_id", "full_name", "role", "direction", "is_active")
+    form = UserAdminForm
+    list_display = ("hemis_id", "full_name", "role", "direction", "student_limit", "is_active")
     list_filter = ("role", "is_active")
     search_fields = ("hemis_id", "full_name")
     ordering = ("hemis_id",)
@@ -60,6 +82,7 @@ class UserAdmin(RoleAccessAdmin):
         "full_name",
         "role",
         "direction",
+        "student_limit",
         "is_active",
         "date_joined",
         "last_login",
@@ -93,14 +116,17 @@ class UserAdmin(RoleAccessAdmin):
     def save_model(
         self, request: HttpRequest, obj: User, form: ModelForm[User], change: bool
     ) -> None:
-        previous = {key: form.initial.get(key) for key in _AUDITED}
+        # Oldingi qiymatlar bazadan: readonly maydonlar formada yo'q (initial ishonchli emas).
+        stored = User.objects.filter(pk=obj.pk).values(*_AUDITED).first() if change else None
+        previous: dict[str, Any] = stored or {}
         # DB cheklovi: is_superuser <=> super_admin — rol bilan birga sinxronlanadi.
         obj.is_superuser = obj.role == Role.SUPER_ADMIN
         super().save_model(request, obj, form, change)
         if not change:
             return
         for key, action in _AUDITED.items():
-            if key in form.changed_data:
+            # changed_data emas — clean() o'zgartirgan qiymat (limit tozalanishi) ham yoziladi.
+            if key in previous and previous[key] != getattr(obj, key):
                 record(
                     action,
                     actor=request.user,  # type: ignore[arg-type]
