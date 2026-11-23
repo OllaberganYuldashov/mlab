@@ -3,6 +3,7 @@ import { api, type Me } from "./api";
 import { t } from "./i18n";
 import ChangePasswordPage from "./pages/ChangePasswordPage";
 import LoginPage from "./pages/LoginPage";
+import PolicyPage from "./pages/PolicyPage";
 import RegisterPage from "./pages/RegisterPage";
 import { Link } from "./Link";
 import { navigate, usePath } from "./router";
@@ -141,6 +142,8 @@ export default function App() {
           />
         </>
       );
+    case "/policy":
+      return <PolicyPage />;
     case "/register":
       return <RegisterPage />;
     case "/change-password":

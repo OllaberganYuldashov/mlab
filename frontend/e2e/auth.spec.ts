@@ -111,3 +111,12 @@ test("AUTH-01/02: ro'yxatdan o'tish → chiqish → kirish (faqat klaviatura bil
   expect(csrfHeaders.length).toBeGreaterThanOrEqual(4);
   expect(csrfHeaders.every((h) => h === "e2e-token")).toBe(true);
 });
+
+test("SRS 7: ro'yxatdan o'tish formasidan siyosat sahifasi ochiladi", async ({ page }) => {
+  await fakeBackend(page);
+  await page.goto("/register");
+  await page.getByRole("link", { name: messages["register.policyLink"] }).click();
+  await expect(page).toHaveURL(/\/policy$/);
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText(messages["policy.title"]);
+  await expect(page.getByRole("heading", { level: 2 })).toHaveCount(9);
+});
