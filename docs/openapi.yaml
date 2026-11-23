@@ -181,6 +181,23 @@ paths:
               schema:
                 $ref: '#/components/schemas/Instructor'
           description: ''
+  /api/policy:
+    get:
+      operationId: policy_retrieve
+      description: Ro'yxatdan o'tish formasi yuboradigan siyosat versiyasi — `Consent`
+        bilan bir manba.
+      summary: Joriy siyosat versiyasi
+      tags:
+      - policy
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PolicyVersion'
+          description: ''
   /api/users/{user_id}/reset-password:
     post:
       operationId: users_reset_password_create
@@ -369,6 +386,13 @@ components:
           maximum: 10000
           minimum: 1
           title: Talaba limiti
+    PolicyVersion:
+      type: object
+      properties:
+        version:
+          type: string
+      required:
+      - version
     Register:
       type: object
       properties:

@@ -8,3 +8,6 @@ b20b42ae76088b5fdef27a466a54f4a3d43721af:backend/tests/test_env_helpers.py:gener
 b20b42ae76088b5fdef27a466a54f4a3d43721af:backend/tests/test_nfr_16_settings_fail_fast.py:generic-api-key:24
 # R0-13: test markeri (secret emas) — o'zgaruvchi nomi 'secret' bo'lgani uchun generic-api-key; keyingi commit'da uuid bilan almashtirildi
 da509754bea0fbc2add8b76337f1b262bc9ff621:backend/tests/courses/test_cnt_01_import_content.py:generic-api-key:203
+36cf52f6f128f1cc02bbf4727d31de1038ca8f27:frontend/src/pages/auth-pages.test.tsx:generic-api-key:46
+36cf52f6f128f1cc02bbf4727d31de1038ca8f27:frontend/src/pages/auth-pages.test.tsx:generic-api-key:169
+36cf52f6f128f1cc02bbf4727d31de1038ca8f27:frontend/src/pages/auth-pages.test.tsx:generic-api-key:238

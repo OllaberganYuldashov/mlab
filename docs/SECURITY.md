@@ -43,6 +43,7 @@ Chat, repo, log, PR, issue, bulut muhiti o'zgaruvchilari va scheduled task promp
 
 - FIO, Hemis ID, IP, qurilma — shaxsiy ma'lumot. Faqat universitet serverida (O'zbekiston).
 - Testda faqat factory/Faker. Haqiqiy ro'yxatlar, baholar va loglar repoga, bulut sessiyasiga va promptga tushmaydi.
+- Ma'lum xavf: ro'yxatdan o'tishda "bu Hemis ID band" xabari Hemis ID mavjudligini oshkor qiladi (foydalanuvchiga aniq xabar kerak); `AUTH_REGISTER_RATE` IP bo'yicha cheklaydi, login esa umumiy javob beradi. R3 da faollashtirish kodi (#41) bilan kamayadi.
 - Loglarda Hemis ID va IP maskalanadi; parol, token, cookie hech qachon loglanmaydi.
   Bu `backend/config/observability.py` dagi `JsonFormatter` da majburiy (har log qatori undan o'tadi),
   testlar: `backend/tests/test_nfr_17_observability.py`.

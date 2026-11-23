@@ -70,3 +70,9 @@ To'liq asoslash: `docs/adr/0001-stack.md`.
    yiqilganini va nega yiqilganini o'qing. Keyin uni `uz.json` ga kalit qo'shib, `t()` orqali tuzating.
 4. `App.tsx` da `t("app.titel")` deb xato yozing va `npm run typecheck` ni ishga tushiring —
    TypeScript xatoni qanday ko'rsatishini ko'ring.
+
+## Qo'shimcha: kirish sahifalari (R0-10)
+- `src/api.ts` — barcha so'rovlar shu yerdan: o'zgartiruvchi metodlarga `X-CSRFToken` (cookie `/api/auth/csrf` dan), `fieldErrors()` DRF xatolarini maydonlarga ajratadi.
+- `src/router.ts` + `src/Link.tsx` — History API ustidagi kichik router; sahifalar ko'payganda react-router ADR bilan olinadi.
+- Formada har `input` ga `label` (`htmlFor`), xatoga `aria-invalid` + `aria-describedby`: ekran o'qigichlar va klaviatura uchun (NFR-13).
+- Mashq: `src/pages/auth-pages.test.tsx` da `mockApi` qanday ishlashini o'qing va `e2e/auth.spec.ts` dagi soxta API nega kerakligini tushuntiring.
