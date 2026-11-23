@@ -116,7 +116,7 @@ class UserAdmin(RoleAccessAdmin):
     def save_model(
         self, request: HttpRequest, obj: User, form: ModelForm[User], change: bool
     ) -> None:
-        # Oldingi qiymatlar bazadan (readonly maydonlar formada yo'q — initial'ga ishonib bo'lmaydi).
+        # Oldingi qiymatlar bazadan: readonly maydonlar formada yo'q (initial ishonchli emas).
         stored = User.objects.filter(pk=obj.pk).values(*_AUDITED).first() if change else None
         previous: dict[str, Any] = stored or {}
         # DB cheklovi: is_superuser <=> super_admin — rol bilan birga sinxronlanadi.

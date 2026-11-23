@@ -24,6 +24,7 @@ Chat, repo, log, PR, issue, bulut muhiti o'zgaruvchilari va scheduled task promp
 | AUTH_LOGIN_GLOBAL_RATE | Umumiy login chegarasi (default 600/minute; Argon2 yuklamasi) | .env.example | Server .env |
 | AUTH_CHANGE_PASSWORD_RATE | Parol almashtirish urinishlari, foydalanuvchi bo'yicha (default 10/hour) | .env.example | Server .env |
 | AUTH_RESET_PASSWORD_RATE | Parol tiklash, tiklovchi bo'yicha (default 60/hour) | .env.example | Server .env |
+| AUTH_INSTRUCTOR_CREATE_RATE | O'qituvchi yaratish, yaratuvchi bo'yicha (default 30/hour) | .env.example | Server .env |
 | LOG_LEVEL | Log darajasi (default INFO), secret emas | .env.example | Server .env |
 | SECURE_SSL_REDIRECT | Prod: HTTP → HTTPS yo'naltirish (default true) | — | Server .env |
 | GEMINI_API_KEY | AI tutor | bo'sh (AI_PROVIDER=fake) | Server .env |
