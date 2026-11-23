@@ -33,6 +33,10 @@ class Section(models.Model):
     name = models.TextField(_("nomi"))
     capacity = models.PositiveSmallIntegerField(_("sig'im"), default=DEFAULT_CAPACITY)
     join_enabled = models.BooleanField(_("qo'shilish yoqilgan"), default=True)
+    # SEC-02: faqat SHA-256 xeshi (apps/sections/tokens.py). NULL — havola o'chirilgan/yaratilmagan.
+    join_token_hash = models.CharField(
+        _("qo'shilish tokeni xeshi"), max_length=64, null=True, blank=True, unique=True
+    )
     created_at = models.DateTimeField(_("yaratilgan"), db_default=Now())
     updated_at = models.DateTimeField(_("yangilangan"), auto_now=True)
 
@@ -47,6 +51,11 @@ class Section(models.Model):
             models.CheckConstraint(
                 condition=Q(capacity__gte=MIN_CAPACITY) & Q(capacity__lte=MAX_CAPACITY),
                 name="sections_section_capacity",
+            ),
+            models.CheckConstraint(
+                condition=Q(join_token_hash__isnull=True)
+                | Q(join_token_hash__regex=r"^[0-9a-f]{64}$"),  # noqa: S106 — regex, secret emas
+                name="sections_section_token_hash",
             ),
         ]
         indexes: ClassVar[list[models.Index]] = [

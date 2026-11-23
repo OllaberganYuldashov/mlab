@@ -12,12 +12,13 @@ from django.db import transaction
 from django.db.models import Count, Q, QuerySet
 from django.utils.translation import gettext_lazy as _
 from drf_spectacular.utils import extend_schema
-from rest_framework import generics, serializers
+from rest_framework import generics, serializers, status
 from rest_framework.exceptions import NotFound
 from rest_framework.pagination import CursorPagination
 from rest_framework.parsers import JSONParser
 from rest_framework.request import Request
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from apps.accounts.models import Role, User
 from apps.accounts.permissions import IsAdmin, IsInstructor, IsSuperAdmin
@@ -25,7 +26,12 @@ from apps.audit import record
 from apps.audit.models import Action
 from apps.courses.models import Course
 from apps.sections.models import Membership, MembershipStatus, Section
-from apps.sections.serializers import SectionSerializer, SectionUpdateSerializer
+from apps.sections.serializers import (
+    JoinTokenSerializer,
+    SectionSerializer,
+    SectionUpdateSerializer,
+)
+from apps.sections.tokens import new_token
 
 EDITABLE = ("name", "capacity", "join_enabled")
 
@@ -98,12 +104,7 @@ class SectionDetailView(generics.RetrieveUpdateAPIView[Section]):
     def patch(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         with transaction.atomic():
             # Qatorni qulflab qayta o'qish: parallel tasdiqlash (I1-05) bilan ham sig'im to'g'ri.
-            visible = (
-                self.get_queryset().filter(pk=kwargs["section_id"]).values_list("pk", flat=True)
-            )
-            section = Section.objects.select_for_update().filter(pk__in=list(visible)).first()
-            if section is None:
-                raise NotFound
+            section = _locked_visible_section(request.user, kwargs["section_id"])  # type: ignore[arg-type]
             serializer = self.get_serializer(section, data=request.data, partial=True)
             serializer.is_valid(raise_exception=True)
             new_capacity = serializer.validated_data.get("capacity")
@@ -132,3 +133,55 @@ class SectionDetailView(generics.RetrieveUpdateAPIView[Section]):
                 )
         section.approved_count = approved  # type: ignore[attr-defined]
         return Response(self.get_serializer(section).data)
+
+
+def _locked_visible_section(user: User, section_id: int) -> Section:
+    """Foydalanuvchiga ko'rinadigan guruhni qulflab oladi; begona yoki yo'q — 404."""
+    visible = sections_for(user).filter(pk=section_id).values_list("pk", flat=True)
+    section = Section.objects.select_for_update().filter(pk__in=list(visible)).first()
+    if section is None:
+        raise NotFound
+    return section
+
+
+class JoinTokenView(APIView):
+    """SEC-02: havolani yangilash (eskisi darhol bekor) yoki o'chirish."""
+
+    permission_classes = ((IsInstructor | IsAdmin | IsSuperAdmin),)
+
+    @extend_schema(request=None, responses={201: JoinTokenSerializer}, summary="Havolani yangilash")
+    def post(self, request: Request, section_id: int) -> Response:
+        token, digest = new_token()
+        with transaction.atomic():
+            section = _locked_visible_section(request.user, section_id)  # type: ignore[arg-type]
+            had_token = section.join_token_hash is not None
+            section.join_token_hash = digest
+            section.save(update_fields=["join_token_hash", "updated_at"])
+            record(
+                Action.JOIN_TOKEN_ROTATED,
+                actor=request.user,  # type: ignore[arg-type]
+                target=section,
+                before={"had_token": had_token},
+                after={"had_token": True},
+            )
+        response = Response(
+            {"token": token, "join_path": f"/join/{token}"}, status=status.HTTP_201_CREATED
+        )
+        response["Cache-Control"] = "no-store"
+        return response
+
+    @extend_schema(request=None, responses={204: None}, summary="Havolani o'chirib qo'yish")
+    def delete(self, request: Request, section_id: int) -> Response:
+        with transaction.atomic():
+            section = _locked_visible_section(request.user, section_id)  # type: ignore[arg-type]
+            if section.join_token_hash is not None:
+                section.join_token_hash = None
+                section.save(update_fields=["join_token_hash", "updated_at"])
+                record(
+                    Action.JOIN_TOKEN_DISABLED,
+                    actor=request.user,  # type: ignore[arg-type]
+                    target=section,
+                    before={"had_token": True},
+                    after={"had_token": False},
+                )
+        return Response(status=status.HTTP_204_NO_CONTENT)
