@@ -17,6 +17,8 @@ Chat, repo, log, PR, issue, bulut muhiti o'zgaruvchilari va scheduled task promp
 | ALLOWED_HOSTS, CSRF_TRUSTED_ORIGINS | Domen (prod'da `*` taqiqlangan) | localhost | Server .env |
 | DEBUG | Faqat dev (prod'da doim false) | .env.example | — |
 | TIME_ZONE | Vaqt zonasi (default Asia/Tashkent) | .env.example | Server .env |
+| TRUSTED_PROXY_COUNT | Mijoz IP'sini aniqlash (Caddy ortida 1); noto'g'ri qiymat — IP soxtalashtirish yoki umumiy limit | .env.example (0) | Server .env (1) |
+| AUTH_REGISTER_RATE | Ro'yxatdan o'tish cheklovi (IP bo'yicha, default 60/hour) | .env.example | Server .env |
 | LOG_LEVEL | Log darajasi (default INFO), secret emas | .env.example | Server .env |
 | SECURE_SSL_REDIRECT | Prod: HTTP → HTTPS yo'naltirish (default true) | — | Server .env |
 | GEMINI_API_KEY | AI tutor | bo'sh (AI_PROVIDER=fake) | Server .env |
