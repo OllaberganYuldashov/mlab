@@ -25,6 +25,9 @@ Chat, repo, log, PR, issue, bulut muhiti o'zgaruvchilari va scheduled task promp
 | AUTH_CHANGE_PASSWORD_RATE | Parol almashtirish urinishlari, foydalanuvchi bo'yicha (default 10/hour) | .env.example | Server .env |
 | AUTH_RESET_PASSWORD_RATE | Parol tiklash, tiklovchi bo'yicha (default 60/hour) | .env.example | Server .env |
 | AUTH_INSTRUCTOR_CREATE_RATE | O'qituvchi yaratish, yaratuvchi bo'yicha (default 30/hour) | .env.example | Server .env |
+| POSTGRES_PASSWORD, POSTGRES_USER, POSTGRES_DB | Prod PostgreSQL (compose.prod.yaml; parol majburiy, kamida 24 belgi tasodifiy) | .env.example (soxta) | Server .env |
+| SITE_ADDRESS | Caddy domeni (masalan `mlab.example.uz`; sinov uchun `:80`) — secret emas | .env.example | Server .env |
+| MLAB_VERSION | Image tegi (deploy workflow qo'yadi, `good-*` teg) — secret emas | — | Server .env / workflow |
 | LOG_LEVEL | Log darajasi (default INFO), secret emas | .env.example | Server .env |
 | SECURE_SSL_REDIRECT | Prod: HTTP → HTTPS yo'naltirish (default true) | — | Server .env |
 | GEMINI_API_KEY | AI tutor | bo'sh (AI_PROVIDER=fake) | Server .env |
