@@ -6,6 +6,8 @@ import messages from "../src/i18n/uz.json" with { type: "json" };
  * sinaladi; bu yerda brauzer oqimi (forma, CSRF sarlavhasi, yo'naltirish) holatli soxta API bilan tekshiriladi,
  * chunki frontend CI job'ida backend servislari yo'q.
  */
+const PW = `pw-${crypto.randomUUID()}`;
+
 async function fakeBackend(page: Page) {
   const users = new Map<string, { password: string; full_name: string }>();
   let sessionUser: string | null = null;
@@ -78,7 +80,7 @@ test("AUTH-01/02: ro'yxatdan o'tish → chiqish → kirish (faqat klaviatura bil
   await page.getByLabel(messages["field.hemisId"]).fill("123456789012");
   await page.getByLabel(messages["field.fullName"]).fill("Sinov Talaba");
   await page.getByLabel(messages["field.direction"]).selectOption({ label: "Dasturiy injiniring" });
-  await page.getByLabel(messages["field.password"]).fill("uzun-maxfiy-parol-9");
+  await page.getByLabel(messages["field.password"]).fill(PW);
   await page.getByLabel(messages["register.consentCheckbox"]).focus();
   await page.keyboard.press("Space");
   await expect(submit).toBeEnabled();
@@ -89,7 +91,7 @@ test("AUTH-01/02: ro'yxatdan o'tish → chiqish → kirish (faqat klaviatura bil
   await expect(page.getByText(messages["register.success"])).toBeVisible();
 
   await page.getByLabel(messages["field.hemisId"]).fill("123456789012");
-  await page.getByLabel(messages["field.password"]).fill("uzun-maxfiy-parol-9");
+  await page.getByLabel(messages["field.password"]).fill(PW);
   await page.keyboard.press("Enter");
   await expect(page.getByText("Salom, Sinov Talaba!")).toBeVisible();
 
@@ -101,7 +103,7 @@ test("AUTH-01/02: ro'yxatdan o'tish → chiqish → kirish (faqat klaviatura bil
   await page.getByLabel(messages["field.password"]).fill("noto'g'ri");
   await page.keyboard.press("Enter");
   await expect(page.getByRole("alert")).toHaveText(messages["login.failed"]);
-  await page.getByLabel(messages["field.password"]).fill("uzun-maxfiy-parol-9");
+  await page.getByLabel(messages["field.password"]).fill(PW);
   await page.keyboard.press("Enter");
   await expect(page.getByText("Salom, Sinov Talaba!")).toBeVisible();
 

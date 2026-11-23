@@ -5,6 +5,10 @@ import App from "../App";
 import messages from "../i18n/uz.json";
 import { mockApi } from "../test-utils";
 
+const PW = `pw-${crypto.randomUUID()}`;
+const PW_NEW = `pw-${crypto.randomUUID()}`;
+const PW_TEMP = `pw-${crypto.randomUUID()}`;
+
 const ME = {
   hemis_id: "123456789012",
   full_name: "Test Talaba",
@@ -38,12 +42,12 @@ describe("/login (AUTH-02)", () => {
     render(<App />);
     const user = userEvent.setup();
     await user.type(await screen.findByLabelText(messages["field.hemisId"]), "123456789012");
-    await user.type(screen.getByLabelText(messages["field.password"]), "maxfiy-parol-1");
+    await user.type(screen.getByLabelText(messages["field.password"]), PW);
     await user.click(screen.getByRole("button", { name: messages["login.submit"] }));
     expect(await screen.findByText("Salom, Test Talaba!")).toBeInTheDocument();
     const login = calls.find((c) => c.path === "/api/auth/login");
     expect(login?.csrf).toBe("tok123");
-    expect(login?.body).toEqual({ hemis_id: "123456789012", password: "maxfiy-parol-1" });
+    expect(login?.body).toEqual({ hemis_id: "123456789012", password: PW });
   });
 
   it("noto'g'ri parol — uz.json dagi xabar", async () => {
@@ -124,7 +128,7 @@ describe("/register (AUTH-01)", () => {
     await user.type(await screen.findByLabelText(messages["field.hemisId"]), "123456789012");
     await user.type(screen.getByLabelText(messages["field.fullName"]), "Test Talaba");
     await user.selectOptions(screen.getByLabelText(messages["field.direction"]), "7");
-    await user.type(screen.getByLabelText(messages["field.password"]), "uzun-maxfiy-parol-9");
+    await user.type(screen.getByLabelText(messages["field.password"]), PW);
     return user;
   }
 
@@ -166,7 +170,7 @@ describe("/register (AUTH-01)", () => {
       hemis_id: "123456789012",
       full_name: "Test Talaba",
       direction: 7,
-      password: "uzun-maxfiy-parol-9",
+      password: PW,
       consent: true,
       policy_version: "2026-11-22",
     });
@@ -230,12 +234,12 @@ describe("/change-password (AUTH-04)", () => {
     visit("/change-password");
     render(<App />);
     const user = userEvent.setup();
-    await user.type(await screen.findByLabelText(messages["field.oldPassword"]), "vaqtincha");
-    await user.type(screen.getByLabelText(messages["field.newPassword"]), "yangi-uzun-parol-5");
+    await user.type(await screen.findByLabelText(messages["field.oldPassword"]), PW_TEMP);
+    await user.type(screen.getByLabelText(messages["field.newPassword"]), PW_NEW);
     await user.click(screen.getByRole("button", { name: messages["password.submit"] }));
     await waitFor(() => expect(window.location.pathname).toBe("/"));
     const post = calls.find((c) => c.path === "/api/auth/change-password");
-    expect(post?.body).toEqual({ old_password: "vaqtincha", new_password: "yangi-uzun-parol-5" });
+    expect(post?.body).toEqual({ old_password: PW_TEMP, new_password: PW_NEW });
   });
 
   it("xato maydon yonida ko'rsatiladi", async () => {
