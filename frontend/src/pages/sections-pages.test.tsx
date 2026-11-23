@@ -29,6 +29,19 @@ const APPROVED = [
   { id: 13, status: "approved", student: { id: 3, hemis_id: "333333333333", full_name: "Hasan Husanov" } },
 ];
 
+const SETTINGS_VALUES = {
+  ai_enabled: true,
+  ai_max_mode: "explain",
+  practice_after_close: false,
+  late_hours: 0,
+  chat_enabled: true,
+};
+const SETTINGS = {
+  course_defaults: { ...SETTINGS_VALUES, late_penalty_percent: 0 },
+  overrides: { ai_enabled: null, ai_max_mode: null, practice_after_close: null, late_hours: null, chat_enabled: null },
+  effective: { ...SETTINGS_VALUES, late_penalty_percent: 0 },
+};
+
 function visit(path: string) {
   window.history.replaceState(null, "", path);
 }
@@ -41,6 +54,9 @@ function sectionApi(extra: Record<string, Parameters<typeof mockApi>[0][string]>
     "GET /api/directions": () => ({ status: 200, body: [{ id: 1, name: "Dasturiy injiniring" }] }),
     "GET /api/sections/5/members?status=pending": () => ({ status: 200, body: { results: PENDING } }),
     "GET /api/sections/5/members?status=approved": () => ({ status: 200, body: { results: APPROVED } }),
+    "GET /api/sections/5/settings": () => ({ status: 200, body: SETTINGS }),
+    "GET /api/sections/5/windows": () => ({ status: 200, body: { server_time: "2026-12-01T05:00:00Z", windows: [] } }),
+    "GET /api/sections/5/deadlines": () => ({ status: 200, body: { deadlines: [] } }),
     ...extra,
   });
 }

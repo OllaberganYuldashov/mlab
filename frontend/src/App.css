@@ -116,3 +116,16 @@ button:disabled {
 main section {
   margin-block: 2rem;
 }
+
+.narrow {
+  width: 6rem;
+}
+
+.scroll-x {
+  overflow-x: auto;
+}
+
+.links {
+  flex-wrap: wrap;
+  align-items: center;
+}
