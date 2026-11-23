@@ -4,7 +4,11 @@ from config import env
 from config.settings.base import *  # noqa: F403
 from config.settings.base import ALLOWED_HOSTS, SECRET_KEY
 
-env.validate_production(secret_key=SECRET_KEY, allowed_hosts=ALLOWED_HOSTS)
+env.validate_production(
+    secret_key=SECRET_KEY,
+    allowed_hosts=ALLOWED_HOSTS,
+    trusted_proxy_count=env.optional_int("TRUSTED_PROXY_COUNT", 0),
+)
 
 DEBUG = False
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")

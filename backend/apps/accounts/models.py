@@ -15,6 +15,7 @@ from django.contrib.auth.models import PermissionsMixin
 from django.core.validators import RegexValidator
 from django.db import models
 from django.db.models import F, Func, Q, TextField
+from django.db.models.functions import Now
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
@@ -194,3 +195,31 @@ class User(AbstractBaseUser, PermissionsMixin):
     def save(self, *args: Any, **kwargs: Any) -> None:
         self.full_name = normalize_full_name(self.full_name)
         super().save(*args, **kwargs)
+
+
+class Consent(models.Model):
+    """SRS 7-bo'lim: talaba qaysi siyosat versiyasiga qachon rozilik bergani (o'zgarmaydi)."""
+
+    user = models.ForeignKey(
+        User,
+        on_delete=models.PROTECT,  # rozilik izi foydalanuvchi bilan birga izsiz yo'qolmaydi
+        related_name="consents",
+        db_index=False,  # (user, policy_version) unikal indeksi yetarli
+    )
+    policy_version = models.CharField(_("siyosat versiyasi"), max_length=32)
+    accepted_at = models.DateTimeField(_("rozilik vaqti"), db_default=Now(), editable=False)
+
+    class Meta:
+        verbose_name = _("rozilik")
+        verbose_name_plural = _("roziliklar")
+        constraints: ClassVar[list[models.BaseConstraint]] = [
+            models.UniqueConstraint(
+                fields=["user", "policy_version"], name="accounts_consent_user_version_uniq"
+            ),
+            models.CheckConstraint(
+                condition=Q(policy_version__regex=r"\S"), name="accounts_consent_version_not_blank"
+            ),
+        ]
+
+    def __str__(self) -> str:
+        return f"Consent#{self.pk} {self.policy_version}"

@@ -17,6 +17,9 @@ Chat, repo, log, PR, issue, bulut muhiti o'zgaruvchilari va scheduled task promp
 | ALLOWED_HOSTS, CSRF_TRUSTED_ORIGINS | Domen (prod'da `*` taqiqlangan) | localhost | Server .env |
 | DEBUG | Faqat dev (prod'da doim false) | .env.example | — |
 | TIME_ZONE | Vaqt zonasi (default Asia/Tashkent) | .env.example | Server .env |
+| TRUSTED_PROXY_COUNT | Mijoz IP'sini aniqlash (Caddy ortida 1; prod'da 0 bo'lsa ilova ishga tushmaydi). Haqiqiydan katta — X-Forwarded-For soxtalashtiriladi; ilova porti faqat ichki tarmoqda | .env.example (0) | Server .env (1) |
+| AUTH_REGISTER_RATE | Ro'yxatdan o'tish cheklovi (IP bo'yicha, IPv6 — /64; default 60/hour) | .env.example | Server .env |
+| AUTH_REGISTER_GLOBAL_RATE | Umumiy ro'yxatdan o'tish chegarasi (default 300/hour) | .env.example | Server .env |
 | LOG_LEVEL | Log darajasi (default INFO), secret emas | .env.example | Server .env |
 | SECURE_SSL_REDIRECT | Prod: HTTP → HTTPS yo'naltirish (default true) | — | Server .env |
 | GEMINI_API_KEY | AI tutor | bo'sh (AI_PROVIDER=fake) | Server .env |

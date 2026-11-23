@@ -1,0 +1,107 @@
+openapi: 3.0.3
+info:
+  title: MLab API
+  version: 0.1.0
+paths:
+  /api/auth/register:
+    post:
+      operationId: auth_register_create
+      summary: Talaba ro'yxatdan o'tadi (AUTH-01)
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+        required: true
+      security:
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Register'
+          description: ''
+        '400':
+          description: No response body
+  /api/directions:
+    get:
+      operationId: directions_list
+      description: Ro'yxatdan o'tish formasidagi yo'nalishlar (kichik ro'yxat — sahifalashsiz).
+      tags:
+      - directions
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Direction'
+          description: ''
+components:
+  schemas:
+    Direction:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          title: Nomi
+      required:
+      - id
+      - name
+    Register:
+      type: object
+      properties:
+        hemis_id:
+          type: string
+          maxLength: 32
+        full_name:
+          type: string
+          maxLength: 150
+        direction:
+          type: integer
+      required:
+      - direction
+      - full_name
+      - hemis_id
+    RegisterRequest:
+      type: object
+      properties:
+        hemis_id:
+          type: string
+          minLength: 1
+          maxLength: 32
+        full_name:
+          type: string
+          minLength: 1
+          maxLength: 150
+        direction:
+          type: integer
+        password:
+          type: string
+          writeOnly: true
+          minLength: 1
+          maxLength: 128
+        consent:
+          type: boolean
+          writeOnly: true
+        policy_version:
+          type: string
+          writeOnly: true
+          minLength: 1
+          maxLength: 32
+      required:
+      - consent
+      - direction
+      - full_name
+      - hemis_id
+      - password
+      - policy_version

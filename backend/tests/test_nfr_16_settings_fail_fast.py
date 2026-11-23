@@ -94,8 +94,20 @@ def test_nfr_16_prod_rejects_wildcard_host() -> None:
 
 
 def test_nfr_16_prod_starts_secure_with_valid_settings() -> None:
-    env = {**DEV_ENV, "SECRET_KEY": STRONG_KEY, "ALLOWED_HOSTS": "mlab.example.uz"}
+    env = {
+        **DEV_ENV,
+        "SECRET_KEY": STRONG_KEY,
+        "ALLOWED_HOSTS": "mlab.example.uz",
+        "TRUSTED_PROXY_COUNT": "1",
+    }
     result = run_django("config.settings.prod", env)
     assert result.returncode == 0, result.stderr
     # DEBUG o'chiq, cookie'lar faqat HTTPS orqali
     assert result.stdout.split() == ["False", "True", "True"]
+
+
+def test_nfr_16_prod_requires_trusted_proxy_count() -> None:
+    env = {**DEV_ENV, "SECRET_KEY": STRONG_KEY, "ALLOWED_HOSTS": "mlab.example.uz"}
+    result = run_django("config.settings.prod", env)
+    assert result.returncode != 0
+    assert "TRUSTED_PROXY_COUNT" in result.stderr
