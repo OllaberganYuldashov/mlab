@@ -11,7 +11,7 @@
 - Ochiq `alert:main-guard` / `alert:red-light`: yo'q
 
 ## Hozirgi holat
-- Reliz: R0 — Poydevor (I0)
+- Reliz: **R1 — MVP, I1** (R0 kodi yopildi 2026-11-23; serverga bog'liq qism — birinchi deploy, smoke, tiklash sinovi — server tayyor bo'lganda)
 - TZ: SRS v2 tasdiqlangan → `docs/SRS.md`
 - GitHub: label'lar va R0-01..R0-17 issue'lari (#5–#21), "📋 Kunlik hisobotlar" (#4) yaratildi
 - Oxirgi tugagan tasklar: R0-15 (#19) — PR #53 va R0-16 (#20) — PR #54 (`needs:owner`, egasi merge qiladi; custom run). R0-10 (#14) — PR #48; R0-11 (#15) — PR #49 (kunduzgi run 3/3). R0-08 (#12) — PR #44; R0-09 (#13) — PR #45; R0-17 (#21) — PR #46 (kunduzgi run 2/3).
@@ -26,9 +26,11 @@
 | 2026-11-22 (boshlang'ich) | 4 (R0-01, R0-02) | 1 interaktiv | ~394 (R0 24 + R1 kodi 240 + kontent 130) | 8–10 hafta (2027 yanvar oxiri – fevral boshi) |
 
 ## Keyingi task
-- R0 kodi tayyor: #19 (PR #53) va #20 (PR #54, #53 ustiga qurilgan) egasining merge'ini kutmoqda. Merge'dan keyin R0
-  faqat serverga bog'liq qism bilan ochiq: birinchi deploy, haqiqiy smoke test, zaxira tiklash sinovi (`docs/learn/server.md`).
-- Keyingi: R1 I1 (guruhlar; `policies.instructor_teaches` va `limits.ensure_capacity` tayyor) — tungi run 1/2 dan boshlanadi.
+- R0: #19 (PR #53), #20 (PR #56) merge bo'ldi. Ochiq faqat serverga bog'liq qism (`docs/learn/server.md`).
+- **R1 I1 issue'lari (#57–#71, 13 M + 2 S ≈ 28 ball):** #57 sections modellari → #58 guruh API → #59 token → #60 qo'shilish →
+  #61 tasdiq → #62 o'tkazish; #63 sozlamalar; #64 oynalar → #65 haftalik slot → #66 topshirish siyosati; #67 Channels;
+  frontend #68 (o'qituvchi), #69 (talaba), #70 (sozlamalar va oynalar); #71 I1 yakuni (schema/security-reviewer, e2e).
+  Tartib: bog'liqligi yopilgan eng kichik raqam. Birinchi: #57.
 
 ## Egasining qarorlari (2026-11-23, sessiyada)
 - #38 (Hemis ID tasdiqlash): MVP uchun **A** — hozirgi oqim (o'qituvchi I1 da a'zolikni tasdiqlaydi, nizoda admin
@@ -65,6 +67,7 @@
   `service postgresql start && service redis-server start` (yangilangan skript `docs/prompts/setup-script.sh`).
 
 ## Eslatmalar keyingi sessiya uchun
+- Ustma-ust (stacked) PR ochilmaydi: #54 R0-15 branch'iga merge bo'lib qolgan, #56 bilan tuzatildi. Zarur bo'lsa — pastki PR merge bo'lgach base'ni `main` ga qo'lda ko'chirish va tekshirish.
 - Prod: `deploy/` (compose, Caddyfile, deploy/smoke/backup skriptlari), ADR-0004. Bulutda docker daemon yo'q: image build va `caddy validate` sinalmagan; skriptlar soxta docker bilan testlangan. Celery worker va sandbox I3 da compose'ga qo'shiladi.
 - Frontend: `src/api.ts` (CSRF, `fieldErrors`), kichik router `src/router.ts` + `Link.tsx` (react-router faqat ADR bilan). E2E soxta API bilan (`e2e/auth.spec.ts`) — frontend CI job'ida backend yo'q; backend oqimi `backend/tests` da. Testda parol literali yozma: gitleaks `generic-api-key` beradi — `crypto.randomUUID()` dan yasa.
 - `/policy` "Mas'ul shaxs" aloqa ma'lumoti: kafedra email'i (egasi bergan, 2026-11-23), `policy.s1.body` da.
