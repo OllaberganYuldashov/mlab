@@ -27,6 +27,8 @@ def make_user(*, password: str = DEFAULT_PASSWORD, **fields: Any) -> User:
     fields.setdefault("hemis_id", fake.unique.numerify("############"))
     fields.setdefault("full_name", fake.name())
     fields.setdefault("role", Role.STUDENT)
+    if fields["role"] == Role.INSTRUCTOR:
+        fields.setdefault("student_limit", 30)
     if "direction" not in fields:
         fields["direction"] = make_direction() if fields["role"] == Role.STUDENT else None
     user = User(**fields)

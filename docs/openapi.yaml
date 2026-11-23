@@ -132,6 +132,55 @@ paths:
                 items:
                   $ref: '#/components/schemas/Direction'
           description: ''
+  /api/instructors:
+    post:
+      operationId: instructors_create
+      description: Admin yoki super admin o'qituvchi yaratadi; vaqtinchalik parol
+        javobda bir marta.
+      summary: O'qituvchi akkauntini yaratish
+      tags:
+      - instructors
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InstructorCreateRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InstructorCreated'
+          description: ''
+  /api/instructors/{user_id}:
+    patch:
+      operationId: instructors_partial_update
+      summary: O'qituvchining talaba limitini o'zgartirish
+      parameters:
+      - in: path
+        name: user_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - instructors
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedInstructorRequest'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Instructor'
+          description: ''
   /api/users/{user_id}/reset-password:
     post:
       operationId: users_reset_password_create
@@ -183,6 +232,77 @@ components:
       required:
       - id
       - name
+    Instructor:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        hemis_id:
+          type: string
+          readOnly: true
+        full_name:
+          type: string
+          readOnly: true
+          title: FIO
+        student_limit:
+          type: integer
+          maximum: 10000
+          minimum: 1
+          title: Talaba limiti
+      required:
+      - full_name
+      - hemis_id
+      - id
+      - student_limit
+    InstructorCreateRequest:
+      type: object
+      description: 'AUTH-05: rol serializer''da yo''q — har doim `instructor` (mass
+        assignment imkonsiz).'
+      properties:
+        hemis_id:
+          type: string
+          minLength: 1
+          maxLength: 32
+        full_name:
+          type: string
+          minLength: 1
+          maxLength: 150
+        student_limit:
+          type: integer
+          maximum: 10000
+          minimum: 1
+      required:
+      - full_name
+      - hemis_id
+      - student_limit
+    InstructorCreated:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        hemis_id:
+          type: string
+          readOnly: true
+        full_name:
+          type: string
+          readOnly: true
+          title: FIO
+        student_limit:
+          type: integer
+          maximum: 10000
+          minimum: 1
+          title: Talaba limiti
+        temporary_password:
+          type: string
+          readOnly: true
+      required:
+      - full_name
+      - hemis_id
+      - id
+      - student_limit
+      - temporary_password
     LoginFailed:
       type: object
       properties:
@@ -241,6 +361,14 @@ components:
       - hemis_id
       - must_change_password
       - role
+    PatchedInstructorRequest:
+      type: object
+      properties:
+        student_limit:
+          type: integer
+          maximum: 10000
+          minimum: 1
+          title: Talaba limiti
     Register:
       type: object
       properties:

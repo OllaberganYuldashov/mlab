@@ -14,5 +14,7 @@ urlpatterns: list[URLPattern] = [
         views.ResetPasswordView.as_view(),
         name="user-reset-password",
     ),
+    path("instructors", views.InstructorCreateView.as_view(), name="instructor-create"),
+    path("instructors/<int:user_id>", views.InstructorLimitView.as_view(), name="instructor-limit"),
     path("directions", views.DirectionListView.as_view(), name="directions"),
 ]

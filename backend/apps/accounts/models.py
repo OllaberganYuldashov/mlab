@@ -132,6 +132,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(_("faol"), default=True)
     # AUTH-04: vaqtinchalik parol berilgan — keyingi kirishda yangisini o'rnatish majburiy.
     must_change_password = models.BooleanField(_("parolni almashtirishi shart"), default=False)
+    # AUTH-05, SEC-08: o'qituvchining barcha guruhlaridagi talabalar chegarasi (faqat o'qituvchida).
+    student_limit = models.PositiveIntegerField(_("talaba limiti"), null=True, blank=True)
     # Vaqtinchalik parol muddati (24 soat): o'tgach u bilan kirib bo'lmaydi — yangi tiklash kerak.
     temporary_password_expires_at = models.DateTimeField(
         _("vaqtinchalik parol muddati"), null=True, blank=True
@@ -167,6 +169,19 @@ class User(AbstractBaseUser, PermissionsMixin):
                 condition=~Q(role=Role.STUDENT) | Q(direction__isnull=False),
                 name="accounts_user_student_has_direction",
                 violation_error_message=_("Talaba uchun yo'nalish tanlanishi shart."),
+            ),
+            models.CheckConstraint(
+                # NULL >= 1 SQL'da NULL (CHECK o'tib ketadi) — shuning uchun IS NOT NULL aniq.
+                condition=(
+                    Q(role=Role.INSTRUCTOR)
+                    & Q(student_limit__isnull=False)
+                    & Q(student_limit__gte=1)
+                )
+                | (~Q(role=Role.INSTRUCTOR) & Q(student_limit__isnull=True)),
+                name="accounts_user_student_limit_only_instructor",
+                violation_error_message=_(
+                    "Talaba limiti faqat o'qituvchida bo'ladi va kamida 1 bo'lishi kerak."
+                ),
             ),
             # Ikki tomonlama: super_admin <=> is_superuser (bayroq va rol bir-biriga zid bo'lmaydi).
             models.CheckConstraint(

@@ -146,3 +146,50 @@ class ChangePasswordSerializer(serializers.Serializer[User]):
 
 class TemporaryPasswordSerializer(serializers.Serializer[User]):
     temporary_password = serializers.CharField(read_only=True)
+
+
+class InstructorCreateSerializer(serializers.Serializer[User]):
+    """AUTH-05: rol serializer'da yo'q — har doim `instructor` (mass assignment imkonsiz)."""
+
+    hemis_id = serializers.CharField(max_length=32)
+    full_name = serializers.CharField(max_length=150)
+    student_limit = serializers.IntegerField(min_value=1, max_value=10_000)
+
+    def validate_hemis_id(self, value: str) -> str:
+        try:
+            hemis_id = normalize_hemis_id(value)
+        except ValueError as exc:
+            raise serializers.ValidationError(
+                _("Hemis ID 12 ta raqamdan iborat bo'lishi kerak.")
+            ) from exc
+        if User.objects.filter(hemis_id=hemis_id).exists():
+            raise serializers.ValidationError(_("Bu Hemis ID bilan foydalanuvchi allaqachon bor."))
+        return hemis_id
+
+    def validate_full_name(self, value: str) -> str:
+        name = normalize_full_name(value)
+        if not name:
+            raise serializers.ValidationError(_("FIO bo'sh bo'lmasligi kerak."))
+        return name
+
+
+class InstructorSerializer(serializers.ModelSerializer[User]):
+    class Meta:
+        model = User
+        fields = ("id", "hemis_id", "full_name", "student_limit")
+        read_only_fields = ("id", "hemis_id", "full_name")
+        extra_kwargs: ClassVar[dict[str, Any]] = {
+            "student_limit": {
+                "required": True,
+                "allow_null": False,
+                "min_value": 1,
+                "max_value": 10_000,
+            }
+        }
+
+
+class InstructorCreatedSerializer(InstructorSerializer):
+    temporary_password = serializers.CharField(read_only=True)
+
+    class Meta(InstructorSerializer.Meta):
+        fields = (*InstructorSerializer.Meta.fields, "temporary_password")  # type: ignore[assignment]

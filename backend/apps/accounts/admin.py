@@ -11,6 +11,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from django import forms
 from django.contrib import admin
 from django.contrib.auth.models import Group
 from django.db.models import QuerySet
@@ -42,14 +43,29 @@ class DirectionAdmin(RoleAccessAdmin):
     ordering = ("name",)
 
 
-# Audit qilinadigan maydonlar (ADM-02): rol va akkaunt faolligi.
-_AUDITED = {"role": Action.ROLE_CHANGED, "is_active": Action.USER_ACTIVE_CHANGED}
+# Audit qilinadigan maydonlar (ADM-02): rol, akkaunt faolligi, o'qituvchi talaba limiti.
+_AUDITED = {
+    "role": Action.ROLE_CHANGED,
+    "is_active": Action.USER_ACTIVE_CHANGED,
+    "student_limit": Action.STUDENT_LIMIT_CHANGED,
+}
+
+
+class UserAdminForm(forms.ModelForm):  # type: ignore[type-arg]  # runtime generic emas
+    def clean(self) -> dict[str, Any]:
+        data = super().clean() or {}
+        role = data.get("role", getattr(self.instance, "role", None))
+        if "student_limit" in data and role != Role.INSTRUCTOR:
+            # Limit faqat o'qituvchida (DB CHECK): boshqa rolga o'tganda o'zi tozalanadi.
+            data["student_limit"] = None
+        return data
 
 
 @admin.register(User)
 class UserAdmin(RoleAccessAdmin):
     view_roles = change_roles = STAFF
-    list_display = ("hemis_id", "full_name", "role", "direction", "is_active")
+    form = UserAdminForm
+    list_display = ("hemis_id", "full_name", "role", "direction", "student_limit", "is_active")
     list_filter = ("role", "is_active")
     search_fields = ("hemis_id", "full_name")
     ordering = ("hemis_id",)
@@ -60,6 +76,7 @@ class UserAdmin(RoleAccessAdmin):
         "full_name",
         "role",
         "direction",
+        "student_limit",
         "is_active",
         "date_joined",
         "last_login",
