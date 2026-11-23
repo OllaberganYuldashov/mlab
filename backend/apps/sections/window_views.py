@@ -200,14 +200,26 @@ class OpenNowView(_WindowAction):
 
 
 class CloseView(_WindowAction):
+    """Ochiq oyna yopilsa yopilish lahzasi saqlanadi (`closes_at=now`): kechikish va mashq shundan
+    hisoblanadi (ACC-07/08). Hali ochilmagan oyna — `closed`; allaqachon yopilgani o'zgarmaydi."""
+
     @extend_schema(request=None, responses={200: WindowRow}, summary="Oynani yopish")
     def post(self, request: Request, section_id: int, code: str) -> Response:
-        return self._change(
-            request,
-            section_id,
-            code,
-            {"mode": WindowMode.CLOSED, "opens_at": None, "closes_at": None},
-        )
+        now = timezone.now()
+        with transaction.atomic():
+            section = _locked_visible_section(request.user, section_id)  # type: ignore[arg-type]
+            topic = _topic_or_404(section, code)
+            current = AccessWindow.objects.filter(section=section, topic=topic).first()
+            status = window_state(current, now).status
+            values: dict[str, Any]
+            if status == "open" and current is not None and current.opens_at != now:
+                values = {"closes_at": now}
+            elif status == "closed" and current is not None and current.opens_at is not None:
+                values = {}  # tarixiy yopilish lahzasi saqlanadi
+            else:
+                values = {"mode": WindowMode.CLOSED, "opens_at": None, "closes_at": None}
+            window = change_window(request.user, section, topic, values)  # type: ignore[arg-type]
+        return Response(_row(topic, window if window.pk else None))
 
 
 class SlotSerializer(serializers.Serializer[Any]):
