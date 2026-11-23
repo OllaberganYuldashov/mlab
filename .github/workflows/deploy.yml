@@ -1,0 +1,48 @@
+# deploy: istalgan `good-*` tegni serverga qo'lda ishga tushirib deploy qiladi (RECOVERY.md 8-bo'lim; ADR-0004).
+# Usul: serverdagi self-hosted runner (tavsiya B) — server tashqariga ochilmaydi. SSH usuli (A) tanlansa, faqat
+# "Deploy" qadami `ssh ... deploy/deploy.sh <teg>` bilan almashtiriladi; mantiq `deploy/deploy.sh` da.
+# Himoyalangan fayl: faqat egasi tahrirlaydi/merge qiladi. Secret'lar kerak emas: .env serverda (MLAB_ENV_FILE).
+name: deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Deploy qilinadigan teg (good-YYYY-MM-DD-HHMM-sha7)"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: deploy
+    # Egasi "production" environment'ida tasdiqlovchi (required reviewer) belgilaydi — har deploy qo'lda tasdiqlanadi.
+    environment: production
+    runs-on: [self-hosted, mlab-prod]
+    timeout-minutes: 30
+    steps:
+      - name: Tegni tekshirish
+        env:
+          TAG: ${{ inputs.tag }}
+        run: |
+          if [[ ! "$TAG" =~ ^good-[0-9]{4}-[0-9]{2}-[0-9]{2}-[0-9]{4}-[0-9a-f]{7}$ ]]; then
+            echo "Teg good-YYYY-MM-DD-HHMM-sha7 ko'rinishida bo'lishi kerak" >&2
+            exit 1
+          fi
+
+      - name: Deploy (serverdagi repo nusxasida)
+        env:
+          TAG: ${{ inputs.tag }}
+          MLAB_REPO_DIR: ${{ vars.MLAB_REPO_DIR || '/opt/mlab/app' }}
+        run: |
+          cd "$MLAB_REPO_DIR"
+          git fetch --tags --force origin
+          # Skriptning o'zi ham shu tegdan olinadi: eski skript yangi versiyani deploy qilmasin.
+          git checkout --detach "refs/tags/${TAG}"
+          deploy/deploy.sh "$TAG"
