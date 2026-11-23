@@ -1,0 +1,84 @@
+{
+ "rows": [
+  {
+   "iteration": "I0",
+   "release": "R0",
+   "order": 0,
+   "name": "Poydevor",
+   "est_points": 29,
+   "outcome": "Backend va frontend skeleti, CI, auth, rollar, audit, kontent formati, deploy tayyorgarligi."
+  },
+  {
+   "iteration": "I1",
+   "release": "R1",
+   "order": 1,
+   "name": "Guruhlar va kirish oynalari",
+   "est_points": 27,
+   "outcome": "O'qituvchi guruh yaratadi, havola/QR beradi, so'rovlarni tasdiqlaydi; sozlamalar; mavzular bo'yicha kirish oynalari va jadval."
+  },
+  {
+   "iteration": "I2",
+   "release": "R1",
+   "order": 2,
+   "name": "Kontent va laboratoriya",
+   "est_points": 55,
+   "outcome": "22 ma'ruza qadamlari, Aiken testlari, Pyodide notebook (brauzerda Python), datasetlar, monoblokda sinov."
+  },
+  {
+   "iteration": "I3",
+   "release": "R1",
+   "order": 3,
+   "name": "Avtobaholovchi va topshiriqlar",
+   "est_points": 70,
+   "outcome": "Sandbox baholash, A1–A15 topshiriqlari va variantlar, moslashuvchan daraja, akademik halollik."
+  },
+  {
+   "iteration": "I4",
+   "release": "R1",
+   "order": 4,
+   "name": "Monitoring, chat, AI tutor",
+   "est_points": 50,
+   "outcome": "Jonli monitoring paneli, yordam navbati, guruh chati, Gemini AI tutor (cheklovli)."
+  },
+  {
+   "iteration": "I5",
+   "release": "R1",
+   "order": 5,
+   "name": "Baholash va qabul",
+   "est_points": 40,
+   "outcome": "100 ballik baholash, Excel jurnal, sertifikat va QR, hisobotlar, yuklama sinovi, sinov darsi."
+  },
+  {
+   "iteration": "KONTENT",
+   "release": "R1",
+   "order": 6,
+   "name": "Kurs kontenti (parallel)",
+   "est_points": 130,
+   "outcome": "M01–M22 ma'ruzalar va A1–A15 amaliy topshiriqlar matni — kod bilan parallel, I2–I5 davomida."
+  },
+  {
+   "iteration": "R2",
+   "release": "R2",
+   "order": 7,
+   "name": "R2 iteratsiyalari",
+   "est_points": null,
+   "outcome": "R1 dan keyin rejalashtiriladi."
+  },
+  {
+   "iteration": "R3",
+   "release": "R3",
+   "order": 8,
+   "name": "R3 iteratsiyalari",
+   "est_points": null,
+   "outcome": "R2 dan keyin rejalashtiriladi."
+  },
+  {
+   "iteration": "R4",
+   "release": "R4",
+   "order": 9,
+   "name": "R4",
+   "est_points": null,
+   "outcome": "Pilot natijalariga qarab."
+  }
+ ]
+}

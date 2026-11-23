@@ -87,3 +87,6 @@ data/raw/
 playwright-report/
 test-results/
 blob-report/
+
+# ---- Holat dashboard'i (docs/status/build.py) ----
+docs/status/__pycache__/

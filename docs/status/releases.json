@@ -1,0 +1,44 @@
+{
+ "rows": [
+  {
+   "release": "R0",
+   "order": 0,
+   "name": "Poydevor",
+   "goal": "Xavfsiz va avtomatlashtirilgan asos",
+   "outcome": "Ro'yxatdan o'tish, kirish, rollar, parol tiklash, audit jurnali, kontent importi, prod konteynerlari, deploy va zaxira skriptlari.",
+   "size_text": "1 iteratsiya"
+  },
+  {
+   "release": "R1",
+   "order": 1,
+   "name": "MVP",
+   "goal": "Bir guruh bilan to'liq semestr o'tkazish",
+   "outcome": "Guruhlar va kirish oynalari, brauzerdagi Python laboratoriyasi, avtobaholovchi, jonli monitoring, AI tutor, baholash va sertifikat.",
+   "size_text": "5 iteratsiya"
+  },
+  {
+   "release": "R2",
+   "order": 2,
+   "name": "Faollik va o'yin",
+   "goal": "Jamoaviy ish, chuqur individuallashtirish, kengaytirilgan tahlil",
+   "outcome": "Jamoaviy topshiriqlar, kengaytirilgan monitoring va tahlil, gVisor baholash.",
+   "size_text": "3 iteratsiya"
+  },
+  {
+   "release": "R3",
+   "order": 3,
+   "name": "Kengayish",
+   "goal": "Ko'proq o'qituvchi va foydalanuvchi",
+   "outcome": "Rus tili, o'qituvchi darajasida sozlash, Hemis ID faollashtirish kodi, 250 faol foydalanuvchi.",
+   "size_text": "3 iteratsiya"
+  },
+  {
+   "release": "R4",
+   "order": 4,
+   "name": "Ilg'or ML va mahsulot",
+   "goal": "Chuqur o'rganish va pullik model",
+   "outcome": "TensorFlow.js (CNN/RNN), GPU imkoniyati, bir nechta OTM, to'lov.",
+   "size_text": "pilot natijalariga qarab"
+  }
+ ]
+}
