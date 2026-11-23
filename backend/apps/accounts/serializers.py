@@ -111,3 +111,15 @@ class RegisterSerializer(serializers.Serializer[User]):
             "role": instance.role,
             "direction": instance.direction_id,
         }
+
+
+class LoginSerializer(serializers.Serializer[User]):
+    hemis_id = serializers.CharField(max_length=32)
+    password = serializers.CharField(max_length=128, trim_whitespace=False)
+
+
+class MeSerializer(serializers.ModelSerializer[User]):
+    class Meta:
+        model = User
+        fields = ("hemis_id", "full_name", "role", "direction")
+        read_only_fields = fields

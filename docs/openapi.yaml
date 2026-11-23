@@ -3,6 +3,78 @@ info:
   title: MLab API
   version: 0.1.0
 paths:
+  /api/auth/csrf:
+    get:
+      operationId: auth_csrf_retrieve
+      description: 'SPA birinchi chaqiradi: `csrftoken` cookie, keyin u `X-CSRFToken`
+        sarlavhasida.'
+      summary: CSRF cookie o'rnatish
+      tags:
+      - auth
+      security:
+      - {}
+      responses:
+        '204':
+          description: No response body
+  /api/auth/login:
+    post:
+      operationId: auth_login_create
+      summary: Hemis ID va parol bilan kirish (AUTH-02)
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+        required: true
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Me'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginFailed'
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginLocked'
+          description: ''
+  /api/auth/logout:
+    post:
+      operationId: auth_logout_create
+      summary: Chiqish
+      tags:
+      - auth
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/auth/me:
+    get:
+      operationId: auth_me_retrieve
+      summary: Joriy foydalanuvchi
+      tags:
+      - auth
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Me'
+          description: ''
   /api/auth/register:
     post:
       operationId: auth_register_create
@@ -57,6 +129,59 @@ components:
       required:
       - id
       - name
+    LoginFailed:
+      type: object
+      properties:
+        detail:
+          type: string
+      required:
+      - detail
+    LoginLocked:
+      type: object
+      properties:
+        detail:
+          type: string
+      required:
+      - detail
+    LoginRequest:
+      type: object
+      properties:
+        hemis_id:
+          type: string
+          minLength: 1
+          maxLength: 32
+        password:
+          type: string
+          minLength: 1
+          maxLength: 128
+      required:
+      - hemis_id
+      - password
+    Me:
+      type: object
+      properties:
+        hemis_id:
+          type: string
+          readOnly: true
+        full_name:
+          type: string
+          readOnly: true
+          title: FIO
+        role:
+          allOf:
+          - $ref: '#/components/schemas/RoleEnum'
+          readOnly: true
+          title: Rol
+        direction:
+          type: integer
+          readOnly: true
+          nullable: true
+          title: Yo'nalish
+      required:
+      - direction
+      - full_name
+      - hemis_id
+      - role
     Register:
       type: object
       properties:
@@ -105,3 +230,20 @@ components:
       - hemis_id
       - password
       - policy_version
+    RoleEnum:
+      enum:
+      - super_admin
+      - admin
+      - instructor
+      - student
+      type: string
+      description: |-
+        * `super_admin` - Super admin
+        * `admin` - Admin
+        * `instructor` - O'qituvchi
+        * `student` - Talaba
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sessionid

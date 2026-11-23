@@ -145,6 +145,10 @@ PRIVACY_POLICY_VERSION = "2026-11-22"
 AUTH_REGISTER_RATE = env.optional("AUTH_REGISTER_RATE", "60/hour")
 # Hamma IP uchun umumiy chegara (taqsimlangan hujum, Argon2 xotira/CPU narxi).
 AUTH_REGISTER_GLOBAL_RATE = env.optional("AUTH_REGISTER_GLOBAL_RATE", "300/hour")
+# AUTH-02: login so'rovlari IP bo'yicha (Hemis ID + IP lockout'dan tashqari; xona bitta NAT ortida).
+AUTH_LOGIN_RATE = env.optional("AUTH_LOGIN_RATE", "120/minute")
+# Lockout (5 xato -> 15 daqiqa) API va Django Admin login'ida bir xil ishlaydi.
+AUTHENTICATION_BACKENDS = ["apps.accounts.backends.LockoutModelBackend"]
 
 # --- Loglar (NFR-17, R0-14): stdout'ga bir qator JSON; maskalash formatter'da ---
 LOG_LEVEL = env.optional("LOG_LEVEL", "INFO").upper()
