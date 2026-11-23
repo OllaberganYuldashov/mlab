@@ -39,6 +39,16 @@ def optional(name: str, default: str) -> str:
     return value or default
 
 
+def optional_int(name: str, default: int) -> int:
+    """Manfiy bo'lmagan butun son; noto'g'ri qiymat — ilova ishga tushmaydi."""
+    raw = os.environ.get(name, "").strip()
+    if not raw:
+        return default
+    if not raw.isdigit():
+        raise ImproperlyConfigured(f"{name} manfiy bo'lmagan butun son bo'lishi kerak.")
+    return int(raw)
+
+
 def _split(raw: str) -> list[str]:
     return [item.strip() for item in raw.split(",") if item.strip()]
 

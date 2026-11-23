@@ -1,5 +1,6 @@
 from django.contrib import admin
-from django.urls import URLPattern, URLResolver, path
+from django.urls import URLPattern, URLResolver, include, path
+from drf_spectacular.views import SpectacularAPIView
 
 from config import views
 
@@ -8,4 +9,6 @@ urlpatterns: list[URLPattern | URLResolver] = [
     path("admin/", admin.site.urls),
     path("healthz", views.healthz, name="healthz"),
     path("readyz", views.readyz, name="readyz"),
+    path("api/", include("apps.accounts.urls")),
+    path("api/schema/", SpectacularAPIView.as_view(), name="openapi-schema"),
 ]

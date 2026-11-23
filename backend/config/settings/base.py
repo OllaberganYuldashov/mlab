@@ -33,6 +33,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework",
+    "drf_spectacular",
     "apps.accounts",
     "apps.audit",
     "apps.courses",
@@ -88,7 +89,11 @@ PASSWORD_HASHERS = [
 ]
 
 AUTH_PASSWORD_VALIDATORS = [
-    {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
+    {
+        # Default atributlar (username, email) bizda yo'q — Hemis ID va FIO bilan solishtiriladi.
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
+        "OPTIONS": {"user_attributes": ("hemis_id", "full_name")},
+    },
     {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
     {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
     {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
@@ -119,7 +124,25 @@ REST_FRAMEWORK = {
     # Ochiq endpoint faqat aniq belgilanadi (CLAUDE.md 5.6).
     "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.IsAuthenticated"],
     "DEFAULT_RENDERER_CLASSES": ["rest_framework.renderers.JSONRenderer"],
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
+    # Caddy ortida: X-Forwarded-For dagi oxirgi N proksi (prod'da 1). Throttle shu IP bo'yicha.
+    "NUM_PROXIES": env.optional_int("TRUSTED_PROXY_COUNT", 0),
 }
+
+# OpenAPI (ADR-0003): sxema faqat xodimlarga; repodagi nusxa — docs/openapi.yaml.
+SPECTACULAR_SETTINGS = {
+    "TITLE": "MLab API",
+    "VERSION": "0.1.0",
+    "SERVE_INCLUDE_SCHEMA": False,
+    "SERVE_PERMISSIONS": ["config.api.IsStaffRole"],
+    "COMPONENT_SPLIT_REQUEST": True,
+}
+
+# SRS 7-bo'lim: joriy siyosat versiyasi (matn o'zgarsa — yangi versiya, qayta rozilik).
+PRIVACY_POLICY_VERSION = "2026-11-22"
+# AUTH-01: ro'yxatdan o'tish cheklovi (IP bo'yicha). Kompyuter xonasi bitta NAT ortida —
+# kamida 60/soat.
+AUTH_REGISTER_RATE = env.optional("AUTH_REGISTER_RATE", "60/hour")
 
 # --- Loglar (NFR-17, R0-14): stdout'ga bir qator JSON; maskalash formatter'da ---
 LOG_LEVEL = env.optional("LOG_LEVEL", "INFO").upper()

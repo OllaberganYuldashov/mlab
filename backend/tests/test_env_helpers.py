@@ -94,3 +94,17 @@ def test_production_rejects_wildcard_host() -> None:
 
 def test_production_accepts_strong_settings() -> None:
     env.validate_production(secret_key=STRONG_KEY, allowed_hosts=["mlab.example.uz"])
+
+
+def test_optional_int_default_and_value(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.delenv("MLAB_N", raising=False)
+    assert env.optional_int("MLAB_N", 3) == 3
+    monkeypatch.setenv("MLAB_N", " 2 ")
+    assert env.optional_int("MLAB_N", 3) == 2
+
+
+@pytest.mark.parametrize("value", ["-1", "abc", "1.5"])
+def test_optional_int_rejects_invalid(monkeypatch: pytest.MonkeyPatch, value: str) -> None:
+    monkeypatch.setenv("MLAB_N", value)
+    with pytest.raises(ImproperlyConfigured, match="MLAB_N"):
+        env.optional_int("MLAB_N", 0)

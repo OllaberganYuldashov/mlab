@@ -10,6 +10,7 @@ dependencies = [
     "psycopg[binary]>=3.2,<3.3",
     "redis>=5.2,<7",
     "pyyaml>=6.0.2,<7",
+    "drf-spectacular>=0.28,<0.30",
 ]
 
 [dependency-groups]
