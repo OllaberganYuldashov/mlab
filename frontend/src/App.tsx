@@ -5,7 +5,10 @@ import ChangePasswordPage from "./pages/ChangePasswordPage";
 import LoginPage from "./pages/LoginPage";
 import PolicyPage from "./pages/PolicyPage";
 import RegisterPage from "./pages/RegisterPage";
+import JoinPage from "./pages/JoinPage";
 import SectionPage from "./pages/SectionPage";
+import StudentHome from "./pages/StudentHome";
+import { nextParam } from "./nav";
 import SectionsPage from "./pages/SectionsPage";
 import { Link } from "./Link";
 import { navigate, usePath } from "./router";
@@ -27,6 +30,7 @@ function Home({
       {me ? (
         <>
           <p>{t("app.greeting", { name: me.full_name })}</p>
+          {me.role === "student" && <StudentHome />}
           <p className="links">
             {me.role === "instructor" && <Link to="/sections">{t("nav.sections")}</Link>}
             <Link to="/change-password">{t("password.title")}</Link>
@@ -126,6 +130,8 @@ export default function App() {
   }
 
   const forcedPath = me?.must_change_password ? "/change-password" : path;
+  const joinMatch = /^\/join\/([A-Za-z0-9_-]{1,64})$/.exec(forcedPath);
+  if (joinMatch?.[1]) return <JoinPage token={joinMatch[1]} me={me} />;
   const sectionMatch = /^\/sections\/(\d+)$/.exec(forcedPath);
   if (sectionMatch && me?.role === "instructor") {
     return <SectionPage sectionId={Number(sectionMatch[1])} />;
@@ -144,7 +150,7 @@ export default function App() {
           <LoginPage
             onLogin={(user) => {
               setMe(user);
-              navigate(user.must_change_password ? "/change-password" : "/");
+              navigate(user.must_change_password ? "/change-password" : (nextParam() ?? "/"));
             }}
           />
         </>
