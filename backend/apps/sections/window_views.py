@@ -4,7 +4,9 @@ from __future__ import annotations
 
 from datetime import timedelta
 from typing import Any
+from zoneinfo import ZoneInfo
 
+from django.conf import settings
 from django.db import transaction
 from django.utils import timezone
 from drf_spectacular.utils import extend_schema, inline_serializer
@@ -21,6 +23,7 @@ from apps.audit.models import Action
 from apps.courses.models import Topic
 from apps.sections.member_views import STAFF_OR_INSTRUCTOR
 from apps.sections.models import AccessWindow, Section, WindowMode
+from apps.sections.planning import MAX_SLOT_MINUTES, Slot, plan_slots
 from apps.sections.views import _locked_visible_section, sections_for
 from apps.sections.windows import window_state
 
@@ -205,3 +208,108 @@ class CloseView(_WindowAction):
             code,
             {"mode": WindowMode.CLOSED, "opens_at": None, "closes_at": None},
         )
+
+
+class SlotSerializer(serializers.Serializer[Any]):
+    weekday = serializers.IntegerField(min_value=0, max_value=6)
+    time = serializers.TimeField()
+    minutes = serializers.IntegerField(min_value=1, max_value=MAX_SLOT_MINUTES)
+
+
+class PlanSerializer(serializers.Serializer[Any]):
+    slots = serializers.ListField(child=SlotSerializer(), min_length=1, max_length=14)
+    start_date = serializers.DateField()
+    topics = serializers.ListField(
+        child=serializers.CharField(max_length=8), required=False, max_length=200
+    )
+    preview = serializers.BooleanField(default=True)
+    overwrite = serializers.BooleanField(default=False)
+
+
+class PlanView(APIView):
+    """ACC-04: `preview: true` faqat ko'rsatadi; `false` bitta tranzaksiyada saqlaydi."""
+
+    permission_classes = STAFF_OR_INSTRUCTOR
+    parser_classes = (JSONParser,)
+
+    @extend_schema(
+        request=PlanSerializer,
+        responses={
+            200: inline_serializer(
+                "WindowPlan",
+                {
+                    "plan": inline_serializer(
+                        "WindowPlanItem",
+                        {
+                            "topic": serializers.CharField(),
+                            "opens_at": serializers.DateTimeField(),
+                            "closes_at": serializers.DateTimeField(),
+                        },
+                        many=True,
+                    ),
+                    "saved": serializers.BooleanField(),
+                },
+            )
+        },
+        summary="Haftalik slot bo'yicha oynalarni rejalashtirish",
+    )
+    def post(self, request: Request, section_id: int) -> Response:
+        data = PlanSerializer(data=request.data)
+        data.is_valid(raise_exception=True)
+        params = data.validated_data
+        section = sections_for(request.user).filter(pk=section_id).first()  # type: ignore[arg-type]
+        if section is None:
+            raise NotFound
+        topics = self._topics(section, params.get("topics"))
+        slots = [Slot(s["weekday"], s["time"], s["minutes"]) for s in params["slots"]]
+        try:
+            moments = plan_slots(
+                len(topics), slots, params["start_date"], ZoneInfo(settings.TIME_ZONE)
+            )
+        except ValueError as exc:
+            raise serializers.ValidationError({"slots": [str(exc)]}) from exc
+        plan = list(zip(topics, moments, strict=True))
+        if not params["preview"]:
+            with transaction.atomic():
+                locked = _locked_visible_section(request.user, section_id)  # type: ignore[arg-type]
+                busy = list(
+                    AccessWindow.objects.filter(section=locked, topic__in=topics)
+                    .exclude(mode=WindowMode.CLOSED)
+                    .order_by("topic__order")
+                    .values_list("topic__code", flat=True)
+                )
+                if busy and not params["overwrite"]:
+                    return Response(
+                        {
+                            "code": "windows_exist",
+                            "detail": "Bu mavzularda oyna bor. Almashtirish uchun overwrite.",
+                            "topics": busy,
+                        },
+                        status=409,
+                    )
+                for topic, (opens, closes) in plan:
+                    change_window(
+                        request.user,  # type: ignore[arg-type]
+                        locked,
+                        topic,
+                        {"mode": WindowMode.SCHEDULED, "opens_at": opens, "closes_at": closes},
+                    )
+        return Response(
+            {
+                "plan": [{"topic": t.code, "opens_at": o, "closes_at": c} for t, (o, c) in plan],
+                "saved": not params["preview"],
+            }
+        )
+
+    @staticmethod
+    def _topics(section: Section, codes: list[str] | None) -> list[Topic]:
+        all_topics = list(Topic.objects.filter(course_id=section.course_id).order_by("order"))
+        if codes is None:
+            return all_topics
+        if len(set(codes)) != len(codes):
+            raise serializers.ValidationError({"topics": ["Mavzu takrorlangan."]})
+        by_code = {t.code: t for t in all_topics}
+        missing = [c for c in codes if c not in by_code]
+        if missing:
+            raise serializers.ValidationError({"topics": [f"Noma'lum mavzu: {', '.join(missing)}"]})
+        return [by_code[c] for c in codes]

@@ -48,6 +48,11 @@ urlpatterns: list[URLPattern] = [
         name="section-windows",
     ),
     path(
+        "sections/<int:section_id>/windows/plan",
+        window_views.PlanView.as_view(),
+        name="section-windows-plan",
+    ),
+    path(
         "sections/<int:section_id>/windows/<str:code>",
         window_views.WindowDetailView.as_view(),
         name="section-window",

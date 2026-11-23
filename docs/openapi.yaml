@@ -726,6 +726,35 @@ paths:
               schema:
                 $ref: '#/components/schemas/AccessWindowRow'
           description: ''
+  /api/sections/{section_id}/windows/plan:
+    post:
+      operationId: sections_windows_plan_create
+      description: 'ACC-04: `preview: true` faqat ko''rsatadi; `false` bitta tranzaksiyada
+        saqlaydi.'
+      summary: Haftalik slot bo'yicha oynalarni rejalashtirish
+      parameters:
+      - in: path
+        name: section_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - sections
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlanRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WindowPlan'
+          description: ''
   /api/users/{user_id}/reset-password:
     post:
       operationId: users_reset_password_create
@@ -1231,6 +1260,34 @@ components:
         join_enabled:
           type: boolean
           title: Qo'shilish yoqilgan
+    PlanRequest:
+      type: object
+      properties:
+        slots:
+          type: array
+          items:
+            $ref: '#/components/schemas/SlotRequest'
+          maxItems: 14
+          minItems: 1
+        start_date:
+          type: string
+          format: date
+        topics:
+          type: array
+          items:
+            type: string
+            minLength: 1
+            maxLength: 8
+          maxItems: 200
+        preview:
+          type: boolean
+          default: true
+        overwrite:
+          type: boolean
+          default: false
+      required:
+      - slots
+      - start_date
     PolicyVersion:
       type: object
       properties:
@@ -1426,6 +1483,24 @@ components:
       - id
       - instructor
       - name
+    SlotRequest:
+      type: object
+      properties:
+        weekday:
+          type: integer
+          maximum: 6
+          minimum: 0
+        time:
+          type: string
+          format: time
+        minutes:
+          type: integer
+          maximum: 600
+          minimum: 1
+      required:
+      - minutes
+      - time
+      - weekday
     StatusEnum:
       enum:
       - pending
@@ -1459,6 +1534,33 @@ components:
           readOnly: true
       required:
       - temporary_password
+    WindowPlan:
+      type: object
+      properties:
+        plan:
+          type: array
+          items:
+            $ref: '#/components/schemas/WindowPlanItem'
+        saved:
+          type: boolean
+      required:
+      - plan
+      - saved
+    WindowPlanItem:
+      type: object
+      properties:
+        topic:
+          type: string
+        opens_at:
+          type: string
+          format: date-time
+        closes_at:
+          type: string
+          format: date-time
+      required:
+      - closes_at
+      - opens_at
+      - topic
     WindowPutRequest:
       type: object
       properties:
