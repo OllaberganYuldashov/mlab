@@ -11,3 +11,5 @@ da509754bea0fbc2add8b76337f1b262bc9ff621:backend/tests/courses/test_cnt_01_impor
 36cf52f6f128f1cc02bbf4727d31de1038ca8f27:frontend/src/pages/auth-pages.test.tsx:generic-api-key:46
 36cf52f6f128f1cc02bbf4727d31de1038ca8f27:frontend/src/pages/auth-pages.test.tsx:generic-api-key:169
 36cf52f6f128f1cc02bbf4727d31de1038ca8f27:frontend/src/pages/auth-pages.test.tsx:generic-api-key:238
+# I1-13: testdagi soxta qo'shilish tokeni (secret emas, faqat format uchun)
+5f4ba1c586c6c0fb123447456203ac5843f38b9c:frontend/src/pages/join-student.test.tsx:generic-api-key:10
