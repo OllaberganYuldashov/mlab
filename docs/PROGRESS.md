@@ -3,8 +3,9 @@
 > Har sessiya oxirida Claude yangilaydi. Yangi sessiya ishni shu fayldan davom ettiradi.
 
 ## Sog'liq
-- Holat: **Yashil** (2026-11-22, tungi run 2/2 boshida va oxirida): main `ci` yashil, backend 143 → 220 test,
-  frontend 8 test; bug va rad etilgan PR yo'q.
+- Holat: **Yashil** (2026-11-23, kunduzgi run 1/3 boshida va oxirida): main `ci` yashil, backend 220 → 296 test,
+  frontend 8 test; bug va rad etilgan PR yo'q. `alert:main-guard` #34 — yolg'on signal (PR #33 commit'lari),
+  izoh yozildi; yopish egasida.
 - Oxirgi yashil nuqta: `good-2026-11-22-2341-4e4f41c` (PR #31 dan keyingisi `known-good` tomonidan qo'yiladi)
 - Tuzatish urinishlari: 0
 - Ochiq `alert:main-guard` / `alert:red-light`: yo'q
@@ -13,7 +14,7 @@
 - Reliz: R0 — Poydevor (I0)
 - TZ: SRS v2 tasdiqlangan → `docs/SRS.md`
 - GitHub: label'lar va R0-01..R0-17 issue'lari (#5–#21), "📋 Kunlik hisobotlar" (#4) yaratildi
-- Oxirgi tugagan tasklar: R0-05 (#9) — PR #33; R0-13 (#17) — PR #35 (run 2/2). Run 1/2: R0-04 (#8) — PR #28; R0-03 (#7) — PR #29; R0-14 (#18) — PR #30; R0-12 (#16) — PR #31
+- Oxirgi tugagan tasklar: R0-06 (#10) — PR #37; R0-07 (#11) — PR #39 (kunduzgi run 1/3). Run 2/2: R0-05 (#9) — PR #33; R0-13 (#17) — PR #35. Run 1/2: R0-04 (#8) — PR #28; R0-03 (#7) — PR #29; R0-14 (#18) — PR #30; R0-12 (#16) — PR #31
   (hammasi `merge-if-green.sh` bilan). Oldin: R0-01 (#5) — PR #22, R0-02 (#6) — PR #23.
 
 ## Tezlik va MVP prognozi
@@ -24,8 +25,7 @@
 | 2026-11-22 (boshlang'ich) | 4 (R0-01, R0-02) | 1 interaktiv | ~394 (R0 24 + R1 kodi 240 + kontent 130) | 8–10 hafta (2027 yanvar oxiri – fevral boshi) |
 
 ## Keyingi task
-- Tayyor (bog'liqligi yopilgan): R0-06 (#10), R0-07 (#11 — security-reviewer izohi bilan: admin login ham lockout va audit),
-  R0-08 (#12), R0-09 (#13), R0-11 (#15), R0-17 (#21), R0-15 (#19).
+- Tayyor (bog'liqligi yopilgan): R0-08 (#12), R0-09 (#13), R0-10 (#14), R0-11 (#15), R0-17 (#21), R0-15 (#19, ADR-0004).
 
 ## Egasining qarorlari (2026-11-21/22, sessiyada)
 - Lockout kaliti — Hemis ID + IP (#11 izohi).
@@ -39,6 +39,8 @@
   connector'siz trigger yangi sessiyada repo'ga kira olmaydi, shuning uchun doimiy sessiya ishlatiladi.
 
 ## Bloklar (egasining javobi kerak)
+- #38 — Hemis ID egasini tasdiqlash (begona ID bilan ro'yxatdan o'tish xavfi): variantlar A/B/C, tavsiya A (MVP).
+- #34 — main-guard yolg'on signali: workflow'ni tuzatish (himoyalangan fayl) kerakmi?
 - Setup skript: sessiya boshida PostgreSQL/Redis ishlamayotgan va `mlab` foydalanuvchisi yo'q edi — muhitdagi
   setup skript qo'yilmagan bo'lishi mumkin. Yangilangan skript PR #23 da (`docs/prompts/setup-script.sh`).
 - SRS 12-bo'lim ochiq savollari: monobloklar parametrlari (I2 gacha), domen va HTTPS (R0-15/R0-16 gacha;
@@ -51,6 +53,11 @@
   (hozir faqat admin `save_model` yozadi) — bitta servis funksiyasi orqali.
 - Kontent: `apps/courses/content.py` (ADR-0002). Mavzu fayldan o'chsa bazadan ham o'chadi — R1 da progress FK
   qo'shilganda `PROTECT` + aniq xato.
+- Auth: yagona login yo'li `apps/accounts/backends.py` (API + admin); lockout `lockout.py` (atomik INCR);
+  IP qoidasi `net.py` (throttle, lockout, audit uchun bir xil). R0-08 da admin `password_change` → `PASSWORD_CHANGED` audit.
+- OpenAPI: API o'zgarsa `cd backend && uv run python manage.py spectacular --validate --file ../docs/openapi.yaml`
+  (test eskirgan faylni ushlaydi). ADR-0003 — OpenAPI; deploy ADR'i — 0004.
+- Bash'da `sleep` bloklangan; merge skripti tekshiruvlarni o'zi kutadi.
 - gitleaks: testda `secret = "..."` kabi nom ham `generic-api-key` beradi — o'zgaruvchiga boshqa nom va `uuid`/`secrets`.
 - Foydalanuvchi API'da URL'ga chiqsa, tashqi `public_id` (UUIDv7) kerakmi — R0-05/R0-06 da hal qilinadi (schema-reviewer tavsiyasi).
 - Audit: tarixi bor foydalanuvchi o'chirilmaydi (`PROTECT`), trigger UPDATE/DELETE'ni bloklaydi — ma'lumot o'chirish
@@ -71,6 +78,7 @@
 ## Tarix
 | Sana | Sessiya | Natija |
 | --- | --- | --- |
+| 2026-11-23 | Kunduzgi run 1/3 | Yashil; R0-06 (#37), R0-07 (#39) merge — 4 ball |
 | 2026-11-22 | Tungi run 2/2 | Yashil; R0-05 (#33), R0-13 (#35) merge — 4 ball |
 | 2026-11-22 | Tungi run 1/2 | Yashil; R0-04 (#28), R0-03 (#29), R0-14 (#30), R0-12 (#31) merge — 5 ball |
 | 2026-11-22 | Tayyorgarlik (chat) | SRS v2 tasdiqlandi, L1 loyiha fayllari tayyorlandi |
