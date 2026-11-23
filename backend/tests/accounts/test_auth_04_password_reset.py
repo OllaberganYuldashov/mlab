@@ -191,7 +191,9 @@ def test_auth_04_must_change_blocks_admin_site() -> None:
     User.objects.filter(pk=boss.pk).update(must_change_password=True)
     browser = Client()
     browser.force_login(boss)
-    assert browser.get("/admin/").status_code == 403
+    response = browser.get("/admin/")
+    assert response.status_code == 302
+    assert response["Location"] == "/admin/password_change/"
     assert browser.get("/admin/password_change/").status_code == 200
 
 
@@ -311,3 +313,99 @@ def test_auth_04_password_never_in_admin_change_page() -> None:
     browser.force_login(admin_user)
     body = browser.get(f"/admin/accounts/user/{student.pk}/change/").content.decode()
     assert temporary not in body
+
+
+# --- security-reviewer tavsiyalari ---
+
+
+def _csrf_login(hemis_id: str, password: str) -> Any:
+    from django.test import Client
+
+    browser = Client(enforce_csrf_checks=True)
+    browser.get("/api/auth/csrf")
+    return browser.post(
+        "/api/auth/login",
+        {"hemis_id": hemis_id, "password": password},
+        content_type="application/json",
+        HTTP_X_CSRFTOKEN=browser.cookies["csrftoken"].value,
+    )
+
+
+def test_auth_04_temporary_password_expires_after_24_hours() -> None:
+    from datetime import timedelta
+
+    from django.utils import timezone
+
+    student = make_user()
+    temporary = _reset(_staff(Role.ADMIN), student).json()["temporary_password"]
+    student.refresh_from_db()
+    assert student.temporary_password_expires_at is not None
+    later = timezone.now() + timedelta(hours=24, seconds=1)
+    with mock.patch("django.utils.timezone.now", return_value=later):
+        assert _csrf_login(student.hemis_id, temporary).status_code == 400
+    assert _csrf_login(student.hemis_id, temporary).status_code == 200
+
+
+def test_auth_04_admin_cannot_reuse_temporary_password_as_new() -> None:
+    from django.test import Client
+
+    boss = _staff(Role.SUPER_ADMIN)
+    admin_user = _staff(Role.ADMIN)
+    temporary = _reset(boss, admin_user).json()["temporary_password"]
+    browser = Client()
+    browser.force_login(User.objects.get(pk=admin_user.pk))
+    browser.post(
+        "/admin/password_change/",
+        {"old_password": temporary, "new_password1": temporary, "new_password2": temporary},
+    )
+    admin_user.refresh_from_db()
+    assert admin_user.must_change_password
+    assert not AuditLog.objects.filter(action=Action.PASSWORD_CHANGED).exists()
+
+
+def test_auth_04_change_clears_expiry() -> None:
+    student = make_user()
+    temporary = _reset(_staff(Role.ADMIN), student).json()["temporary_password"]
+    student.refresh_from_db()
+    student.set_password(NEW_PASSWORD)
+    student.save()
+    student.refresh_from_db()
+    assert student.temporary_password_expires_at is None
+    assert not student.must_change_password
+    assert temporary != NEW_PASSWORD
+
+
+def test_auth_04_inactive_target_not_resettable() -> None:
+    student = make_user(is_active=False)
+    assert _reset(_staff(Role.ADMIN), student).status_code == 404
+
+
+def test_auth_04_reset_does_not_overwrite_other_fields() -> None:
+    # Faqat parol maydonlari yoziladi: eskirgan obyekt boshqa o'zgarishni qaytarib yubormaydi.
+    student = make_user(full_name="Eski Ism")
+    User.objects.filter(pk=student.pk).update(full_name="Yangi Ism")
+    _reset(_staff(Role.ADMIN), student)
+    student.refresh_from_db()
+    assert student.full_name == "Yangi Ism"
+
+
+def test_auth_04_reset_throttled_per_actor() -> None:
+    from django.test import override_settings
+
+    admin_user = _staff(Role.ADMIN)
+    students = [make_user() for _ in range(3)]
+    with override_settings(AUTH_RESET_PASSWORD_RATE="2/hour"):
+        codes = [_reset(admin_user, s).status_code for s in students]
+    assert codes == [200, 200, 429]
+
+
+def test_auth_04_password_change_audit_is_atomic() -> None:
+    student = make_user(password=PASSWORD)
+    student.set_password(NEW_PASSWORD)
+    with (
+        mock.patch("apps.audit.record", side_effect=RuntimeError("audit down")),
+        pytest.raises(RuntimeError),
+    ):
+        student.save()
+    student.refresh_from_db()
+    assert student.check_password(PASSWORD)  # audit yozilmadi — parol ham o'zgarmadi

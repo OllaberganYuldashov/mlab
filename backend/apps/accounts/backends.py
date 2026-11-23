@@ -42,6 +42,10 @@ class LockoutModelBackend(ModelBackend):
             # 5-xato javobi oddiy "noto'g'ri"; blok keyingi urinishdan boshlanadi.
             lockout.failed(hemis_id, ip, attempt)
             return None
+        if user.temporary_password_expired:
+            # 24 soatdan eski vaqtinchalik parol — xuddi noto'g'ri parol kabi (yangi tiklash kerak).
+            lockout.failed(hemis_id, ip, attempt)
+            return None
         lockout.succeeded(hemis_id, ip)
         return user
 

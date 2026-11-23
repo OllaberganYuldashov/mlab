@@ -27,7 +27,8 @@ def instructor_teaches(instructor: User, student: User) -> bool:
 
 
 def can_reset_password(actor: User, target: User) -> bool:
-    if actor.pk == target.pk:
+    if actor.pk == target.pk or not target.is_active:
+        # Nofaol akkauntga ishlaydigan parol berilmaydi (avval admin uni faollashtiradi).
         return False
     if target.role not in _RESETTABLE.get(actor.role, frozenset()):
         return False

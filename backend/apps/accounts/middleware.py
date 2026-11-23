@@ -8,6 +8,7 @@ from __future__ import annotations
 from collections.abc import Callable
 
 from django.http import HttpRequest, HttpResponse, JsonResponse
+from django.shortcuts import redirect
 from django.utils.translation import gettext as _
 
 ALLOWED_PATHS = frozenset(
@@ -38,6 +39,9 @@ class PasswordChangeRequiredMiddleware:
             and getattr(user, "must_change_password", False)
             and request.path not in ALLOWED_PATHS
         ):
+            if request.path.startswith("/admin/"):
+                # Admin sahifasi: JSON emas — parol almashtirish sahifasiga yo'naltiriladi.
+                return redirect("admin:password_change")
             return JsonResponse(
                 {"detail": _("Avval parolni almashtiring."), "code": "password_change_required"},
                 status=403,

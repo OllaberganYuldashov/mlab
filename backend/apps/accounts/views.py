@@ -215,10 +215,23 @@ class ChangePasswordView(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
+class ResetPasswordThrottle(SimpleRateThrottle):
+    """Tiklovchi bo'yicha: o'g'irlangan xodim sessiyasi bilan ommaviy tiklashga qarshi."""
+
+    scope = "reset-password"
+
+    def get_rate(self) -> str:
+        return str(settings.AUTH_RESET_PASSWORD_RATE)
+
+    def get_cache_key(self, request: Request, view: APIView) -> str:
+        return self.cache_format % {"scope": self.scope, "ident": str(request.user.pk)}
+
+
 class ResetPasswordView(APIView):
     """Vaqtinchalik parol faqat shu javobda bir marta qaytadi; saqlanmaydi va loglanmaydi."""
 
     permission_classes = (IsAuthenticated,)
+    throttle_classes = (ResetPasswordThrottle,)
 
     @extend_schema(
         request=None, responses={200: TemporaryPasswordSerializer}, summary="Parolni tiklash"
@@ -228,13 +241,23 @@ class ResetPasswordView(APIView):
         assert isinstance(actor, User)  # noqa: S101
         if actor.role not in RESET_ROLES:
             raise PermissionDenied
-        target = User.objects.filter(pk=user_id).first()
-        if target is None or not can_reset_password(actor, target):
-            raise NotFound  # begona yoki mavjud bo'lmagan foydalanuvchi — bir xil javob (IDOR)
         temporary = secrets.token_urlsafe(12)
         with transaction.atomic():
+            # Qatorni qulflab qayta o'qish: parallel rol/faollik o'zgarishi yo'qolmaydi, qaror yangi
+            # ma'lumot bo'yicha.
+            target = User.objects.select_for_update().filter(pk=user_id).first()
+            if target is None or not can_reset_password(actor, target):
+                raise NotFound  # begona yoki mavjud bo'lmagan foydalanuvchi — bir xil javob (IDOR)
             target.set_temporary_password(temporary)
-            target.save()  # parol xeshi o'zgardi — talabaning eski sessiyalari bekor bo'ladi
+            # Parol xeshi o'zgardi — talabaning eski sessiyalari bekor bo'ladi.
+            target.save(
+                update_fields=[
+                    "password",
+                    "must_change_password",
+                    "temporary_password_expires_at",
+                    "updated_at",
+                ]
+            )
             record(Action.PASSWORD_RESET, actor=actor, target=target)
         logger.info(
             "user.password_reset",
