@@ -181,6 +181,75 @@ paths:
               schema:
                 $ref: '#/components/schemas/Instructor'
           description: ''
+  /api/join/{token}:
+    get:
+      operationId: join_retrieve
+      summary: Havola bo'yicha guruhni ko'rish
+      parameters:
+      - in: path
+        name: token
+        schema:
+          type: string
+        required: true
+      tags:
+      - join
+      security:
+      - cookieAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JoinPreview'
+          description: ''
+    post:
+      operationId: join_create
+      summary: A'zolik so'rovini yuborish
+      parameters:
+      - in: path
+        name: token
+        schema:
+          type: string
+        required: true
+      tags:
+      - join
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MyMembership'
+          description: ''
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MyMembership'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JoinRefused'
+          description: ''
+  /api/me/membership:
+    get:
+      operationId: me_membership_retrieve
+      summary: Talabaning oxirgi a'zoligi va holati
+      tags:
+      - me
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MyMembershipEnvelope'
+          description: ''
   /api/policy:
     get:
       operationId: policy_retrieve
@@ -471,6 +540,32 @@ components:
       - id
       - student_limit
       - temporary_password
+    JoinPreview:
+      type: object
+      properties:
+        section:
+          type: string
+        instructor:
+          type: string
+        join_enabled:
+          type: boolean
+        is_full:
+          type: boolean
+      required:
+      - instructor
+      - is_full
+      - join_enabled
+      - section
+    JoinRefused:
+      type: object
+      properties:
+        code:
+          type: string
+        detail:
+          type: string
+      required:
+      - code
+      - detail
     JoinToken:
       type: object
       properties:
@@ -539,6 +634,38 @@ components:
       - hemis_id
       - must_change_password
       - role
+    MyMembership:
+      type: object
+      properties:
+        id:
+          type: integer
+        status:
+          type: string
+        section:
+          type: string
+        instructor:
+          type: string
+        requested_at:
+          type: string
+          format: date-time
+        decided_at:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+      - decided_at
+      - id
+      - instructor
+      - requested_at
+      - section
+      - status
+    MyMembershipEnvelope:
+      type: object
+      properties:
+        membership:
+          $ref: '#/components/schemas/MyMembership'
+      required:
+      - membership
     PaginatedSectionList:
       type: object
       required:
