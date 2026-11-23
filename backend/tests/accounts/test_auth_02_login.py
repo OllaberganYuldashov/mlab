@@ -75,6 +75,7 @@ def test_auth_02_login_success_sets_session_and_me(csrf_client: Client, student:
         "full_name": student.full_name,
         "role": "student",
         "direction": student.direction_id,
+        "must_change_password": False,
     }
 
 

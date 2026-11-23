@@ -51,6 +51,8 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    # AUTH-04: vaqtinchalik parol bilan faqat parol almashtirish sahifasi ochiq.
+    "apps.accounts.middleware.PasswordChangeRequiredMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
@@ -149,6 +151,10 @@ AUTH_REGISTER_GLOBAL_RATE = env.optional("AUTH_REGISTER_GLOBAL_RATE", "300/hour"
 AUTH_LOGIN_RATE = env.optional("AUTH_LOGIN_RATE", "120/minute")
 # Hamma IP uchun umumiy login chegarasi (Argon2 xotira/CPU narxi; dars boshida 30 talaba bemalol).
 AUTH_LOGIN_GLOBAL_RATE = env.optional("AUTH_LOGIN_GLOBAL_RATE", "600/minute")
+# AUTH-04: parol almashtirish urinishlari (foydalanuvchi bo'yicha; eski parolni taxminlashga).
+AUTH_CHANGE_PASSWORD_RATE = env.optional("AUTH_CHANGE_PASSWORD_RATE", "10/hour")
+# AUTH-04: tiklovchi bo'yicha (o'qituvchi bir guruhni bemalol; ommaviy tiklashga qarshi).
+AUTH_RESET_PASSWORD_RATE = env.optional("AUTH_RESET_PASSWORD_RATE", "60/hour")
 # Sessiya 12 soat (kompyuter xonasida unutilgan sessiya uzoq yashamasin).
 SESSION_COOKIE_AGE = 12 * 60 * 60
 # Lockout (5 xato -> 15 daqiqa) API va Django Admin login'ida bir xil ishlaydi.

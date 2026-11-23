@@ -3,15 +3,18 @@
 from __future__ import annotations
 
 import logging
+import secrets
 
 from django.conf import settings
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
+from django.db import transaction
 from django.utils.decorators import method_decorator
 from django.utils.translation import gettext_lazy as _
 from django.views.decorators.csrf import ensure_csrf_cookie
 from drf_spectacular.utils import extend_schema, inline_serializer
 from rest_framework import generics, serializers, status
 from rest_framework.authentication import SessionAuthentication
+from rest_framework.exceptions import NotFound, PermissionDenied
 from rest_framework.parsers import JSONParser
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.request import Request
@@ -22,12 +25,17 @@ from rest_framework.views import APIView
 from apps.accounts.backends import LOCKED_ATTR
 from apps.accounts.models import Direction, User
 from apps.accounts.net import client_ip
+from apps.accounts.policies import RESET_ROLES, can_reset_password
 from apps.accounts.serializers import (
+    ChangePasswordSerializer,
     DirectionSerializer,
     LoginSerializer,
     MeSerializer,
     RegisterSerializer,
+    TemporaryPasswordSerializer,
 )
+from apps.audit import record
+from apps.audit.models import Action
 
 logger = logging.getLogger("mlab.accounts")
 
@@ -173,3 +181,88 @@ class MeView(APIView):
         user = request.user
         assert isinstance(user, User)  # IsAuthenticated kafolatlaydi  # noqa: S101
         return Response(MeSerializer(user).data)
+
+
+# --- Parolni tiklash va almashtirish (AUTH-04) ---
+
+
+class ChangePasswordThrottle(SimpleRateThrottle):
+    scope = "change-password"
+
+    def get_rate(self) -> str:
+        return str(settings.AUTH_CHANGE_PASSWORD_RATE)
+
+    def get_cache_key(self, request: Request, view: APIView) -> str:
+        return self.cache_format % {"scope": self.scope, "ident": str(request.user.pk)}
+
+
+class ChangePasswordView(APIView):
+    permission_classes = (IsAuthenticated,)
+    throttle_classes = (ChangePasswordThrottle,)
+    parser_classes = (JSONParser,)
+
+    @extend_schema(
+        request=ChangePasswordSerializer, responses={204: None}, summary="Parolni almashtirish"
+    )
+    def post(self, request: Request) -> Response:
+        user = request.user
+        assert isinstance(user, User)  # IsAuthenticated kafolatlaydi  # noqa: S101
+        serializer = ChangePasswordSerializer(data=request.data, context={"user": user})
+        serializer.is_valid(raise_exception=True)
+        user.set_password(serializer.validated_data["new_password"])
+        user.save()  # must_change_password o'chadi, PASSWORD_CHANGED audit (User.save)
+        update_session_auth_hash(request._request, user)  # joriy sessiya saqlanadi
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class ResetPasswordThrottle(SimpleRateThrottle):
+    """Tiklovchi bo'yicha: o'g'irlangan xodim sessiyasi bilan ommaviy tiklashga qarshi."""
+
+    scope = "reset-password"
+
+    def get_rate(self) -> str:
+        return str(settings.AUTH_RESET_PASSWORD_RATE)
+
+    def get_cache_key(self, request: Request, view: APIView) -> str:
+        return self.cache_format % {"scope": self.scope, "ident": str(request.user.pk)}
+
+
+class ResetPasswordView(APIView):
+    """Vaqtinchalik parol faqat shu javobda bir marta qaytadi; saqlanmaydi va loglanmaydi."""
+
+    permission_classes = (IsAuthenticated,)
+    throttle_classes = (ResetPasswordThrottle,)
+
+    @extend_schema(
+        request=None, responses={200: TemporaryPasswordSerializer}, summary="Parolni tiklash"
+    )
+    def post(self, request: Request, user_id: int) -> Response:
+        actor = request.user
+        assert isinstance(actor, User)  # noqa: S101
+        if actor.role not in RESET_ROLES:
+            raise PermissionDenied
+        temporary = secrets.token_urlsafe(12)
+        with transaction.atomic():
+            # Qatorni qulflab qayta o'qish: parallel rol/faollik o'zgarishi yo'qolmaydi, qaror yangi
+            # ma'lumot bo'yicha.
+            target = User.objects.select_for_update().filter(pk=user_id).first()
+            if target is None or not can_reset_password(actor, target):
+                raise NotFound  # begona yoki mavjud bo'lmagan foydalanuvchi — bir xil javob (IDOR)
+            target.set_temporary_password(temporary)
+            # Parol xeshi o'zgardi — talabaning eski sessiyalari bekor bo'ladi.
+            target.save(
+                update_fields=[
+                    "password",
+                    "must_change_password",
+                    "temporary_password_expires_at",
+                    "updated_at",
+                ]
+            )
+            record(Action.PASSWORD_RESET, actor=actor, target=target)
+        logger.info(
+            "user.password_reset",
+            extra={"event": "user.password_reset", "actor_id": actor.pk, "user_id": target.pk},
+        )
+        response = Response({"temporary_password": temporary})
+        response["Cache-Control"] = "no-store"
+        return response

@@ -8,12 +8,14 @@ from __future__ import annotations
 
 import re
 import unicodedata
+from datetime import timedelta
 from typing import Any, ClassVar
 
 from django.contrib.auth.base_user import AbstractBaseUser, BaseUserManager
+from django.contrib.auth.hashers import check_password
 from django.contrib.auth.models import PermissionsMixin
 from django.core.validators import RegexValidator
-from django.db import models
+from django.db import models, transaction
 from django.db.models import F, Func, Q, TextField
 from django.db.models.functions import Now
 from django.utils import timezone
@@ -58,6 +60,7 @@ class Role(models.TextChoices):
 
 
 STAFF_ROLES = frozenset({Role.SUPER_ADMIN, Role.ADMIN})
+TEMPORARY_PASSWORD_TTL = timedelta(hours=24)
 
 
 class Direction(models.Model):
@@ -127,6 +130,12 @@ class User(AbstractBaseUser, PermissionsMixin):
         verbose_name=_("yo'nalish"),
     )
     is_active = models.BooleanField(_("faol"), default=True)
+    # AUTH-04: vaqtinchalik parol berilgan — keyingi kirishda yangisini o'rnatish majburiy.
+    must_change_password = models.BooleanField(_("parolni almashtirishi shart"), default=False)
+    # Vaqtinchalik parol muddati (24 soat): o'tgach u bilan kirib bo'lmaydi — yangi tiklash kerak.
+    temporary_password_expires_at = models.DateTimeField(
+        _("vaqtinchalik parol muddati"), null=True, blank=True
+    )
     date_joined = models.DateTimeField(_("ro'yxatdan o'tgan vaqt"), default=timezone.now)
     updated_at = models.DateTimeField(_("o'zgartirilgan vaqt"), auto_now=True)
 
@@ -192,9 +201,55 @@ class User(AbstractBaseUser, PermissionsMixin):
         super().clean()
         self.full_name = normalize_full_name(self.full_name)
 
+    def set_temporary_password(self, raw_password: str) -> None:
+        """AUTH-04: vaqtinchalik parol — saqlangandan keyin `must_change_password` yoqiq qoladi."""
+        self.set_password(raw_password)
+        self.must_change_password = True
+        self.temporary_password_expires_at = timezone.now() + TEMPORARY_PASSWORD_TTL
+        self._temporary_password = True
+
+    @property
+    def temporary_password_expired(self) -> bool:
+        expires = self.temporary_password_expires_at
+        return self.must_change_password and expires is not None and timezone.now() >= expires
+
     def save(self, *args: Any, **kwargs: Any) -> None:
         self.full_name = normalize_full_name(self.full_name)
-        super().save(*args, **kwargs)
+        # set_password() chaqirilgan (xesh yangilanishi emas — check_password u holda `_password`ni
+        # tozalaydi). Mavjud foydalanuvchi parolni almashtirdi: majburiylik olib tashlanadi.
+        raw = getattr(self, "_password", None)
+        changed_by_user = (
+            raw is not None
+            and not self._state.adding
+            and not getattr(self, "_temporary_password", False)
+        )
+        if changed_by_user and self.must_change_password and self._same_as_stored(str(raw)):
+            # Vaqtinchalik parolni "yangi" parol qilib qo'yish majburiylikni olib tashlamaydi.
+            changed_by_user = False
+        if changed_by_user:
+            self.must_change_password = False
+            self.temporary_password_expires_at = None
+            update_fields = kwargs.get("update_fields")
+            if update_fields is not None:
+                kwargs["update_fields"] = {
+                    *update_fields,
+                    "must_change_password",
+                    "temporary_password_expires_at",
+                }
+        from apps.audit import record
+        from apps.audit.models import Action
+
+        # Parol va uning izi birga: audit yozilmasa, parol ham o'zgarmaydi.
+        with transaction.atomic():
+            super().save(*args, **kwargs)
+            if changed_by_user:
+                # API (change-password) va Django Admin (password_change) uchun bir xil iz.
+                record(Action.PASSWORD_CHANGED, actor=self, target=self)
+        self._temporary_password = False
+
+    def _same_as_stored(self, raw: str) -> bool:
+        stored = type(self).objects.filter(pk=self.pk).values_list("password", flat=True).first()
+        return stored is not None and check_password(raw, stored)
 
 
 class Consent(models.Model):

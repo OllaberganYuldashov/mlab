@@ -3,6 +3,23 @@ info:
   title: MLab API
   version: 0.1.0
 paths:
+  /api/auth/change-password:
+    post:
+      operationId: auth_change_password_create
+      summary: Parolni almashtirish
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangePasswordRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
   /api/auth/csrf:
     get:
       operationId: auth_csrf_retrieve
@@ -115,8 +132,45 @@ paths:
                 items:
                   $ref: '#/components/schemas/Direction'
           description: ''
+  /api/users/{user_id}/reset-password:
+    post:
+      operationId: users_reset_password_create
+      description: Vaqtinchalik parol faqat shu javobda bir marta qaytadi; saqlanmaydi
+        va loglanmaydi.
+      summary: Parolni tiklash
+      parameters:
+      - in: path
+        name: user_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - users
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TemporaryPassword'
+          description: ''
 components:
   schemas:
+    ChangePasswordRequest:
+      type: object
+      properties:
+        old_password:
+          type: string
+          minLength: 1
+          maxLength: 128
+        new_password:
+          type: string
+          minLength: 1
+          maxLength: 128
+      required:
+      - new_password
+      - old_password
     Direction:
       type: object
       properties:
@@ -177,10 +231,15 @@ components:
           readOnly: true
           nullable: true
           title: Yo'nalish
+        must_change_password:
+          type: boolean
+          readOnly: true
+          title: Parolni almashtirishi shart
       required:
       - direction
       - full_name
       - hemis_id
+      - must_change_password
       - role
     Register:
       type: object
@@ -242,6 +301,14 @@ components:
         * `admin` - Admin
         * `instructor` - O'qituvchi
         * `student` - Talaba
+    TemporaryPassword:
+      type: object
+      properties:
+        temporary_password:
+          type: string
+          readOnly: true
+      required:
+      - temporary_password
   securitySchemes:
     cookieAuth:
       type: apiKey
