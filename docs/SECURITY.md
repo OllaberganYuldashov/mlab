@@ -21,6 +21,7 @@ Chat, repo, log, PR, issue, bulut muhiti o'zgaruvchilari va scheduled task promp
 | AUTH_REGISTER_RATE | Ro'yxatdan o'tish cheklovi (IP bo'yicha, IPv6 — /64; default 60/hour) | .env.example | Server .env |
 | AUTH_REGISTER_GLOBAL_RATE | Umumiy ro'yxatdan o'tish chegarasi (default 300/hour) | .env.example | Server .env |
 | AUTH_LOGIN_RATE | Login so'rovlari IP bo'yicha (default 120/minute); lockout (5 xato → 15 daqiqa, Hemis ID + IP) kodda qat'iy | .env.example | Server .env |
+| AUTH_LOGIN_GLOBAL_RATE | Umumiy login chegarasi (default 600/minute; Argon2 yuklamasi) | .env.example | Server .env |
 | LOG_LEVEL | Log darajasi (default INFO), secret emas | .env.example | Server .env |
 | SECURE_SSL_REDIRECT | Prod: HTTP → HTTPS yo'naltirish (default true) | — | Server .env |
 | GEMINI_API_KEY | AI tutor | bo'sh (AI_PROVIDER=fake) | Server .env |

@@ -37,7 +37,8 @@ def _on_login_failed(
     sender: Any, credentials: dict[str, Any], request: HttpRequest | None = None, **kwargs: Any
 ) -> None:
     # Shovqin va DoS'ga qarshi faqat ikki hodisa yoziladi: oynadagi birinchi xato va blokni
-    # boshlagan 5-xato. Blok paytidagi rad etishlar yozilmaydi. Parol `credentials`dan hech qachon olinmaydi.
+    # boshlagan 5-xato. Blok paytidagi rad etishlar yozilmaydi.
+    # Parol `credentials`dan hech qachon olinmaydi.
     if request is None or getattr(request, LOCKED_ATTR, False):
         return
     failures_before = getattr(request, FAILURES_ATTR, None)
