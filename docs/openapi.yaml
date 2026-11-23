@@ -437,6 +437,62 @@ paths:
               schema:
                 $ref: '#/components/schemas/PaginatedMemberList'
           description: ''
+  /api/sections/{section_id}/members/{membership_id}/move:
+    post:
+      operationId: sections_members_move_create
+      description: 'SEC-07: faqat shu guruh o''qituvchisining boshqa guruhiga (begona
+        guruh — 404).'
+      summary: Talabani boshqa guruhga o'tkazish
+      parameters:
+      - in: path
+        name: membership_id
+        schema:
+          type: integer
+        required: true
+      - in: path
+        name: section_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - sections
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MoveRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Member'
+          description: ''
+  /api/sections/{section_id}/members/{membership_id}/remove:
+    post:
+      operationId: sections_members_remove_create
+      summary: Talabani guruhdan chiqarish
+      parameters:
+      - in: path
+        name: membership_id
+        schema:
+          type: integer
+        required: true
+      - in: path
+        name: section_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - sections
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
   /api/sections/{section_id}/members/decide:
     post:
       operationId: sections_members_decide_create
@@ -792,6 +848,14 @@ components:
       - requested_at
       - status
       - student
+    MoveRequest:
+      type: object
+      properties:
+        target_section:
+          type: integer
+          minimum: 1
+      required:
+      - target_section
     MyMembership:
       type: object
       properties:

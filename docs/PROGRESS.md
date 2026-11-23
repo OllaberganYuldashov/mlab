@@ -67,6 +67,7 @@
   `service postgresql start && service redis-server start` (yangilangan skript `docs/prompts/setup-script.sh`).
 
 ## Eslatmalar keyingi sessiya uchun
+- Sections: yozuvlar faqat `apps/sections/services.py` orqali; qulflar `select_for_update(no_key=True)`, tartib o'qituvchi → guruh(lar, id bo'yicha) → a'zolik (oddiy FOR UPDATE FK tekshiruvi bilan deadlock bergan). Vaqt — DB `Now()`. Talaba ishlari (I2+) talabaga bog'lanadi, guruhga emas (SEC-07: o'tkazishda saqlanadi).
 - Ustma-ust (stacked) PR ochilmaydi: #54 R0-15 branch'iga merge bo'lib qolgan, #56 bilan tuzatildi. Zarur bo'lsa — pastki PR merge bo'lgach base'ni `main` ga qo'lda ko'chirish va tekshirish.
 - Prod: `deploy/` (compose, Caddyfile, deploy/smoke/backup skriptlari), ADR-0004. Bulutda docker daemon yo'q: image build va `caddy validate` sinalmagan; skriptlar soxta docker bilan testlangan. Celery worker va sandbox I3 da compose'ga qo'shiladi.
 - Frontend: `src/api.ts` (CSRF, `fieldErrors`), kichik router `src/router.ts` + `Link.tsx` (react-router faqat ADR bilan). E2E soxta API bilan (`e2e/auth.spec.ts`) — frontend CI job'ida backend yo'q; backend oqimi `backend/tests` da. Testda parol literali yozma: gitleaks `generic-api-key` beradi — `crypto.randomUUID()` dan yasa.
