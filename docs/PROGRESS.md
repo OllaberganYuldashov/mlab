@@ -3,8 +3,8 @@
 > Har sessiya oxirida Claude yangilaydi. Yangi sessiya ishni shu fayldan davom ettiradi.
 
 ## Sog'liq
-- Holat: **Yashil** (2026-11-23, kunduzgi run 2/3 boshida va oxirida): main `ci` yashil, backend 296 → 363 test,
-  frontend 8 test; bug va rad etilgan PR yo'q. `alert:main-guard` #34 — yolg'on signal, tuzatish kodi
+- Holat: **Yashil** (2026-11-23, kunduzgi run 3/3 boshida va oxirida): main `ci` yashil, backend 365 test,
+  frontend 36 test + 3 e2e; bug va rad etilgan PR yo'q. `alert:main-guard` #34 — yolg'on signal, tuzatish kodi
   issue izohida (egasi qo'llaydi).
 - Oxirgi yashil nuqta: `good-2026-11-22-2341-4e4f41c` (PR #31 dan keyingisi `known-good` tomonidan qo'yiladi)
 - Tuzatish urinishlari: 0
@@ -14,7 +14,7 @@
 - Reliz: R0 — Poydevor (I0)
 - TZ: SRS v2 tasdiqlangan → `docs/SRS.md`
 - GitHub: label'lar va R0-01..R0-17 issue'lari (#5–#21), "📋 Kunlik hisobotlar" (#4) yaratildi
-- Oxirgi tugagan tasklar: R0-08 (#12) — PR #44; R0-09 (#13) — PR #45; R0-17 (#21) — PR #46 (kunduzgi run 2/3).
+- Oxirgi tugagan tasklar: R0-10 (#14) — PR #48; R0-11 (#15) — PR #49 (kunduzgi run 3/3). R0-08 (#12) — PR #44; R0-09 (#13) — PR #45; R0-17 (#21) — PR #46 (kunduzgi run 2/3).
   Run 1/3: R0-06 (#10) — PR #37; R0-07 (#11) — PR #39. Run 2/2: R0-05 (#9) — PR #33; R0-13 (#17) — PR #35. Run 1/2: R0-04 (#8) — PR #28; R0-03 (#7) — PR #29; R0-14 (#18) — PR #30; R0-12 (#16) — PR #31
   (hammasi `merge-if-green.sh` bilan). Oldin: R0-01 (#5) — PR #22, R0-02 (#6) — PR #23.
 
@@ -26,8 +26,8 @@
 | 2026-11-22 (boshlang'ich) | 4 (R0-01, R0-02) | 1 interaktiv | ~394 (R0 24 + R1 kodi 240 + kontent 130) | 8–10 hafta (2027 yanvar oxiri – fevral boshi) |
 
 ## Keyingi task
-- Tayyor (bog'liqligi yopilgan): R0-10 (#14, frontend sahifalari), R0-11 (#15), R0-15 (#19, ADR-0004; `needs:owner`),
-  R0-16 (#20, serversiz qismi). Keyin R1 I1 (guruhlar: `policies.instructor_teaches`, `limits.ensure_capacity` tayyor).
+- Tayyor (bog'liqligi yopilgan): R0-15 (#19, ADR-0004; `needs:owner`), R0-16 (#20, serversiz qismi). Keyin R1 I1.
+  (R0-10 va R0-11 tugadi.) Keyin R1 I1 (guruhlar: `policies.instructor_teaches`, `limits.ensure_capacity` tayyor).
 
 ## Egasining qarorlari (2026-11-23, sessiyada)
 - #38 (Hemis ID tasdiqlash): MVP uchun **A** — hozirgi oqim (o'qituvchi I1 da a'zolikni tasdiqlaydi, nizoda admin
@@ -64,6 +64,8 @@
   `service postgresql start && service redis-server start` (yangilangan skript `docs/prompts/setup-script.sh`).
 
 ## Eslatmalar keyingi sessiya uchun
+- Frontend: `src/api.ts` (CSRF, `fieldErrors`), kichik router `src/router.ts` + `Link.tsx` (react-router faqat ADR bilan). E2E soxta API bilan (`e2e/auth.spec.ts`) — frontend CI job'ida backend yo'q; backend oqimi `backend/tests` da. Testda parol literali yozma: gitleaks `generic-api-key` beradi — `crypto.randomUUID()` dan yasa.
+- `/policy` da "Mas'ul shaxs" aloqa ma'lumoti yo'q — egasi bergach `policy.s1.body` (`uz.json`) ga qo'shiladi.
 - Ruxsatlar faqat rol bo'yicha: `apps/accounts/permissions.py` (DRF) va `admin_access.RoleAccessAdmin` (admin).
   `User.has_perm*` doim `False`, `Group` admin yo'q. Rolni o'zgartiradigan har yangi yo'l audit yozishi shart
   (hozir faqat admin `save_model` yozadi) — bitta servis funksiyasi orqali.
