@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from django.db import IntegrityError, transaction
-from django.utils import timezone
+from django.db.models.functions import Now
 from django.utils.translation import gettext_lazy as _
 
 from apps.accounts.limits import StudentLimitExceeded, ensure_capacity
@@ -110,7 +110,7 @@ def decide_memberships(actor: User, section_id: int, ids: list[int], approve: bo
                 raise JoinRefused("instructor_limit", str(exc)) from exc
         new_status = MembershipStatus.APPROVED if approve else MembershipStatus.REJECTED
         action = Action.MEMBERSHIP_APPROVED if approve else Action.MEMBERSHIP_REJECTED
-        now = timezone.now()
+        now = Now()  # DB soati: `requested_at` (db_default) bilan bir manba — CHECK izchil
         for membership in targets:
             membership.status = new_status
             membership.decided_at = now
@@ -128,4 +128,76 @@ def decide_memberships(actor: User, section_id: int, ids: list[int], approve: bo
             approved=decided if approve else [],
             rejected=[] if approve else decided,
             skipped=skipped,
+        )
+
+
+def _lock_sections(*ids: int) -> dict[int, Section]:
+    """Bir nechta guruhni doim bir xil (id) tartibda qulflaydi — deadlock'siz."""
+    locked = Section.objects.select_for_update(no_key=True).filter(pk__in=ids).order_by("id")
+    return {s.pk: s for s in locked}
+
+
+def move_membership(actor: User, membership_id: int, source_id: int, target_id: int) -> Membership:
+    """SEC-07: tasdiqlangan a'zoni shu o'qituvchining boshqa guruhiga o'tkazish.
+
+    Eski yozuv `removed` bo'lib qoladi (tarix), yangisi `approved`. Talabaning ishlari talabaga
+    bog'langan (guruhga emas), shuning uchun o'tkazishda yo'qolmaydi.
+    """
+    with transaction.atomic():
+        sections = _lock_sections(source_id, target_id)
+        source, target = sections[source_id], sections[target_id]
+        membership = (
+            Membership.objects.select_for_update(no_key=True)
+            .filter(pk=membership_id, section=source, status=MembershipStatus.APPROVED)
+            .first()
+        )
+        if membership is None:
+            raise Membership.DoesNotExist
+        if approved_count(target) + 1 > target.capacity:
+            raise JoinRefused(
+                "section_full",
+                str(_("Tanlangan guruh to'lgan ({capacity}).")).format(capacity=target.capacity),
+            )
+        now = Now()  # DB soati: `requested_at` (db_default) bilan bir manba — CHECK izchil
+        membership.status = MembershipStatus.REMOVED
+        membership.decided_at = now
+        membership.decided_by = actor
+        membership.save(update_fields=["status", "decided_at", "decided_by"])
+        moved = Membership.objects.create(
+            student=membership.student,
+            section=target,
+            status=MembershipStatus.APPROVED,
+            decided_at=now,
+            decided_by=actor,
+        )
+        moved.refresh_from_db()
+        record(
+            Action.MEMBERSHIP_MOVED,
+            actor=actor,
+            target=moved,
+            before={"section": source.pk},
+            after={"section": target.pk},
+        )
+        return moved
+
+
+def remove_membership(actor: User, membership_id: int, section_id: int) -> None:
+    with transaction.atomic():
+        membership = (
+            Membership.objects.select_for_update(no_key=True)
+            .filter(pk=membership_id, section_id=section_id, status=MembershipStatus.APPROVED)
+            .first()
+        )
+        if membership is None:
+            raise Membership.DoesNotExist
+        membership.status = MembershipStatus.REMOVED
+        membership.decided_at = Now()
+        membership.decided_by = actor
+        membership.save(update_fields=["status", "decided_at", "decided_by"])
+        record(
+            Action.MEMBERSHIP_REMOVED,
+            actor=actor,
+            target=membership,
+            before={"status": MembershipStatus.APPROVED.value},
+            after={"status": MembershipStatus.REMOVED.value},
         )

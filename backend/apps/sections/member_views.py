@@ -20,7 +20,12 @@ from rest_framework.views import APIView
 from apps.accounts.models import User
 from apps.accounts.permissions import IsAdmin, IsInstructor, IsSuperAdmin
 from apps.sections.models import Membership, MembershipStatus
-from apps.sections.services import JoinRefused, decide_memberships
+from apps.sections.services import (
+    JoinRefused,
+    decide_memberships,
+    move_membership,
+    remove_membership,
+)
 from apps.sections.views import sections_for
 
 MAX_BULK = 500
@@ -124,3 +129,59 @@ class DecideView(APIView):
         return Response(
             {"approved": result.approved, "rejected": result.rejected, "skipped": result.skipped}
         )
+
+
+class MoveSerializer(serializers.Serializer[Any]):
+    target_section = serializers.IntegerField(min_value=1)
+
+
+class MoveView(APIView):
+    """SEC-07: faqat shu guruh o'qituvchisining boshqa guruhiga (begona guruh — 404)."""
+
+    permission_classes = STAFF_OR_INSTRUCTOR
+    parser_classes = (JSONParser,)
+
+    @extend_schema(
+        request=MoveSerializer,
+        responses={200: MemberSerializer},
+        summary="Talabani boshqa guruhga o'tkazish",
+    )
+    def post(self, request: Request, section_id: int, membership_id: int) -> Response:
+        payload = MoveSerializer(data=request.data)
+        payload.is_valid(raise_exception=True)
+        target_id = payload.validated_data["target_section"]
+        if target_id == section_id:
+            raise serializers.ValidationError(
+                {"target_section": ["Talaba allaqachon shu guruhda."]}
+            )
+        visible = sections_for(request.user)  # type: ignore[arg-type]
+        source = visible.filter(pk=section_id).first()
+        target = visible.filter(pk=target_id).first()
+        if source is None or target is None or target.instructor_id != source.instructor_id:
+            raise NotFound
+        actor = request.user
+        assert isinstance(actor, User)  # noqa: S101
+        try:
+            moved = move_membership(actor, membership_id, source.pk, target.pk)
+        except Membership.DoesNotExist as missing:
+            raise NotFound from missing
+        except JoinRefused as refused:
+            return Response(
+                {"code": refused.code, "detail": refused.detail}, status=status.HTTP_409_CONFLICT
+            )
+        return Response(MemberSerializer(moved).data)
+
+
+class RemoveView(APIView):
+    permission_classes = STAFF_OR_INSTRUCTOR
+
+    @extend_schema(request=None, responses={204: None}, summary="Talabani guruhdan chiqarish")
+    def post(self, request: Request, section_id: int, membership_id: int) -> Response:
+        _visible_section_id(request.user, section_id)
+        actor = request.user
+        assert isinstance(actor, User)  # noqa: S101
+        try:
+            remove_membership(actor, membership_id, section_id)
+        except Membership.DoesNotExist as missing:
+            raise NotFound from missing
+        return Response(status=status.HTTP_204_NO_CONTENT)

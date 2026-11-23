@@ -18,6 +18,16 @@ urlpatterns: list[URLPattern] = [
         name="section-members-decide",
     ),
     path(
+        "sections/<int:section_id>/members/<int:membership_id>/move",
+        member_views.MoveView.as_view(),
+        name="section-member-move",
+    ),
+    path(
+        "sections/<int:section_id>/members/<int:membership_id>/remove",
+        member_views.RemoveView.as_view(),
+        name="section-member-remove",
+    ),
+    path(
         "sections/<int:section_id>/join-token",
         views.JoinTokenView.as_view(),
         name="section-join-token",
