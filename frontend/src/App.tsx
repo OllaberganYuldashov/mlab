@@ -5,6 +5,8 @@ import ChangePasswordPage from "./pages/ChangePasswordPage";
 import LoginPage from "./pages/LoginPage";
 import PolicyPage from "./pages/PolicyPage";
 import RegisterPage from "./pages/RegisterPage";
+import SectionPage from "./pages/SectionPage";
+import SectionsPage from "./pages/SectionsPage";
 import { Link } from "./Link";
 import { navigate, usePath } from "./router";
 import "./App.css";
@@ -25,7 +27,8 @@ function Home({
       {me ? (
         <>
           <p>{t("app.greeting", { name: me.full_name })}</p>
-          <p>
+          <p className="links">
+            {me.role === "instructor" && <Link to="/sections">{t("nav.sections")}</Link>}
             <Link to="/change-password">{t("password.title")}</Link>
           </p>
           <button type="button" onClick={onLogout}>
@@ -123,6 +126,10 @@ export default function App() {
   }
 
   const forcedPath = me?.must_change_password ? "/change-password" : path;
+  const sectionMatch = /^\/sections\/(\d+)$/.exec(forcedPath);
+  if (sectionMatch && me?.role === "instructor") {
+    return <SectionPage sectionId={Number(sectionMatch[1])} />;
+  }
   switch (forcedPath) {
     case "/":
       return <Home me={me} onLogout={logout} failed={logoutFailed} />;
@@ -156,14 +163,21 @@ export default function App() {
           }}
         />
       );
+    case "/sections":
+      if (me?.role === "instructor") return <SectionsPage />;
+      return <NotFound />;
     default:
-      return (
-        <main className="app">
-          <h1>{t("notFound.title")}</h1>
-          <p>
-            <Link to="/">{t("notFound.back")}</Link>
-          </p>
-        </main>
-      );
+      return <NotFound />;
   }
+}
+
+function NotFound() {
+  return (
+    <main className="app">
+      <h1>{t("notFound.title")}</h1>
+      <p>
+        <Link to="/">{t("notFound.back")}</Link>
+      </p>
+    </main>
+  );
 }

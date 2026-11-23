@@ -76,3 +76,8 @@ To'liq asoslash: `docs/adr/0001-stack.md`.
 - `src/router.ts` + `src/Link.tsx` — History API ustidagi kichik router; sahifalar ko'payganda react-router ADR bilan olinadi.
 - Formada har `input` ga `label` (`htmlFor`), xatoga `aria-invalid` + `aria-describedby`: ekran o'qigichlar va klaviatura uchun (NFR-13).
 - Mashq: `src/pages/auth-pages.test.tsx` da `mockApi` qanday ishlashini o'qing va `e2e/auth.spec.ts` dagi soxta API nega kerakligini tushuntiring.
+
+## Qo'shimcha: guruhlar sahifalari (I1-12)
+- `src/pages/SectionsPage.tsx`, `SectionPage.tsx` — har bo'lim (havola, so'rovlar, a'zolar, sozlamalar) alohida kichik komponent.
+- QR `src/qr.ts` da brauzerda yasaladi (ADR-0005): maxfiy token begona serverga ketmaydi; SVG `<img src="data:...">` orqali, `innerHTML` ishlatilmaydi.
+- Mashq: `src/pages/sections-pages.test.tsx` dagi "ommaviy tasdiqlash" testini o'qing va `mockApi` handler'i so'rov tanasini qanday tekshirishini toping.
