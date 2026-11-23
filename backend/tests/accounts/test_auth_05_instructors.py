@@ -223,3 +223,82 @@ def test_sec_08_admin_promotion_requires_limit_and_demotion_clears_it() -> None:
     instructor.refresh_from_db()
     assert instructor.role == Role.ADMIN
     assert instructor.student_limit is None
+
+
+# --- security-reviewer tavsiyalari ---
+
+
+def test_auth_05_non_duplicate_integrity_error_not_masked() -> None:
+    from unittest import mock
+
+    with (
+        mock.patch.object(User.objects, "create_user", side_effect=IntegrityError("boshqa")),
+        pytest.raises(IntegrityError),
+    ):
+        _client(_staff(Role.ADMIN)).post(URL, _payload(), format="json")
+
+
+def test_auth_05_create_throttled_per_actor() -> None:
+    from django.test import override_settings
+
+    client = _client(_staff(Role.ADMIN))
+    with override_settings(AUTH_INSTRUCTOR_CREATE_RATE="1/hour"):
+        first = client.post(URL, _payload(), format="json").status_code
+        second = client.post(URL, _payload(hemis_id="777777777778"), format="json").status_code
+    assert (first, second) == (201, 429)
+
+
+def test_auth_05_empty_patch_rejected() -> None:
+    instructor = make_user(role=Role.INSTRUCTOR, direction=None)
+    response = _client(_staff(Role.ADMIN)).patch(f"{URL}/{instructor.pk}", {}, format="json")
+    assert response.status_code == 400
+
+
+def test_sec_08_ensure_capacity_rereads_locked_row() -> None:
+    instructor = make_user(role=Role.INSTRUCTOR, direction=None, student_limit=30)
+    User.objects.filter(pk=instructor.pk).update(student_limit=10)  # parallel o'zgarish
+    with pytest.raises(StudentLimitExceeded, match="10"):
+        ensure_capacity(instructor, current_students=10)  # eski obyektda 30 — lekin DB'da 10
+
+
+@pytest.mark.django_db(transaction=True)
+def test_sec_08_ensure_capacity_requires_transaction() -> None:
+    instructor = make_user(role=Role.INSTRUCTOR, direction=None)
+    with pytest.raises(RuntimeError, match="atomic"):
+        ensure_capacity(instructor, current_students=0)
+
+
+def test_sec_08_admin_demotion_audits_limit_clear() -> None:
+    from django.test import Client
+
+    browser = Client()
+    browser.force_login(_staff(Role.SUPER_ADMIN))
+    instructor = make_user(role=Role.INSTRUCTOR, direction=None, student_limit=30)
+    browser.post(
+        f"/admin/accounts/user/{instructor.pk}/change/",
+        {
+            "full_name": instructor.full_name,
+            "role": Role.ADMIN,
+            "student_limit": "30",
+            "is_active": "on",
+        },
+    )
+    entry = AuditLog.objects.get(action=Action.STUDENT_LIMIT_CHANGED)
+    assert entry.before == {"student_limit": 30}
+    assert entry.after == {"student_limit": None}
+
+
+def test_sec_08_admin_demotion_to_student_without_direction_is_form_error() -> None:
+    from django.test import Client
+
+    browser = Client()
+    browser.force_login(_staff(Role.SUPER_ADMIN))
+    instructor = make_user(role=Role.INSTRUCTOR, direction=None, student_limit=30)
+    response = browser.post(
+        f"/admin/accounts/user/{instructor.pk}/change/",
+        {"full_name": instructor.full_name, "role": Role.STUDENT, "is_active": "on"},
+    )
+    assert response.status_code == 200  # 500 emas — forma xatosi
+    assert "yo&#x27;nalish tanlanishi shart" in response.content.decode()
+    instructor.refresh_from_db()
+    assert instructor.role == Role.INSTRUCTOR

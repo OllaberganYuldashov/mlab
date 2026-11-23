@@ -275,10 +275,23 @@ class ResetPasswordView(APIView):
 # --- O'qituvchi akkauntlari (AUTH-05, SEC-08) ---
 
 
+class InstructorCreateThrottle(SimpleRateThrottle):
+    """Yaratuvchi bo'yicha: o'g'irlangan admin sessiyasi bilan ommaviy akkaunt yaratishga qarshi."""
+
+    scope = "instructor-create"
+
+    def get_rate(self) -> str:
+        return str(settings.AUTH_INSTRUCTOR_CREATE_RATE)
+
+    def get_cache_key(self, request: Request, view: APIView) -> str:
+        return self.cache_format % {"scope": self.scope, "ident": str(request.user.pk)}
+
+
 class InstructorCreateView(APIView):
     """Admin yoki super admin o'qituvchi yaratadi; vaqtinchalik parol javobda bir marta."""
 
     permission_classes = (IsAdmin | IsSuperAdmin,)
+    throttle_classes = (InstructorCreateThrottle,)
     parser_classes = (JSONParser,)
 
     @extend_schema(
@@ -315,7 +328,10 @@ class InstructorCreateView(APIView):
                     target=instructor,
                     after={"role": instructor.role, "student_limit": instructor.student_limit},
                 )
-        except IntegrityError as exc:  # parallel so'rov bir xil Hemis ID bilan
+        except IntegrityError as exc:
+            # Faqat parallel so'rov bir xil Hemis ID bilan — 400; boshqa cheklov xatosi — bug.
+            if not User.objects.filter(hemis_id=data["hemis_id"]).exists():
+                raise
             raise ValidationError(
                 {"hemis_id": [_("Bu Hemis ID bilan foydalanuvchi allaqachon bor.")]}
             ) from exc
@@ -335,6 +351,8 @@ class InstructorLimitView(APIView):
         summary="O'qituvchining talaba limitini o'zgartirish",
     )
     def patch(self, request: Request, user_id: int) -> Response:
+        if "student_limit" not in request.data:
+            raise ValidationError({"student_limit": [_("Bu maydon majburiy.")]})
         with transaction.atomic():
             instructor = (
                 User.objects.select_for_update().filter(pk=user_id, role=Role.INSTRUCTOR).first()

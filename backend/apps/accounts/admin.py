@@ -55,9 +55,15 @@ class UserAdminForm(forms.ModelForm):  # type: ignore[type-arg]  # runtime gener
     def clean(self) -> dict[str, Any]:
         data = super().clean() or {}
         role = data.get("role", getattr(self.instance, "role", None))
-        if "student_limit" in data and role != Role.INSTRUCTOR:
-            # Limit faqat o'qituvchida (DB CHECK): boshqa rolga o'tganda o'zi tozalanadi.
-            data["student_limit"] = None
+        if "student_limit" in data:
+            if role != Role.INSTRUCTOR:
+                # Limit faqat o'qituvchida (DB CHECK): boshqa rolga o'tganda o'zi tozalanadi.
+                data["student_limit"] = None
+            elif not data.get("student_limit"):
+                self.add_error("student_limit", _("O'qituvchi uchun talaba limiti majburiy."))
+        direction = data.get("direction", getattr(self.instance, "direction", None))
+        if role == Role.STUDENT and direction is None:
+            self.add_error("direction", _("Talaba uchun yo'nalish tanlanishi shart."))
         return data
 
 
@@ -110,14 +116,17 @@ class UserAdmin(RoleAccessAdmin):
     def save_model(
         self, request: HttpRequest, obj: User, form: ModelForm[User], change: bool
     ) -> None:
-        previous = {key: form.initial.get(key) for key in _AUDITED}
+        # Oldingi qiymatlar bazadan (readonly maydonlar formada yo'q — initial'ga ishonib bo'lmaydi).
+        stored = User.objects.filter(pk=obj.pk).values(*_AUDITED).first() if change else None
+        previous: dict[str, Any] = stored or {}
         # DB cheklovi: is_superuser <=> super_admin — rol bilan birga sinxronlanadi.
         obj.is_superuser = obj.role == Role.SUPER_ADMIN
         super().save_model(request, obj, form, change)
         if not change:
             return
         for key, action in _AUDITED.items():
-            if key in form.changed_data:
+            # changed_data emas — clean() o'zgartirgan qiymat (limit tozalanishi) ham yoziladi.
+            if key in previous and previous[key] != getattr(obj, key):
                 record(
                     action,
                     actor=request.user,  # type: ignore[arg-type]

@@ -155,6 +155,8 @@ AUTH_LOGIN_GLOBAL_RATE = env.optional("AUTH_LOGIN_GLOBAL_RATE", "600/minute")
 AUTH_CHANGE_PASSWORD_RATE = env.optional("AUTH_CHANGE_PASSWORD_RATE", "10/hour")
 # AUTH-04: tiklovchi bo'yicha (o'qituvchi bir guruhni bemalol; ommaviy tiklashga qarshi).
 AUTH_RESET_PASSWORD_RATE = env.optional("AUTH_RESET_PASSWORD_RATE", "60/hour")
+# AUTH-05: o'qituvchi akkauntlarini yaratish, yaratuvchi bo'yicha.
+AUTH_INSTRUCTOR_CREATE_RATE = env.optional("AUTH_INSTRUCTOR_CREATE_RATE", "30/hour")
 # Sessiya 12 soat (kompyuter xonasida unutilgan sessiya uzoq yashamasin).
 SESSION_COOKIE_AGE = 12 * 60 * 60
 # Lockout (5 xato -> 15 daqiqa) API va Django Admin login'ida bir xil ishlaydi.
