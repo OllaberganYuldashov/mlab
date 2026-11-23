@@ -39,10 +39,41 @@ jobs:
             };
             const seenPR = new Set();
 
-            for (const c of ev.commits || []) {
-              const { data: prs } = await github.rest.repos.listPullRequestsAssociatedWithCommit({
-                owner, repo, commit_sha: c.id,
+            // Commit -> PR bog'lanishi merge'dan keyin bir necha soniya kechikib indekslanishi mumkin
+            // (#34). Shuning uchun: 1) bo'sh javobda 20 s kutib qayta so'raladi; 2) shu push'dagi
+            // merge qilingan PR'larning commit ro'yxati olinadi — ro'yxatdagi commit PR orqali kelgan.
+            // Hech bir merge qilingan PR'da yo'q commit (to'g'ridan-to'g'ri push) avvalgidek ushlanadi.
+            const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+            const prsOf = async (sha) => {
+              const { data } = await github.rest.repos.listPullRequestsAssociatedWithCommit({
+                owner, repo, commit_sha: sha,
               });
+              return data;
+            };
+            const commits = ev.commits || [];
+            const prsByCommit = new Map();
+            for (const c of commits) {
+              let prs = await prsOf(c.id);
+              if (prs.length === 0 && !viaPR.has(c.id)) {
+                await sleep(20000);
+                prs = await prsOf(c.id);
+              }
+              prsByCommit.set(c.id, prs);
+            }
+            const mergedPRs = new Set();
+            for (const prs of prsByCommit.values()) {
+              for (const pr of prs) if (pr.merged_at) mergedPRs.add(pr.number);
+            }
+            const viaPR = new Set();
+            for (const number of mergedPRs) {
+              const prCommits = await github.paginate(github.rest.pulls.listCommits, {
+                owner, repo, pull_number: number, per_page: 100,
+              });
+              for (const pc of prCommits) viaPR.add(pc.sha);
+            }
+
+            for (const c of commits) {
+              const prs = prsByCommit.get(c.id) || [];
               // Tunda merge qilingan PR — egasi uxlayotganda kim merge qildi?
               for (const pr of prs) {
                 if (pr.merged_at && !seenPR.has(pr.number) && nightPR(pr.merged_at)) {
@@ -73,7 +104,7 @@ jobs:
               }
               // Veb-sahifadagi commit'lar (qo'lda yuklash, PR merge tugmasi) — ruxsat etilgan
               if (c.committer && c.committer.username === 'web-flow') continue;
-              if (prs.length === 0) {
+              if (prs.length === 0 && !viaPR.has(c.id)) {
                 const title = c.message.split('\n')[0];
                 problems.push(`PR'siz commit [\`${c.id.slice(0, 7)}\`](${c.url}): ${title} (muallif: ${c.author.name})`);
               }
