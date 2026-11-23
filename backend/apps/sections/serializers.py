@@ -22,6 +22,7 @@ class InstructorBriefSerializer(serializers.Serializer[Any]):
 class SectionSerializer(serializers.ModelSerializer[Section]):
     instructor = InstructorBriefSerializer(read_only=True)
     approved_count = serializers.IntegerField(read_only=True, default=0)
+    has_join_token = serializers.SerializerMethodField()
     capacity = serializers.IntegerField(
         min_value=MIN_CAPACITY, max_value=MAX_CAPACITY, required=False
     )
@@ -37,6 +38,7 @@ class SectionSerializer(serializers.ModelSerializer[Section]):
             "capacity",
             "join_enabled",
             "approved_count",
+            "has_join_token",
             "created_at",
         )
         read_only_fields: tuple[str, ...] = (
@@ -44,8 +46,12 @@ class SectionSerializer(serializers.ModelSerializer[Section]):
             "course",
             "instructor",
             "approved_count",
+            "has_join_token",
             "created_at",
         )
+
+    def get_has_join_token(self, section: Section) -> bool:
+        return section.join_token_hash is not None
 
     def validate_name(self, value: str) -> str:
         name = normalize_full_name(value)
@@ -57,3 +63,8 @@ class SectionSerializer(serializers.ModelSerializer[Section]):
 class SectionUpdateSerializer(SectionSerializer):
     class Meta(SectionSerializer.Meta):
         read_only_fields = (*SectionSerializer.Meta.read_only_fields, "direction")
+
+
+class JoinTokenSerializer(serializers.Serializer[Any]):
+    token = serializers.CharField()
+    join_path = serializers.CharField()
