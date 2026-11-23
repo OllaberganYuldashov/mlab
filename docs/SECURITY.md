@@ -34,7 +34,8 @@ Chat, repo, log, PR, issue, bulut muhiti o'zgaruvchilari va scheduled task promp
 | AI_PROVIDER, GEMINI_MODEL, AI_DAILY_LIMIT_PER_STUDENT | AI sozlamalari | .env.example | Server .env |
 | SANDBOX_* | Sandbox cheklovlari | .env.example | Server .env |
 | PUBLIC_BASE_URL | Sertifikat QR havolasi | localhost | Server .env |
-| DEPLOY_HOST, DEPLOY_USER, DEPLOY_SSH_KEY, DEPLOY_KNOWN_HOSTS | Deploy (agar SSH usuli tanlansa) | — | GitHub Secrets |
+| DEPLOY_HOST, DEPLOY_USER, DEPLOY_SSH_KEY, DEPLOY_KNOWN_HOSTS | Deploy (faqat SSH usuli tanlansa; self-hosted runner usulida kerak emas) | — | GitHub Secrets |
+| MLAB_ENV_FILE, MLAB_BACKUP_DIR, MLAB_BACKUP_KEEP_DAYS, MLAB_REPO_DIR | Deploy/zaxira skriptlari yo'llari (secret emas; default `/opt/mlab/...`, 14 kun) | — | Server muhiti / GitHub variables |
 
 ## Secret oqib ketsa
 
