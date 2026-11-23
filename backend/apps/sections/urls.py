@@ -1,10 +1,28 @@
 from django.urls import URLPattern, path
 
-from apps.sections import join_views, member_views, settings_views, views, window_views
+from apps.sections import (
+    deadline_views,
+    join_views,
+    member_views,
+    settings_views,
+    views,
+    window_views,
+)
 
 urlpatterns: list[URLPattern] = [
     path("join/<str:token>", join_views.JoinView.as_view(), name="section-join"),
     path("me/membership", join_views.MyMembershipView.as_view(), name="my-membership"),
+    path("me/deadlines", deadline_views.MyDeadlinesView.as_view(), name="my-deadlines"),
+    path(
+        "sections/<int:section_id>/deadlines",
+        deadline_views.DeadlineListView.as_view(),
+        name="section-deadlines",
+    ),
+    path(
+        "sections/<int:section_id>/deadlines/<str:code>",
+        deadline_views.DeadlineDetailView.as_view(),
+        name="section-deadline",
+    ),
     path("sections", views.SectionListCreateView.as_view(), name="section-list"),
     path("sections/<int:section_id>", views.SectionDetailView.as_view(), name="section-detail"),
     path(

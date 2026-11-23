@@ -237,3 +237,28 @@ class AccessWindow(models.Model):
 
     def __str__(self) -> str:
         return f"{self.section_id}/{self.topic_id}: {self.mode}"
+
+
+class IndependentDeadline(models.Model):
+    """ACC-10: mustaqil topshiriq (A01..A15) uchun guruh bo'yicha topshirish muddati."""
+
+    section = models.ForeignKey(Section, on_delete=models.PROTECT, related_name="deadlines")
+    # Topshiriqlar modeli I3 da — hozircha kod (A01..A99) bo'yicha bog'lanadi.
+    assignment = models.CharField(_("topshiriq kodi"), max_length=3)
+    due_at = models.DateTimeField(_("muddat"))
+    updated_at = models.DateTimeField(_("yangilangan"), auto_now=True)
+
+    class Meta:
+        verbose_name = _("mustaqil topshiriq muddati")
+        verbose_name_plural = _("mustaqil topshiriq muddatlari")
+        constraints: ClassVar[list[models.BaseConstraint]] = [
+            models.UniqueConstraint(
+                fields=["section", "assignment"], name="sections_deadline_uniq"
+            ),
+            models.CheckConstraint(
+                condition=Q(assignment__regex=r"^A[0-9]{2}$"), name="sections_deadline_code"
+            ),
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.section_id}/{self.assignment}: {self.due_at}"

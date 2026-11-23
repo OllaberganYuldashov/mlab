@@ -46,7 +46,11 @@
 - Vaqtlar `timestamptz`, ko'rsatish Asia/Tashkent.
 - Ballar `Decimal(5,2)`; vaznlar kurs darajasida.
 - Talaba bir vaqtda bitta faol `Membership` (qisman unikal indeks).
-- Sozlamalar ikki darajada: kurs default → guruh override.
+- Sozlamalar ikki darajada: kurs default → guruh override (`apps/sections/settings.effective_settings`).
+- Kirish oynasi va topshirish: holat faqat `apps/sections/windows.window_state` va `apps/sections/policy.submission_policy`
+  dan (`on_time`/`late`/`practice`/`closed`). ACC-06 shartnomasi: oyna yopilganda laboratoriya (I2) tugallanmagan ishni
+  avtomatik saqlaydi; `closed`/`practice` paytida rasmiy topshirish qabul qilinmaydi, `late` — "kechikkan" belgisi bilan,
+  `practice` — baholanmaydi. Jarima `apply_late_penalty` (Decimal, 0.01, yarmi yuqoriga).
 - Kontent `content/` papkasida (Markdown + YAML), `import_content` bilan bazaga; versiya raqami saqlanadi.
 
 ## Tashqi integratsiyalar

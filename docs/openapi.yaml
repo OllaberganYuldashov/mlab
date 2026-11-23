@@ -235,6 +235,22 @@ paths:
               schema:
                 $ref: '#/components/schemas/JoinRefused'
           description: ''
+  /api/me/deadlines:
+    get:
+      operationId: me_deadlines_retrieve
+      description: 'Talaba: faqat tasdiqlangan guruhining muddatlari.'
+      summary: Mening mustaqil topshiriq muddatlarim
+      tags:
+      - me
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MyDeadlines'
+          description: ''
   /api/me/membership:
     get:
       operationId: me_membership_retrieve
@@ -402,6 +418,80 @@ paths:
               schema:
                 $ref: '#/components/schemas/SectionSettings'
           description: ''
+  /api/sections/{section_id}/deadlines:
+    get:
+      operationId: sections_deadlines_retrieve
+      summary: Guruhning mustaqil topshiriq muddatlari
+      parameters:
+      - in: path
+        name: section_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - sections
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeadlineList'
+          description: ''
+  /api/sections/{section_id}/deadlines/{code}:
+    put:
+      operationId: sections_deadlines_update
+      summary: Muddat
+      parameters:
+      - in: path
+        name: code
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: section_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - sections
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeadlinePutRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IndependentDeadline'
+          description: ''
+    delete:
+      operationId: sections_deadlines_destroy
+      summary: Muddatni olib tashlash
+      parameters:
+      - in: path
+        name: code
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: section_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - sections
+      security:
+      - cookieAuth: []
+      responses:
+        '204':
+          description: No response body
   /api/sections/{section_id}/join-token:
     post:
       operationId: sections_join_token_create
@@ -672,6 +762,9 @@ paths:
   /api/sections/{section_id}/windows/{code}/close:
     post:
       operationId: sections_windows_close_create
+      description: |-
+        Ochiq oyna yopilsa yopilish lahzasi saqlanadi (`closes_at=now`): kechikish va mashq shundan
+        hisoblanadi (ACC-07/08). Hali ochilmagan oyna — `closed`; allaqachon yopilgani o'zgarmaydi.
       summary: Oynani yopish
       parameters:
       - in: path
@@ -835,6 +928,21 @@ components:
       required:
       - new_password
       - old_password
+    DeadlineList:
+      type: object
+      properties:
+        deadlines:
+          $ref: '#/components/schemas/IndependentDeadline'
+      required:
+      - deadlines
+    DeadlinePutRequest:
+      type: object
+      properties:
+        due_at:
+          type: string
+          format: date-time
+      required:
+      - due_at
     DecideRefused:
       type: object
       properties:
@@ -899,6 +1007,17 @@ components:
       required:
       - id
       - name
+    IndependentDeadline:
+      type: object
+      properties:
+        assignment:
+          type: string
+        due_at:
+          type: string
+          format: date-time
+      required:
+      - assignment
+      - due_at
     Instructor:
       type: object
       properties:
@@ -1136,6 +1255,13 @@ components:
           minimum: 1
       required:
       - target_section
+    MyDeadlines:
+      type: object
+      properties:
+        deadlines:
+          $ref: '#/components/schemas/IndependentDeadline'
+      required:
+      - deadlines
     MyMembership:
       type: object
       properties:

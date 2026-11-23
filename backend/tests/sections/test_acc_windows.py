@@ -225,7 +225,10 @@ def test_acc_03_open_now_for_minutes_then_close() -> None:
     assert window_state(window, timezone.now()).status == "open"
     client.post(_url(section, "/M01/close"))
     window.refresh_from_db()
-    assert window.mode == WindowMode.CLOSED
+    # Ochiq oyna yopilganda yopilish lahzasi saqlanadi (ACC-07 kechikish va ACC-08 mashq uchun).
+    assert window.mode == WindowMode.OPEN_NOW
+    assert window.closes_at is not None
+    assert window.closes_at <= timezone.now()
     assert window_state(window, timezone.now()).status == "closed"
     assert AuditLog.objects.filter(action=Action.ACCESS_WINDOW_CHANGED).count() == 2
 
@@ -268,3 +271,17 @@ def test_acc_11_unchanged_close_not_audited() -> None:
     _topic(section)
     _client(section.instructor).post(_url(section, "/M01/close"))
     assert not AuditLog.objects.filter(action=Action.ACCESS_WINDOW_CHANGED).exists()
+
+
+def test_acc_03_closing_upcoming_window_resets_to_closed() -> None:
+    section = make_section()
+    topic = _topic(section)
+    _window(
+        section,
+        topic,
+        mode=WindowMode.SCHEDULED,
+        opens_at=timezone.now() + timedelta(days=1),
+        closes_at=timezone.now() + timedelta(days=1, hours=1),
+    )
+    _client(section.instructor).post(_url(section, "/M01/close"))
+    assert AccessWindow.objects.get().mode == WindowMode.CLOSED
