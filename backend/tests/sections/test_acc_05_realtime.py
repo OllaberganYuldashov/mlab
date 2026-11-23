@@ -207,3 +207,34 @@ def test_acc_05_broadcast_failure_does_not_break_window_change(
     )
     assert response.status_code == 200
     assert AccessWindow.objects.get().mode == WindowMode.OPEN_NOW
+
+
+def test_acc_05_removed_student_socket_is_closed() -> None:
+    membership = _approved()
+    instructor = membership.section.instructor
+
+    async def scenario() -> dict[str, Any]:
+        comm, ok = await _connect(membership.student)
+        assert ok
+
+        def remove() -> None:
+            client = APIClient()
+            client.force_authenticate(instructor)
+            url = f"/api/sections/{membership.section_id}/members/{membership.pk}/remove"
+            assert client.post(url).status_code == 204
+
+        from asgiref.sync import sync_to_async
+
+        await sync_to_async(remove)()
+        reply = await comm.comm.receive_output(timeout=3)
+        return dict(reply)
+
+    reply = async_to_sync(scenario)()
+    assert reply["type"] == "websocket.close"
+    assert reply["code"] == 4000
+
+
+def test_acc_05_connection_has_max_lifetime() -> None:
+    from apps.sections import consumers
+
+    assert consumers.MAX_LIFETIME_SECONDS <= 15 * 60

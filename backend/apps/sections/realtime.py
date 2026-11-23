@@ -36,6 +36,15 @@ def _safe_send(group: str, message: dict[str, Any]) -> None:
         )
 
 
+def user_group(user_id: int) -> str:
+    return f"user-{user_id}"
+
+
+def membership_changed(student_id: int) -> None:
+    """A'zolik o'zgardi (chiqarish, o'tkazish): ochiq ulanish yopiladi, mijoz qayta ulanadi."""
+    transaction.on_commit(lambda: _safe_send(user_group(student_id), {"type": "force.close"}))
+
+
 def window_changed(section_id: int, payload: dict[str, Any]) -> None:
     """Guruh kanaliga oyna o'zgarishi; tranzaksiya qaytarilsa xabar ketmaydi."""
     message = {"type": "window.changed", **payload}
