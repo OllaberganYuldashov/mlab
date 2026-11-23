@@ -127,6 +127,8 @@ class User(AbstractBaseUser, PermissionsMixin):
         verbose_name=_("yo'nalish"),
     )
     is_active = models.BooleanField(_("faol"), default=True)
+    # AUTH-04: vaqtinchalik parol berilgan — keyingi kirishda yangisini o'rnatish majburiy.
+    must_change_password = models.BooleanField(_("parolni almashtirishi shart"), default=False)
     date_joined = models.DateTimeField(_("ro'yxatdan o'tgan vaqt"), default=timezone.now)
     updated_at = models.DateTimeField(_("o'zgartirilgan vaqt"), auto_now=True)
 
@@ -192,9 +194,34 @@ class User(AbstractBaseUser, PermissionsMixin):
         super().clean()
         self.full_name = normalize_full_name(self.full_name)
 
+    def set_temporary_password(self, raw_password: str) -> None:
+        """AUTH-04: vaqtinchalik parol — saqlangandan keyin `must_change_password` yoqiq qoladi."""
+        self.set_password(raw_password)
+        self.must_change_password = True
+        self._temporary_password = True
+
     def save(self, *args: Any, **kwargs: Any) -> None:
         self.full_name = normalize_full_name(self.full_name)
+        # set_password() chaqirilgan (xesh yangilanishi emas — check_password u holda `_password`ni
+        # tozalaydi). Mavjud foydalanuvchi parolni almashtirdi: majburiylik olib tashlanadi.
+        changed_by_user = (
+            getattr(self, "_password", None) is not None
+            and not self._state.adding
+            and not getattr(self, "_temporary_password", False)
+        )
+        if changed_by_user:
+            self.must_change_password = False
+            update_fields = kwargs.get("update_fields")
+            if update_fields is not None:
+                kwargs["update_fields"] = {*update_fields, "must_change_password"}
         super().save(*args, **kwargs)
+        self._temporary_password = False
+        if changed_by_user:
+            from apps.audit import record
+            from apps.audit.models import Action
+
+            # API (change-password) va Django Admin (password_change) uchun bir xil iz.
+            record(Action.PASSWORD_CHANGED, actor=self, target=self)
 
 
 class Consent(models.Model):

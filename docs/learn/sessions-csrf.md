@@ -27,6 +27,13 @@ uni o'zi yuboradi. **CSRF** himoyasi boshqa sayt talaba nomidan so'rov yubora ol
 5. **IP Caddy ortida** `X-Forwarded-For` dan olinadi, lekin faqat ishonchli proksi qo'shgan qismi
    (`TRUSTED_PROXY_COUNT`), aks holda hujumchi IP'ni soxtalashtirib blokdan qochadi.
 
+## Parolni tiklash (R0-08)
+Admin yoki o'qituvchi talabaning parolini tiklasa, tizim **bir martalik vaqtinchalik parol** ko'rsatadi —
+u faqat o'sha javobda bir marta chiqadi, hech qayerda saqlanmaydi. Talaba shu parol bilan kiradi va
+parolni almashtirmaguncha boshqa hech narsa ocha olmaydi (`must_change_password`, middleware). Kim kimning
+parolini tiklay olishi bitta faylda: `backend/apps/accounts/policies.py`. Tiklash va almashtirish audit
+jurnaliga yoziladi (parolsiz).
+
 ## Rasmiy hujjat va yaxshi manbalar
 - Django: "Cross Site Request Forgery protection", "How to use sessions".
 - OWASP: Authentication Cheat Sheet (account lockout bo'limi).

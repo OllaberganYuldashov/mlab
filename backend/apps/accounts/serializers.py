@@ -121,5 +121,28 @@ class LoginSerializer(serializers.Serializer[User]):
 class MeSerializer(serializers.ModelSerializer[User]):
     class Meta:
         model = User
-        fields = ("hemis_id", "full_name", "role", "direction")
+        fields = ("hemis_id", "full_name", "role", "direction", "must_change_password")
         read_only_fields = fields
+
+
+class ChangePasswordSerializer(serializers.Serializer[User]):
+    old_password = serializers.CharField(max_length=128, trim_whitespace=False)
+    new_password = serializers.CharField(max_length=128, trim_whitespace=False)
+
+    def validate(self, attrs: dict[str, Any]) -> dict[str, Any]:
+        user: User = self.context["user"]
+        if not user.check_password(attrs["old_password"]):
+            raise serializers.ValidationError({"old_password": [_("Joriy parol noto'g'ri.")]})
+        if attrs["new_password"] == attrs["old_password"]:
+            raise serializers.ValidationError(
+                {"new_password": [_("Yangi parol eskisidan farq qilishi kerak.")]}
+            )
+        try:
+            validate_password(attrs["new_password"], user=user)
+        except DjangoValidationError as exc:
+            raise serializers.ValidationError({"new_password": list(exc.messages)}) from exc
+        return attrs
+
+
+class TemporaryPasswordSerializer(serializers.Serializer[User]):
+    temporary_password = serializers.CharField(read_only=True)
