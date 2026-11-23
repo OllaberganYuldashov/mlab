@@ -30,7 +30,9 @@ def request_membership(student: User, section_id: int) -> tuple[Membership, bool
     """
     try:
         with transaction.atomic():
-            section = Section.objects.select_for_update().get(pk=section_id)
+            section = Section.objects.select_for_update().filter(pk=section_id).first()
+            if section is None:  # token tekshirilgandan keyin o'chirilgan
+                raise Section.DoesNotExist
             active = Membership.objects.active().filter(student=student).first()
             if active is not None:
                 if active.section_id == section.pk:

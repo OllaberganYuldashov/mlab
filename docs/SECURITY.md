@@ -20,7 +20,8 @@ Chat, repo, log, PR, issue, bulut muhiti o'zgaruvchilari va scheduled task promp
 | TRUSTED_PROXY_COUNT | Mijoz IP'sini aniqlash (Caddy ortida 1; prod'da 0 bo'lsa ilova ishga tushmaydi). Haqiqiydan katta — X-Forwarded-For soxtalashtiriladi; ilova porti faqat ichki tarmoqda | .env.example (0) | Server .env (1) |
 | AUTH_REGISTER_RATE | Ro'yxatdan o'tish cheklovi (IP bo'yicha, IPv6 — /64; default 60/hour) | .env.example | Server .env |
 | AUTH_REGISTER_GLOBAL_RATE | Umumiy ro'yxatdan o'tish chegarasi (default 300/hour) | .env.example | Server .env |
-| SECTION_JOIN_RATE | Guruhga havola orqali qo'shilish (ko'rish va so'rov), IP bo'yicha (default 120/hour) | .env.example | Server .env |
+| SECTION_JOIN_PREVIEW_RATE | Havola bo'yicha guruhni ko'rish, IP bo'yicha (default 600/hour) | .env.example | Server .env |
+| SECTION_JOIN_RATE | A'zolik so'rovi, talaba bo'yicha (default 30/hour) | .env.example | Server .env |
 | AUTH_LOGIN_RATE | Login so'rovlari IP bo'yicha (default 120/minute); lockout (5 xato → 15 daqiqa, Hemis ID + IP) kodda qat'iy | .env.example | Server .env |
 | AUTH_LOGIN_GLOBAL_RATE | Umumiy login chegarasi (default 600/minute; Argon2 yuklamasi) | .env.example | Server .env |
 | AUTH_CHANGE_PASSWORD_RATE | Parol almashtirish urinishlari, foydalanuvchi bo'yicha (default 10/hour) | .env.example | Server .env |
@@ -49,6 +50,7 @@ Chat, repo, log, PR, issue, bulut muhiti o'zgaruvchilari va scheduled task promp
 - FIO, Hemis ID, IP, qurilma — shaxsiy ma'lumot. Faqat universitet serverida (O'zbekiston).
 - Testda faqat factory/Faker. Haqiqiy ro'yxatlar, baholar va loglar repoga, bulut sessiyasiga va promptga tushmaydi.
 - Ma'lum xavf: ro'yxatdan o'tishda "bu Hemis ID band" xabari Hemis ID mavjudligini oshkor qiladi (foydalanuvchiga aniq xabar kerak); `AUTH_REGISTER_RATE` IP bo'yicha cheklaydi, login esa umumiy javob beradi. R3 da faollashtirish kodi (#41) bilan kamayadi.
+- Qo'shilish tokeni URL yo'lida keladi: so'rov logida yo'l niqoblanadi (`/api/join/[REDACTED]`), bazada faqat xeshi.
 - Loglarda Hemis ID va IP maskalanadi; parol, token, cookie hech qachon loglanmaydi.
   Bu `backend/config/observability.py` dagi `JsonFormatter` da majburiy (har log qatori undan o'tadi),
   testlar: `backend/tests/test_nfr_17_observability.py`.

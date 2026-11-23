@@ -146,8 +146,10 @@ PRIVACY_POLICY_VERSION = "2026-11-22"
 # AUTH-01: ro'yxatdan o'tish cheklovi (IP bo'yicha). Kompyuter xonasi bitta NAT ortida —
 # kamida 60/soat.
 AUTH_REGISTER_RATE = env.optional("AUTH_REGISTER_RATE", "60/hour")
-# Havola orqali guruhga qo'shilish (ko'rish va so'rov), IP bo'yicha (I1-04).
-SECTION_JOIN_RATE = env.optional("SECTION_JOIN_RATE", "120/hour")
+# Havola orqali guruhga qo'shilish (I1-04): ko'rish — IP bo'yicha (sinf bitta NAT ortida — keng),
+# so'rov yuborish — talaba bo'yicha.
+SECTION_JOIN_PREVIEW_RATE = env.optional("SECTION_JOIN_PREVIEW_RATE", "600/hour")
+SECTION_JOIN_RATE = env.optional("SECTION_JOIN_RATE", "30/hour")
 # Hamma IP uchun umumiy chegara (taqsimlangan hujum, Argon2 xotira/CPU narxi).
 AUTH_REGISTER_GLOBAL_RATE = env.optional("AUTH_REGISTER_GLOBAL_RATE", "300/hour")
 # AUTH-02: login so'rovlari IP bo'yicha (Hemis ID + IP lockout'dan tashqari; xona bitta NAT ortida).

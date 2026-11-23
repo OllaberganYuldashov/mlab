@@ -22,16 +22,34 @@ from apps.sections.services import JoinRefused, approved_count, request_membersh
 from apps.sections.tokens import find_section_by_token
 
 
-class JoinRateThrottle(SimpleRateThrottle):
-    """IP bo'yicha (kompyuter xonasi bitta NAT ortida — keng). Token 128 bit — taxminsiz."""
+class JoinPreviewThrottle(SimpleRateThrottle):
+    """Ko'rish — IP bo'yicha, keng: kompyuter xonasi bitta NAT ortida (token 128 bit, taxminsiz)."""
 
-    scope = "section-join"
+    scope = "section-join-preview"
+
+    def get_rate(self) -> str:
+        return str(settings.SECTION_JOIN_PREVIEW_RATE)
+
+    def allow_request(self, request: Request, view: APIView) -> bool:
+        return request.method != "GET" or super().allow_request(request, view)
+
+    def get_cache_key(self, request: Request, view: APIView) -> str:
+        return self.cache_format % {"scope": self.scope, "ident": client_ip(request)}
+
+
+class JoinRequestThrottle(SimpleRateThrottle):
+    """So'rov — talaba bo'yicha: bir sinfdagi boshqa talabalarning limitini yemaydi."""
+
+    scope = "section-join-request"
 
     def get_rate(self) -> str:
         return str(settings.SECTION_JOIN_RATE)
 
+    def allow_request(self, request: Request, view: APIView) -> bool:
+        return request.method != "POST" or super().allow_request(request, view)
+
     def get_cache_key(self, request: Request, view: APIView) -> str:
-        return self.cache_format % {"scope": self.scope, "ident": client_ip(request)}
+        return self.cache_format % {"scope": self.scope, "ident": str(request.user.pk)}
 
 
 def _section_or_404(token: str) -> Section:
@@ -66,7 +84,7 @@ MembershipOut = inline_serializer(
 
 
 class JoinView(APIView):
-    throttle_classes = (JoinRateThrottle,)
+    throttle_classes = (JoinPreviewThrottle, JoinRequestThrottle)
 
     def get_permissions(self) -> list[Any]:
         return [AllowAny()] if self.request.method == "GET" else [IsStudent()]
@@ -87,7 +105,9 @@ class JoinView(APIView):
     )
     def get(self, request: Request, token: str) -> Response:
         section = _section_or_404(token)
-        return Response(
+        # SEC-03: guruh nomi va o'qituvchi ko'rinadi (kirishdan oldin ham — talaba to'g'ri guruhni
+        # tanlashi uchun). Proksi keshlamaydi: holat (`is_full`) eskirmasin.
+        response = Response(
             {
                 "section": section.name,
                 "instructor": section.instructor.full_name,
@@ -95,6 +115,8 @@ class JoinView(APIView):
                 "is_full": approved_count(section) >= section.capacity,
             }
         )
+        response["Cache-Control"] = "no-store"
+        return response
 
     @extend_schema(
         request=None,
@@ -113,6 +135,8 @@ class JoinView(APIView):
         assert isinstance(student, User)  # IsStudent kafolatlaydi  # noqa: S101
         try:
             membership, created = request_membership(student, section.pk)
+        except Section.DoesNotExist as missing:
+            raise NotFound from missing
         except JoinRefused as refused:
             return Response(
                 {"code": refused.code, "detail": refused.detail}, status=status.HTTP_409_CONFLICT

@@ -79,9 +79,48 @@ def test_sec_03_rotated_token_404() -> None:
 def test_sec_03_preview_throttled_per_ip() -> None:
     section = make_section()
     token = _with_token(section)
-    with override_settings(SECTION_JOIN_RATE="2/minute"):
+    with override_settings(SECTION_JOIN_PREVIEW_RATE="2/minute"):
         codes = [_client().get(f"/api/join/{token}").status_code for _ in range(3)]
     assert codes == [200, 200, 429]
+
+
+def test_sec_03_preview_not_cached() -> None:
+    token = _with_token(make_section())
+    assert "no-store" in _client().get(f"/api/join/{token}")["Cache-Control"]
+
+
+def test_sec_03_request_throttled_per_student_not_per_classroom_ip() -> None:
+    token = _with_token(make_section())
+    first, second = make_user(), make_user()
+    with override_settings(SECTION_JOIN_RATE="1/minute"):
+        assert _client(first).post(f"/api/join/{token}").status_code == 201
+        assert _client(first).post(f"/api/join/{token}").status_code == 429
+        # Bir xil IP (sinf NAT), boshqa talaba — bloklanmaydi.
+        assert _client(second).post(f"/api/join/{token}").status_code == 201
+        # Ko'rish so'rov limitini yemaydi.
+        assert _client(second).get(f"/api/join/{token}").status_code == 200
+
+
+def test_sec_03_section_deleted_after_token_check_is_404() -> None:
+    from unittest import mock
+
+    section = make_section()
+    token = _with_token(section)
+    with mock.patch(
+        "apps.sections.join_views.request_membership", side_effect=Section.DoesNotExist
+    ):
+        assert _client(make_user()).post(f"/api/join/{token}").status_code == 404
+
+
+def test_sec_03_join_token_never_logged(caplog: pytest.LogCaptureFixture) -> None:
+    import logging
+
+    token = _with_token(make_section())
+    with caplog.at_level(logging.INFO, logger="mlab.request"):
+        _client().get(f"/api/join/{token}")
+    paths = [getattr(r, "path", "") for r in caplog.records]
+    assert "/api/join/[REDACTED]" in paths
+    assert not any(token in p for p in paths)
 
 
 # --- So'rov yuborish ---

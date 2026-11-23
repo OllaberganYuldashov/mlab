@@ -237,3 +237,18 @@ def test_nfr_11_non_ip_text_not_masked(text: str) -> None:
 
 def test_nfr_11_list_extra_masked() -> None:
     assert _format(_record("x", ips=["10.0.0.1", 5]))["ips"] == ["10.0.0.x", 5]
+
+
+@pytest.mark.parametrize(
+    ("raw", "safe"),
+    [
+        ("/api/join/abcDEF123_-xyz", "/api/join/[REDACTED]"),
+        ("/join/abc", "/join/[REDACTED]"),
+        ("/api/sections/5", "/api/sections/5"),
+        ("/api/joinx/abc", "/api/joinx/abc"),
+    ],
+)
+def test_nfr_17_secret_path_segments_redacted(raw: str, safe: str) -> None:
+    from config.observability import safe_path
+
+    assert safe_path(raw) == safe
