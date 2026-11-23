@@ -33,7 +33,9 @@
 - Deploy: R0 dan keyin server tayyor bo'lishini **kutmasdan R1 ga o'tiladi**. R0-15 (Dockerfile, compose.prod,
   Caddyfile) serversiz qilinadi va tekshiriladi; R0-16 dan serverga bog'liq qism (birinchi deploy, haqiqiy
   smoke test, zaxira sinovi) server tayyor bo'lganda R1 orasida bajariladi. R0 shu qism bilan ochiq qoladi.
-- Monobloklar: Intel Core i5, 10–12-avlod (qolgan parametrlar — "Bloklar").
+- Monobloklar (NFR-02 sinov profili): Intel Core i5 10–12-avlod, **8 GB RAM**, Windows 10/11, **Chrome**.
+  I2 dagi Pyodide laboratoriyasi shu profilda sinaladi: xotira byudjeti (brauzer tabi ~1–1,5 GB),
+  paketlar soni va yuklanish vaqti shunga qarab tanlanadi; Playwright e2e — Chromium.
 - Rozilik matni (SRS 7-bo'lim, Claude taklifi) **yurist tomonidan ma'qullandi** — SRS 12-bo'limdagi bu ochiq
   savol yopildi; matn o'zgarmaydi (`PRIVACY_POLICY_VERSION = 2026-11-22`).
 - #34: egasi hammasi avtomatlashgan bo'lishini xohlaydi; main-guard tuzatishi egasi tomonidan qo'llanadi
@@ -53,8 +55,6 @@
 ## Bloklar (egasining javobi kerak)
 - #34 — main-guard yolg'on signali: tuzatish kodi #34 izohida; `main-guard.yml` Claude uchun taqiqlangan —
   egasi veb-muharrirda qo'llaydi va issue'ni yopadi.
-- Monobloklar: protsessor ma'lum (Intel Core i5, 10–12-avlod). I2 gacha aniqlanadi: operativ xotira (RAM),
-  operatsion tizim va brauzer (versiyasi). Pyodide laboratoriyasi shu parametrlarda sinaladi (NFR-02).
 - Server, domen va HTTPS — server boshqa lokal tarmoqdan ko'chirilmoqda (muddati noma'lum). Deploy shu
   tayyor bo'lgach (R1 orasida); HSTS `includeSubDomains`/preload ham domenga bog'liq.
 - Sertifikatda universitet logotipidan foydalanish ruxsati (I5 gacha).
