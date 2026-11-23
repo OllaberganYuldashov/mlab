@@ -2,6 +2,17 @@
 
 > Har run oxirida Claude qo'shadi. Eng yangisi yuqorida.
 
+### 2026-11-24 — tungi run 2/2
+- **Bajarilgan issue'lar va PR:** #69 → PR #91 (talaba sahifalari), #70 → PR #92 (sozlamalar va oynalar sahifasi). 4 ball.
+- **Nima qilindi (oddiy tilda):** Talaba QR/havola orqali kiradi, ro'yxatdan o'tsa ham shu sahifaga qaytadi, so'rov yuboradi
+  va bosh sahifada holatini hamda laboratoriya ochilishiga qolgan vaqtni ko'radi. O'qituvchi guruh sahifasida AI'ni
+  bir tugmada o'chiradi, mavzularni ochadi/yopadi, haftalik jadval tuzadi va mustaqil topshiriq muddatlarini qo'yadi.
+- **Ishlatilgan skill'lar va nima uchun:** security-discipline (qaytish manzili faqat `/join/<token>` — open redirect yo'q),
+  clocks-and-time (server vaqti bilan soat farqi, Asia/Tashkent ko'rinishi), testing-with-discernment (xato yo'llari testda).
+- **Yangi texnologiya / tushuncha:** yangi kutubxona yo'q; WebSocket qayta ulanishi (eksponensial kutish).
+- **Ertalab nimani ko'rish kerak:** PR #88 (Caddy `/ws/*`) — hali egasida.
+- **Savollar / bloklar:** yo'q.
+
 ### 2026-11-24 — tungi run 1/2
 - **Bajarilgan issue'lar va PR:** #67 → PR #87 (real vaqt), #68 → PR #89 (o'qituvchi guruhlari sahifasi). 4 ball. PR #88 — egasida.
 - **Nima qilindi (oddiy tilda):** O'qituvchi oynani ochsa, talaba ekranida xabar darhol paydo bo'ladi (WebSocket).

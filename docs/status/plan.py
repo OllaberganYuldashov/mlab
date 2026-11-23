@@ -9,7 +9,7 @@ META = {
     "velocity_note": "Kuniga 2 tungi run, har biri ~4-5 ball (M=2, S=1). Yakshanba — 1 run + review.",
     "current_release": "R1",
     "current_iteration": "I1",
-    "next_task": "#69 Frontend: talabaning havola orqali qo'shilishi",
+    "next_task": "#71 I1 yakuni: ko'rik, uchidan-uchiga test, dars",
 }
 
 RELEASES = [
@@ -93,8 +93,8 @@ TASKS = [
     _t("I1", "I1-10", "#66", "Topshirish siyosati, muddatlar", "ACC-06..08, ACC-10", "M", "done", "O'z vaqtida / kechikkan / mashq / yopiq", "#84"),
     _t("I1", "I1-11", "#67", "Real vaqt: 'oyna ochildi' xabari", "ACC-05", "M", "done", "Talaba sahifani yangilamasdan xabar oladi", "#87"),
     _t("I1", "I1-12", "#68", "Frontend: o'qituvchi guruhlari, QR", "SEC-01..05", "M", "done", "Guruh yaratish, havola va QR, so'rovlar", "#89"),
-    _t("I1", "I1-13", "#69", "Frontend: talaba qo'shilishi", "SEC-03, ACC-05", "M", "ready", "Havola → so'rov → holat, keyingi mavzu vaqti"),
-    _t("I1", "I1-14", "#70", "Frontend: sozlamalar va oynalar", "SET, ACC-03, ACC-04", "M", "ready", "Oynalarni ochish/yopish, jadval, AI tugmasi"),
+    _t("I1", "I1-13", "#69", "Frontend: talaba qo'shilishi", "SEC-03, ACC-05", "M", "done", "Havola → so'rov → holat, keyingi mavzu vaqti", "#91"),
+    _t("I1", "I1-14", "#70", "Frontend: sozlamalar va oynalar", "SET, ACC-03, ACC-04", "M", "done", "Oynalarni ochish/yopish, jadval, AI tugmasi", "#92"),
     _t("I1", "I1-15", "#71", "I1 yakuni: ko'rik va e2e", "I1", "S", "ready", "Xavfsizlik ko'rigi, uchidan-uchiga test, dars"),
     # --- R1 keyingi iteratsiyalar (epiklar, taxminiy) ---
     _t("I2", "E-I2-1", "", "Kontent qadamlari, vizual qadam, Aiken testlari", "CNT-02..07", "", "planned", "Ma'ruzalar interaktiv, mavzu testlari", ""),

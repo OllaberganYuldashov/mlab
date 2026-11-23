@@ -398,9 +398,9 @@
    "title": "Frontend: talaba qo'shilishi",
    "req": "SEC-03, ACC-05",
    "size": "M",
-   "status": "ready",
+   "status": "done",
    "outcome": "Havola → so'rov → holat, keyingi mavzu vaqti",
-   "pr": "",
+   "pr": "#91",
    "points": 2
   },
   {
@@ -411,9 +411,9 @@
    "title": "Frontend: sozlamalar va oynalar",
    "req": "SET, ACC-03, ACC-04",
    "size": "M",
-   "status": "ready",
+   "status": "done",
    "outcome": "Oynalarni ochish/yopish, jadval, AI tugmasi",
-   "pr": "",
+   "pr": "#92",
    "points": 2
   },
   {
