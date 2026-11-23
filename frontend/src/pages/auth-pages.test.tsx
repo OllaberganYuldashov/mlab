@@ -279,6 +279,19 @@ describe("chiqish va noma'lum sahifa", () => {
     expect(calls.find((c) => c.path === "/api/auth/logout")?.csrf).toBe("tok123");
   });
 
+  it("chiqish muvaffaqiyatsiz bo'lsa foydalanuvchi kirgan holda qoladi va xabar ko'rinadi", async () => {
+    mockApi({
+      "GET /api/auth/me": () => ({ status: 200, body: ME }),
+      "POST /api/auth/logout": () => ({ status: 500 }),
+    });
+    visit("/");
+    render(<App />);
+    const user = userEvent.setup();
+    await user.click(await screen.findByRole("button", { name: messages["nav.logout"] }));
+    expect(await screen.findByRole("alert")).toHaveTextContent(messages["common.unexpectedError"]);
+    expect(window.location.pathname).toBe("/");
+  });
+
   it("noma'lum manzil — 'topilmadi' sahifasi", async () => {
     mockApi(NO_SESSION);
     visit("/yoq-sahifa");

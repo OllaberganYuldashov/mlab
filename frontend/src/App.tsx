@@ -8,7 +8,15 @@ import { Link } from "./Link";
 import { navigate, usePath } from "./router";
 import "./App.css";
 
-function Home({ me, onLogout }: { me: Me | null; onLogout: () => void }) {
+function Home({
+  me,
+  onLogout,
+  failed,
+}: {
+  me: Me | null;
+  onLogout: () => void;
+  failed: boolean;
+}) {
   return (
     <main className="app">
       <h1>{t("app.title")}</h1>
@@ -22,6 +30,11 @@ function Home({ me, onLogout }: { me: Me | null; onLogout: () => void }) {
           <button type="button" onClick={onLogout}>
             {t("nav.logout")}
           </button>
+          {failed && (
+            <p role="alert" className="error">
+              {t("common.unexpectedError")}
+            </p>
+          )}
         </>
       ) : (
         <>
@@ -40,6 +53,7 @@ export default function App() {
   const path = usePath();
   const [me, setMe] = useState<Me | null>(null);
   const [ready, setReady] = useState(false);
+  const [logoutFailed, setLogoutFailed] = useState(false);
 
   const refresh = useCallback(async () => {
     try {
@@ -84,7 +98,17 @@ export default function App() {
   }, [ready, me, path]);
 
   async function logout() {
-    await api("/api/auth/logout", { method: "POST" });
+    try {
+      const result = await api("/api/auth/logout", { method: "POST" });
+      if (!result.ok) {
+        setLogoutFailed(true);
+        return;
+      }
+    } catch {
+      setLogoutFailed(true);
+      return;
+    }
+    setLogoutFailed(false);
     setMe(null);
     navigate("/login");
   }
@@ -97,9 +121,10 @@ export default function App() {
     );
   }
 
-  switch (path) {
+  const forcedPath = me?.must_change_password ? "/change-password" : path;
+  switch (forcedPath) {
     case "/":
-      return <Home me={me} onLogout={logout} />;
+      return <Home me={me} onLogout={logout} failed={logoutFailed} />;
     case "/login":
       return (
         <>
