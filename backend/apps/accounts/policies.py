@@ -18,12 +18,17 @@ RESET_ROLES = frozenset(_RESETTABLE)
 
 
 def instructor_teaches(instructor: User, student: User) -> bool:
-    """O'qituvchi talabaning guruhini olib boradimi. Guruhlar (sections) I1 da — hozir doim False.
+    """O'qituvchi talabaning guruhini olib boradimi: talaba uning guruhida **tasdiqlangan** a'zo.
 
-    Fail closed: guruh modeli kelguncha o'qituvchi hech kimning parolini tiklay olmaydi.
-    I1 da shu funksiya `Section` a'zoligi bo'yicha yoziladi (testlar tayyor).
+    Kutilayotgan, rad etilgan yoki chiqarilgan a'zolik hisoblanmaydi (I1-02).
     """
-    return False
+    from apps.sections.models import Membership
+
+    return (
+        Membership.objects.approved()
+        .filter(student=student, section__instructor=instructor)
+        .exists()
+    )
 
 
 def can_reset_password(actor: User, target: User) -> bool:

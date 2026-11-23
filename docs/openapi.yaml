@@ -198,6 +198,97 @@ paths:
               schema:
                 $ref: '#/components/schemas/PolicyVersion'
           description: ''
+  /api/sections:
+    get:
+      operationId: sections_list
+      parameters:
+      - name: cursor
+        required: false
+        in: query
+        description: The pagination cursor value.
+        schema:
+          type: string
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      tags:
+      - sections
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedSectionList'
+          description: ''
+    post:
+      operationId: sections_create
+      tags:
+      - sections
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SectionRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Section'
+          description: ''
+  /api/sections/{section_id}:
+    get:
+      operationId: sections_retrieve
+      parameters:
+      - in: path
+        name: section_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - sections
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SectionUpdate'
+          description: ''
+    patch:
+      operationId: sections_partial_update
+      summary: Guruhni o'zgartirish (nomi, sig'im, qo'shilish)
+      parameters:
+      - in: path
+        name: section_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - sections
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedSectionUpdateRequest'
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SectionUpdate'
+          description: ''
   /api/users/{user_id}/reset-password:
     post:
       operationId: users_reset_password_create
@@ -272,6 +363,27 @@ components:
       - hemis_id
       - id
       - student_limit
+    InstructorBrief:
+      type: object
+      properties:
+        id:
+          type: integer
+        full_name:
+          type: string
+      required:
+      - full_name
+      - id
+    InstructorBriefRequest:
+      type: object
+      properties:
+        id:
+          type: integer
+        full_name:
+          type: string
+          minLength: 1
+      required:
+      - full_name
+      - id
     InstructorCreateRequest:
       type: object
       description: 'AUTH-05: rol serializer''da yo''q — har doim `instructor` (mass
@@ -378,6 +490,25 @@ components:
       - hemis_id
       - must_change_password
       - role
+    PaginatedSectionList:
+      type: object
+      required:
+      - results
+      properties:
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?cursor=cD00ODY%3D"
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?cursor=cj0xJnA9NDg3
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Section'
     PatchedInstructorRequest:
       type: object
       properties:
@@ -386,6 +517,20 @@ components:
           maximum: 10000
           minimum: 1
           title: Talaba limiti
+    PatchedSectionUpdateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          title: Nomi
+        capacity:
+          type: integer
+          maximum: 500
+          minimum: 1
+        join_enabled:
+          type: boolean
+          title: Qo'shilish yoqilgan
     PolicyVersion:
       type: object
       properties:
@@ -453,6 +598,110 @@ components:
         * `admin` - Admin
         * `instructor` - O'qituvchi
         * `student` - Talaba
+    Section:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          title: Nomi
+        direction:
+          type: integer
+        course:
+          type: integer
+          readOnly: true
+        instructor:
+          allOf:
+          - $ref: '#/components/schemas/InstructorBrief'
+          readOnly: true
+        capacity:
+          type: integer
+          maximum: 500
+          minimum: 1
+        join_enabled:
+          type: boolean
+          title: Qo'shilish yoqilgan
+        approved_count:
+          type: integer
+          readOnly: true
+          default: 0
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Yaratilgan
+      required:
+      - approved_count
+      - course
+      - created_at
+      - direction
+      - id
+      - instructor
+      - name
+    SectionRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          title: Nomi
+        direction:
+          type: integer
+        capacity:
+          type: integer
+          maximum: 500
+          minimum: 1
+        join_enabled:
+          type: boolean
+          title: Qo'shilish yoqilgan
+      required:
+      - direction
+      - name
+    SectionUpdate:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          title: Nomi
+        direction:
+          type: integer
+          readOnly: true
+        course:
+          type: integer
+          readOnly: true
+        instructor:
+          allOf:
+          - $ref: '#/components/schemas/InstructorBrief'
+          readOnly: true
+        capacity:
+          type: integer
+          maximum: 500
+          minimum: 1
+        join_enabled:
+          type: boolean
+          title: Qo'shilish yoqilgan
+        approved_count:
+          type: integer
+          readOnly: true
+          default: 0
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          title: Yaratilgan
+      required:
+      - approved_count
+      - course
+      - created_at
+      - direction
+      - id
+      - instructor
+      - name
     TemporaryPassword:
       type: object
       properties:
