@@ -2,6 +2,17 @@
 
 > Har run oxirida Claude qo'shadi. Eng yangisi yuqorida.
 
+### 2026-11-24 — custom run 7 (kunduzi, qo'shimcha)
+- **Bajarilgan issue'lar va PR:** #114 → PR #138 (datasetlar va `mlab.load()`), #100 → PR #139 (vizual qadam). 4 ball.
+- **Nima qilindi (oddiy tilda):** Talaba laboratoriyada `df = mlab.load("iris")` deb yozsa, platformadagi dataset pandas
+  jadvali bo'lib keladi. 3 ta ochiq dataset (Iris, Wine, Breast Cancer — UCI, CC BY 4.0), har birining manbasi va
+  litsenziyasi "Datasetlar" sahifasida. Ma'ruzada slayderli vizual qadam: chiziqni surib xato (MSE) qanday o'zgarishini
+  ko'rish va k-NN da k ni o'zgartirib qaror chegarasini ko'rish.
+- **Ishlatilgan skill'lar va nima uchun:** security-discipline (dataset faqat kurs a'zosiga, litsenziya ro'yxati importda),
+  boring-by-default (vidjetlar SVG va oddiy slayder bilan, kutubxonasiz).
+- **Ertalab nimani ko'rish kerak:** `/datasets` sahifasi va M01 dagi "Model qanday o'rganadi?" qadami.
+- **Savollar / bloklar:** yo'q. PR #131 (Caddy CSP) hali egasida.
+
 ### 2026-11-24 — custom run 6 (kunduzi, qo'shimcha)
 - **Bajarilgan issue'lar va PR:** #109 → PR #134 (notebook), #113 → PR #135 (laboratoriya sahifasi), #112 → PR #136 (avtosaqlash). 5 ball.
 - **Nima qilindi (oddiy tilda):** Talaba `/labs/M01` da Jupyter'ga o'xshash notebook'da ishlaydi: kod va matn kataklari,
