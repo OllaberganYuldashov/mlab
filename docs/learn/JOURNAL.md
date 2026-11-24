@@ -2,6 +2,19 @@
 
 > Har run oxirida Claude qo'shadi. Eng yangisi yuqorida.
 
+### 2026-11-24 — custom run 11 (kunduzi, qo'shimcha)
+- **Bajarilgan issue'lar va PR:** #150 → PR #170 (topshiriq formati), #160 → PR #171 (paste cheklovi). 4 ball.
+- **Nima qilindi (oddiy tilda):** Amaliy topshiriqlar endi fayl ko'rinishida yoziladi (`content/labs/A01-.../`):
+  shart, qadamlar va ballari (jami 100), har daraja uchun kamida 5 variant, ko'rinadigan va yashirin testlar. Import
+  xatoni fayl va qator bilan ko'rsatadi; yechimlar papkasi bazaga yuklanmaydi. Laboratoriyada katta matnni (default
+  200 belgidan ko'p) joylashtirib bo'lmaydi, nazorat rejimida umuman bo'lmaydi; har urinish hajmi qayd qilinadi —
+  matnning o'zi saqlanmaydi.
+- **Ishlatilgan skill'lar va nima uchun:** data-modeling-discipline (ball va daraja cheklovlari bazada, qadam tartibi
+  DEFERRED unique), security-discipline (paste qarori serverda qayta hisoblanadi, IDOR testlari), unicode-pitfalls
+  (hajm kod nuqtalari bo'yicha: oʻ va emoji bitta belgi).
+- **Ertalab nimani ko'rish kerak:** `content/README.md` (topshiriq formati), `course.yaml` dagi `paste_limit`.
+- **Savollar / bloklar:** yo'q. PR #171 CI tugashidan oldin egasi akkaunti bilan oddiy merge qilingan (skript emas) — main CI natijasi kunlik hisobotda.
+
 ### 2026-11-24 — custom run 10 (kunduzi, qo'shimcha)
 - **Bajarilgan issue'lar va PR:** #116 → PR #148 (I2 yakuni), #149 → PR #168 (ADR-0007). 2 ball + I3 rejasi (19 issue, #149–#167).
   **I2 yopildi (21/21).**
