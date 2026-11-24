@@ -1,0 +1,17 @@
+RNN da har vaqt qadamida og'irliklar qanday?
+A) Bir xil og'irliklar qayta ishlatiladi
+B) Har qadamda yangi og'irliklar
+C) Og'irliklar ishlatilmaydi
+ANSWER: A
+
+Oddiy RNN ning asosiy muammosi qaysi?
+A) Uzoq bog'liqliklarni yomon eslashi (gradient yo'qolishi)
+B) Faqat sonlar bilan ishlashi
+C) Juda kam parametr
+ANSWER: A
+
+BPTT nima?
+A) Vaqt bo'ylab teskari tarqalish
+B) Ma'lumot bazasi turi
+C) Faollashtirish funksiyasi
+ANSWER: A

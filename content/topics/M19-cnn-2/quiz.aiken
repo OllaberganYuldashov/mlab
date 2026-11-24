@@ -1,0 +1,17 @@
+Max pooling har bo'lakdan qaysi qiymatni oladi?
+A) Eng kattasini
+B) O'rtachasini
+C) Birinchisini
+ANSWER: A
+
+Transfer learning nima?
+A) Tayyor o'qitilgan tarmoqni yangi vazifaga moslashtirish
+B) Ma'lumotni boshqa serverga ko'chirish
+C) Tarmoqni noldan o'qitish
+ANSWER: A
+
+Data augmentation nimaga yordam beradi?
+A) Overfittingni kamaytirishga
+B) Tarmoqni kichraytirishga
+C) Testni tezlashtirishga
+ANSWER: A

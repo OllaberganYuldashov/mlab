@@ -1,0 +1,17 @@
+LSTM da nechta darvoza bor?
+A) 1
+B) 2
+C) 3
+ANSWER: C
+
+GRU ning LSTM dan farqi nima?
+A) Kamroq darvoza va alohida hujayra holati yo'q
+B) Ko'proq darvoza
+C) Darvozalar umuman yo'q
+ANSWER: A
+
+Darvoza qiymati 0 ga yaqin bo'lsa nima bo'ladi?
+A) Axborot o'tmaydi
+B) Axborot to'liq o'tadi
+C) Tarmoq to'xtaydi
+ANSWER: A

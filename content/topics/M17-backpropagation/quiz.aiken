@@ -1,0 +1,17 @@
+Gradient tushishda og'irlik qaysi yo'nalishda yangilanadi?
+A) Gradient yo'nalishida
+B) Gradientga teskari yo'nalishda
+C) Tasodifiy yo'nalishda
+ANSWER: B
+
+Backpropagation qaysi matematik qoidaga asoslanadi?
+A) Zanjir qoidasi
+B) Bayes teoremasi
+C) Pifagor teoremasi
+ANSWER: A
+
+"Yo'qolayotgan gradient" muammosiga nima yordam beradi?
+A) Sigmoid o'rniga ReLU
+B) Qatlamlarni ko'paytirish
+C) O'rganish tezligini nolga tenglash
+ANSWER: A

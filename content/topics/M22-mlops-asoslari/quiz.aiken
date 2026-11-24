@@ -1,0 +1,17 @@
+Data drift nima?
+A) Real ma'lumot taqsimotining o'qitishdagidan farq qila boshlashi
+B) Model faylining o'chishi
+C) Kod xatosi
+ANSWER: A
+
+Takrorlanuvchanlik uchun nima muhim?
+A) random_state, versiyalar va bitta Pipeline
+B) Har safar boshqa ma'lumot
+C) Modelni saqlamaslik
+ANSWER: A
+
+Nega pickle/joblib faylini faqat ishonchli manbadan yuklash kerak?
+A) Yuklashda kod bajarilishi mumkin
+B) Fayl juda katta
+C) U faqat Windows'da ishlaydi
+ANSWER: A
