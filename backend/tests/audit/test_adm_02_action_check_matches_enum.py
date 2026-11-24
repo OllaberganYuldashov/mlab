@@ -1,4 +1,4 @@
-"""ADM-02: bazadagi `audit_auditlog_action_valid` CHECK `Action` ro'yxati bilan bir xil (tasdiqlangan).
+"""ADM-02: bazadagi audit CHECK `Action` ro'yxati bilan bir xil va tasdiqlangan.
 
 Audit migratsiyalari qo'lda (`NOT VALID` + `VALIDATE`) yozilganda ro'yxat adashib ketmasligi uchun.
 """
