@@ -4,6 +4,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/), versiyalar: [SemVer](ht
 
 ## [Unreleased]
 ### Added
+- Sandbox image va runner (I3-05; AGR-03, AGR-05; ADR-0007): `sandbox/Dockerfile` (Python 3.14.10 digest bilan, Pyodide bilan bir xil paketlar hash bilan, UID 10003, pip'siz), `sandbox/runner.py` (stdin/stdout JSON, har test alohida vaqt chegarasi, yashirin test nomi va xabari oshkor emas, talaba chiqishi natijani soxtalashtira olmaydi, chiqish 64 KB / natija 256 KB), `mlab.load` image ichida. Runner testlari CI'da (backend), hujum testlari (`sandbox/tests`) Docker bilan — CI job'i I3-18 da.
 - Deterministik variant (I3-03; AGR-08, INT-03): `StudentAssignment` (talaba × topshiriq: daraja, variant, dataset `seed`, holat). Variant = HMAC-SHA256(`VARIANT_SECRET`, talaba + topshiriq + daraja) mod variantlar soni; bir marta tanlanib saqlanadi, bir vaqtdagi ochilishda ham bitta yozuv. Kalit berilmasa `SECRET_KEY` dan hosil qilinadi (prod compose — I3-18). Import talabaga berilgan topshiriq yoki variantni o'chirmaydi (fayl bilan xato). `.env.example` dan ishlatilmagan `PASTE_LIMIT_CHARS` olib tashlandi (chegara endi `course.yaml` da). Migratsiya `grading 0002`.
 
 ### Added

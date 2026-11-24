@@ -40,7 +40,29 @@ amal beradi: "shu kodni shu testlar bilan ishga tushir". Konteyner sozlamalari u
 Sandbox image'dagi Python paketlari Pyodide'dagi bilan aynan bir xil versiyada (numpy 2.4.6, pandas 3.0.2,
 scikit-learn 1.8.0 ...). Aks holda talaba "Tekshirish"da o'tib, "Topshirish"da yiqilishi mumkin edi.
 
-## 6. Atamalar
+## 6. Image va runner amalda (I3-05)
+
+- `sandbox/Dockerfile`: Python 3.14.10 (digest bilan qotirilgan), paketlar `sandbox/requirements.txt` dan —
+  versiya **va hash** bilan (`pip install --require-hashes --only-binary`), pip o'chirilgan, foydalanuvchi UID 10003.
+  Datasetlar image ichida, `mlab.load("iris")` brauzerdagidek ishlaydi.
+- `sandbox/runner.py`: stdin'dan JSON (kod, testlar, parametrlar), stdout'ga JSON (har test: o'tdi/o'tmadi, vaqt).
+  Talaba `print()` lari alohida buferga ketadi — natijani soxtalashtira olmaydi. Yashirin test nomi
+  "yashirin test N", xabar faqat "O'tmadi" — test kodi va assert matni chiqmaydi (AGR-05).
+- Har kod va test uchun vaqt chegarasi (`signal.alarm`); talabaning `except Exception` bloki uni yuta olmaydi.
+- Hujum testlari (`sandbox/tests/test_image_attacks.py`) haqiqiy Docker'da: tarmoq yo'q, fayl yozib bo'lmaydi,
+  `/tmp` dan dastur ishga tushmaydi, fork-bomba 64 jarayonda to'xtaydi, xotira 512 MB, cheksiz sikl to'xtatiladi.
+- Ma'lum cheklov: talaba kodi runner bilan bitta jarayonda. Juda ataylab yozilgan "hiyla" kod natijani buzishga
+  urinishi mumkin (xostga zarar yetkaza olmaydi). Himoya: kod saqlanadi, o'qituvchi ko'radi; I3-19 ko'rigida
+  qayta baholanadi.
+
+O'zingiz sinash (Docker Desktop, repo ildizida):
+
+```powershell
+docker build -f sandbox/Dockerfile -t mlab-sandbox:dev .
+echo '{"code": "x = 2 + 2", "tests": []}' | docker run --rm -i --network none mlab-sandbox:dev
+```
+
+## 7. Atamalar
 
 | Atama | Ma'nosi |
 | --- | --- |
