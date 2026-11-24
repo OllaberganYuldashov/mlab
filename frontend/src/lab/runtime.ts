@@ -90,6 +90,16 @@ export class PythonRuntime {
     });
   }
 
+  /** NFR-02: Python va numpy/pandas'ni fonda oldindan yuklash (laboratoriya sahifasi ochilganda). */
+  warmup(): void {
+    if (this.status !== "idle" || this.worker) return;
+    try {
+      this.ensure().postMessage({ type: "warmup" });
+    } catch {
+      // Worker yo'q (eski brauzer yoki test muhiti) — birinchi `run` o'zi yuklaydi.
+    }
+  }
+
   /** LAB-06: bajarilayotgan kodni to'xtatadi va muhitni qayta ishga tushiradi. */
   restart(): void {
     this.worker?.terminate();

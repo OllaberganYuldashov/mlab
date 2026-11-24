@@ -3,6 +3,8 @@
 Format: [Keep a Changelog](https://keepachangelog.com/), versiyalar: [SemVer](https://semver.org/).
 
 ## [Unreleased]
+### Performance
+- Monoblok sinovi (I2-20; NFR-02): `e2e/perf.spec.ts` — sahifa ochilishidan pandas bilan birinchi katak natijasigacha (birinchi va keyingi ochilish; chegaralar 2 daq / 15 s), sklearn+matplotlib importi ma'lumot uchun; o'lchov: 7,2 s va +~10 s (`docs/iterations/I2.md`); laboratoriya ochilganda Python fonda tayyorlanadi va numpy/pandas oldindan yuklanadi (`runtime.warmup()`).
 ### Security
 - I1 qattiqlashtirish (#95): akkaunt nofaol qilinganda yoki paroli o'zgarganda (tiklash, admin, API — `User` signali) ochiq WebSocket darhol yopiladi (avval 15 daqiqagacha qolardi); bir foydalanuvchiga ko'pi bilan 5 ta bir vaqtdagi WebSocket ulanishi (Redis hisoblagichi, oshsa 4429); guruh yaratish cheklovi `SECTION_CREATE_RATE` (o'qituvchi bo'yicha, 30/hour). Audit CHECK'ini `NOT VALID` bilan kengaytirish — #104 da bajarilgan.
 

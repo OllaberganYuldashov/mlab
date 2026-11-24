@@ -122,7 +122,19 @@ async function run(id: number, code: string): Promise<void> {
 }
 
 let queue: Promise<void> = Promise.resolve();
+// NFR-02: laboratoriya ochilganda fonda tayyorlanish — talaba o'qib turganda Python va eng ko'p ishlatiladigan
+// paketlar yuklanadi; birinchi katak tezroq ishlaydi. Xato bo'lsa jim — keyingi `run` qayta urinadi.
+async function warmup(): Promise<void> {
+  try {
+    const py = await boot();
+    await py.loadPackage(["numpy", "pandas"], quiet);
+  } catch {
+    booting = null;
+  }
+}
+
 ctx.onmessage = (event) => {
   const message = event.data;
   if (message.type === "run") queue = queue.then(() => run(message.id, message.code));
+  else if (message.type === "warmup") queue = queue.then(warmup);
 };
