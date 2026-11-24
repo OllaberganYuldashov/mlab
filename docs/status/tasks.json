@@ -723,9 +723,9 @@
    "title": "Topshiriq formati: assignment.yaml, variantlar, ko'rinadigan va yashirin testlar, import",
    "req": "AGR-07, AGR-05, CNT-01",
    "size": "M",
-   "status": "ready",
+   "status": "done",
    "outcome": "`content/labs/<A##>-<slug>/` dan topshiriqlarni bazaga yuklash; yashirin testlar faqat serverda.",
-   "pr": "",
+   "pr": "#170",
    "points": 2
   },
   {
@@ -853,9 +853,9 @@
    "title": "Paste cheklovi va qaydi (laboratoriya)",
    "req": "INT-01, INT-04",
    "size": "M",
-   "status": "ready",
+   "status": "done",
    "outcome": "Tashqaridan katta matn joylashtirish cheklanadi va qayd qilinadi.",
-   "pr": "",
+   "pr": "#171",
    "points": 2
   },
   {

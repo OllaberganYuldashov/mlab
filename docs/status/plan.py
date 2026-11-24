@@ -9,7 +9,7 @@ META = {
     "velocity_note": "Kuniga 2 tungi run, har biri ~4-5 ball (M=2, S=1). Yakshanba — 1 run + review.",
     "current_release": "R1",
     "current_iteration": "I3",
-    "next_task": "#150 topshiriq formati, #153 sandbox image, #160 paste cheklovi; PR #131 egasida",
+    "next_task": "#151 variantlar, #153 sandbox image, #162 shubhali holatlar; PR #131 egasida",
 }
 
 RELEASES = [
@@ -121,7 +121,7 @@ TASKS = [
     # --- R1 keyingi iteratsiyalar (epiklar, taxminiy) ---
     # --- I3: Avtobaholovchi va topshiriqlar (2026-11-24 da issue'larga bo'lindi) ---
     _t("I3", "I3-01", "#149", "ADR-0007: sandbox va navbat — Docker cheklovlari, Celery, docker soketiga kirish", "AGR-02, AGR-03, AGR-04", "S", "done", "Avtobaholovchi arxitekturasini qaror sifatida yozish: talaba kodi faqat izolyatsiyalangan konteynerda.", "#168"),
-    _t("I3", "I3-02", "#150", "Topshiriq formati: assignment.yaml, variantlar, ko'rinadigan va yashirin testlar, import", "AGR-07, AGR-05, CNT-01", "M", "ready", "`content/labs/<A##>-<slug>/` dan topshiriqlarni bazaga yuklash; yashirin testlar faqat serverda."),
+    _t("I3", "I3-02", "#150", "Topshiriq formati: assignment.yaml, variantlar, ko'rinadigan va yashirin testlar, import", "AGR-07, AGR-05, CNT-01", "M", "done", "`content/labs/<A##>-<slug>/` dan topshiriqlarni bazaga yuklash; yashirin testlar faqat serverda.", "#170"),
     _t("I3", "I3-03", "#151", "Deterministik variant tanlash (talaba ID asosida) va StudentAssignment", "AGR-08, INT-03", "M", "ready", "Har talabaga topshiriq va daraja bo'yicha barqaror variant."),
     _t("I3", "I3-04", "#152", "\"Tekshirish\": ko'rinadigan testlar brauzerda (Pyodide)", "AGR-01, LAB-07", "M", "ready", "Talaba \"Tekshirish\" bossa, ko'rinadigan testlar darhol brauzerda ishlaydi."),
     _t("I3", "I3-05", "#153", "Sandbox image va runner (sandbox/)", "AGR-03, AGR-05", "M", "ready", "Talaba kodi va yashirin testlarni izolyatsiyada bajaradigan konteyner."),
@@ -131,7 +131,7 @@ TASKS = [
     _t("I3", "I3-09", "#157", "Frontend: topshiriq paneli, Tekshirish/Topshirish, navbat va natija", "AGR-01, AGR-02, AGR-04, AGR-05, LAB-07", "M", "ready", "Laboratoriya sahifasida to'liq baholash oqimi."),
     _t("I3", "I3-10", "#158", "Moslashuvchan daraja: qoida bo'yicha tanlash va o'qituvchi o'zgartirishi", "ADP-01, ADP-02", "M", "ready", "Har talabaga mos daraja (asosiy, o'rta, ilg'or)."),
     _t("I3", "I3-11", "#159", "Tez tugatganga challenge taklifi", "ADP-03", "S", "ready", "Topshiriqni tez va to'liq bajargan talabaga qo'shimcha challenge."),
-    _t("I3", "I3-12", "#160", "Paste cheklovi va qaydi (laboratoriya)", "INT-01, INT-04", "M", "ready", "Tashqaridan katta matn joylashtirish cheklanadi va qayd qilinadi."),
+    _t("I3", "I3-12", "#160", "Paste cheklovi va qaydi (laboratoriya)", "INT-01, INT-04", "M", "done", "Tashqaridan katta matn joylashtirish cheklanadi va qayd qilinadi.", "#171"),
     _t("I3", "I3-13", "#161", "Tushunish savollari: topshirgandan keyin 2 ta, noto'g'ri bo'lsa ball 50% bilan cheklanadi", "INT-02", "M", "ready", "Talaba o'z kodini tushunganini tekshirish."),
     _t("I3", "I3-14", "#162", "Shubhali holatlar o'qituvchiga va nazorat rejimida tab almashtirish qaydi", "INT-04, INT-05, ACC-09", "M", "ready", "O'qituvchi shubhali holatlarni ko'radi; avtomatik jazo yo'q."),
     _t("I3", "I3-15", "#163", "Kontent: A1–A5 topshiriqlari (3 daraja × 5 variant, challenge, mustaqil)", "AGR-07, AGR-08", "M", "ready", "A1–A5 amaliy topshiriqlari."),
