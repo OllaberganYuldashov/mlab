@@ -240,3 +240,19 @@ pre {
 .lab-main {
   min-width: 0;
 }
+
+.visual svg {
+  width: 100%;
+  max-width: 22rem;
+  border: 1px solid #e3e7ec;
+  display: block;
+}
+.slider {
+  display: block;
+  margin: 0.4rem 0;
+}
+.slider input {
+  display: block;
+  width: 100%;
+  max-width: 22rem;
+}

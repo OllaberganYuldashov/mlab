@@ -8,6 +8,7 @@ tranzaksiyada yozadi. Xato — `ContentError("fayl:qator: xabar")`, baza o'zgarm
 from __future__ import annotations
 
 import hashlib
+import json
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -227,6 +228,56 @@ def _parse_quiz(rel: str, line: int, text: str) -> dict[str, Any]:
     }
 
 
+VISUAL_WIDGETS = ("line-fit", "knn")
+
+
+def _number(value: Any) -> bool:
+    return isinstance(value, int | float) and not isinstance(value, bool)
+
+
+def _parse_visual(rel: str, line: int, text: str) -> dict[str, Any]:
+    """CNT-03 ```visual bloki: oldindan belgilangan vidjet va parametrlar (kod bajarilmaydi).
+
+    Natija kanonik JSON — frontend YAML o'qimaydi.
+    """
+    try:
+        data = yaml.safe_load(text)
+    except yaml.YAMLError as exc:
+        raise ContentError(rel, line, f"visual: YAML xatosi ({exc.__class__.__name__})") from exc
+    if not isinstance(data, dict):
+        raise ContentError(rel, line, "visual: YAML obyekt (kalit: qiymat) bo'lishi kerak")
+    widget = data.get("widget")
+    if widget not in VISUAL_WIDGETS:
+        raise ContentError(rel, line, f"visual: widget bittasi: {', '.join(VISUAL_WIDGETS)}")
+    allowed = {"widget", "title"} | ({"points"} if widget == "line-fit" else {"seed", "k_max"})
+    unknown = set(data) - allowed
+    if unknown:
+        raise ContentError(rel, line, f"visual: noma'lum kalit '{sorted(map(str, unknown))[0]}'")
+    spec: dict[str, Any] = {"widget": widget}
+    if "title" in data:
+        if not isinstance(data["title"], str) or not data["title"].strip():
+            raise ContentError(rel, line, "visual: title matn bo'lishi kerak")
+        spec["title"] = data["title"].strip()
+    if "points" in data:
+        points = data["points"]
+        if (
+            not isinstance(points, list)
+            or not 2 <= len(points) <= 50
+            or not all(
+                isinstance(p, list) and len(p) == 2 and all(_number(v) for v in p) for p in points
+            )
+        ):
+            raise ContentError(rel, line, "visual: points — 2..50 ta [x, y] son juftligi")
+        spec["points"] = points
+    for key, low, high in (("seed", 0, 1000), ("k_max", 3, 25)):
+        if key in data:
+            value = data[key]
+            if not isinstance(value, int) or isinstance(value, bool) or not low <= value <= high:
+                raise ContentError(rel, line, f"visual: {key} — {low}..{high} butun son")
+            spec[key] = value
+    return spec
+
+
 def _load_image(
     reader: _Reader, topic_dir: Path, rel: str, line: int, alt: str, target: str
 ) -> ImageData:
@@ -263,7 +314,7 @@ def _parse_step(
                 if "try" in words[1:] and words[0] != "python":
                     raise ContentError(rel, number, "'try' faqat python kod blokida")
                 fence = (number, words[0] if words else "", [])
-                if fence[1] == "quiz":
+                if fence[1] in ("quiz", "visual"):
                     continue
             else:
                 start, kind, quiz_lines = fence
@@ -273,7 +324,11 @@ def _parse_step(
                         raise ContentError(rel, start, "qadamda faqat bitta tezkor savol bo'ladi")
                     question = _parse_quiz(rel, start, "\n".join(quiz_lines))
                     continue
-        elif fence is not None and fence[1] == "quiz":
+                if kind == "visual":
+                    spec = _parse_visual(rel, start, "\n".join(quiz_lines))
+                    body.extend(["```visual", json.dumps(spec, ensure_ascii=False), "```"])
+                    continue
+        elif fence is not None and fence[1] in ("quiz", "visual"):
             fence[2].append(line)
             continue
         elif fence is None:

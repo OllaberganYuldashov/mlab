@@ -29,6 +29,14 @@ Qadam ichida (CNT-02, I2-02):
   ```
   ````
 
+## Interaktiv vizual qadam (CNT-03)
+
+Qadam ichida ```` ```visual ```` YAML bloki — oldindan tayyorlangan vidjet (ixtiyoriy kod bajarilmaydi):
+
+- `widget: line-fit` — chiziqli regressiya: qiyalik va siljish slayderlari, MSE; ixtiyoriy `points: [[x, y], ...]` (2..50).
+- `widget: knn` — k-NN qaror hududlari, k slayderi; ixtiyoriy `seed` (0..1000), `k_max` (3..25).
+- Ikkalasida ham ixtiyoriy `title`. Import blokni tekshiradi va JSON ko'rinishida saqlaydi.
+
 ## Mavzu testi (CNT-05, Aiken)
 
 `topics/<KOD>-<slug>/quiz.aiken` — savollar banki (ixtiyoriy fayl). Har savol: matn (bir yoki bir necha qator),

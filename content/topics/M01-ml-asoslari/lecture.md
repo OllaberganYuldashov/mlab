@@ -35,6 +35,16 @@ print(f"Yangi uy narxi taxminan: {bashorat:.1f}")
 
 **Savol:** bu modelning kamchiligi nimada? (Maslahat: u uy maydoniga qaraydimi?)
 
+## Model qanday "o'rganadi"?
+
+Model — masalan, chiziq `y = w·x + b`. O'rganish — xato (MSE) eng kichik bo'ladigan `w` va `b` ni topish.
+Slayderlarni surib, xato qanday o'zgarishini kuzating, keyin "Eng yaxshi chiziq" tugmasini bosing.
+
+```visual
+widget: line-fit
+title: Uy maydoni (x) va narxi (y)
+```
+
 ## Tezkor savol
 
 ```quiz
