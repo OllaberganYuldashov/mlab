@@ -180,3 +180,38 @@ main section {
 pre {
   overflow-x: auto;
 }
+
+.notebook .cell {
+  border: 1px solid #d8dee6;
+  border-radius: 0.4rem;
+  padding: 0.5rem;
+  margin: 0.75rem 0;
+}
+.cell-toolbar,
+.cell-add,
+.notebook-bar {
+  display: flex;
+  gap: 0.4rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.cell-toolbar button,
+.cell-add button {
+  padding: 0.15rem 0.5rem;
+}
+.cell-count {
+  font-family: monospace;
+  min-width: 2.5rem;
+  color: #5b6470;
+}
+.code-editor {
+  margin: 0.4rem 0;
+  border: 1px solid #e3e7ec;
+}
+.output pre {
+  margin: 0.3rem 0;
+  white-space: pre-wrap;
+}
+.output img {
+  max-width: 100%;
+}

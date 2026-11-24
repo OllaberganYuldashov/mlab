@@ -6,6 +6,7 @@ import LoginPage from "./pages/LoginPage";
 import PolicyPage from "./pages/PolicyPage";
 import RegisterPage from "./pages/RegisterPage";
 import JoinPage from "./pages/JoinPage";
+import LabPage from "./pages/LabPage";
 import LecturePage from "./pages/LecturePage";
 import QuizPage from "./pages/QuizPage";
 import TopicsPage from "./pages/TopicsPage";
@@ -136,6 +137,8 @@ export default function App() {
   const forcedPath = me?.must_change_password ? "/change-password" : path;
   const joinMatch = /^\/join\/([A-Za-z0-9_-]{1,64})$/.exec(forcedPath);
   if (joinMatch?.[1]) return <JoinPage token={joinMatch[1]} me={me} />;
+  const labMatch = /^\/labs\/([A-Z][0-9]{2})$/.exec(forcedPath);
+  if (labMatch?.[1] && me?.role === "student") return <LabPage code={labMatch[1]} />;
   const quizMatch = /^\/topics\/([A-Z][0-9]{2})\/quiz$/.exec(forcedPath);
   if (quizMatch?.[1] && me?.role === "student") return <QuizPage code={quizMatch[1]} />;
   const topicMatch = /^\/topics\/([A-Z][0-9]{2})$/.exec(forcedPath);
