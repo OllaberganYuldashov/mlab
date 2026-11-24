@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { api } from "../api";
 import { t } from "../i18n";
+import RunnableCode from "../lab/RunnableCode";
 import { Link } from "../Link";
 import type { CodeBlockInfo } from "../markdown";
 import { Markdown } from "../Markdown.view";
@@ -40,10 +41,7 @@ function TryBlock({ info }: { info: CodeBlockInfo }) {
   return (
     <figure className="try-block">
       <figcaption>{t("lecture.try")}</figcaption>
-      <pre>
-        <code>{info.code}</code>
-      </pre>
-      <p className="muted">{t("lecture.tryLater")}</p>
+      <RunnableCode code={info.code} />
     </figure>
   );
 }
