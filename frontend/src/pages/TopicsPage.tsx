@@ -69,6 +69,12 @@ export default function TopicsPage() {
               </Link>{" "}
               <span className="muted">{t("topics.steps", { n: topic.steps })}</span>
               {topic.lab && <span className={`badge badge-${topic.lab.status}`}>{labText(topic.lab)}</span>}
+              {topic.lab && topic.questions > 0 && (
+                <>
+                  {" "}
+                  <Link to={`/topics/${topic.code}/quiz`}>{t("topics.quiz")}</Link>
+                </>
+              )}
             </li>
           ))}
         </ol>
