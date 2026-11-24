@@ -300,3 +300,59 @@ class QuizItem(models.Model):
 
     def __str__(self) -> str:
         return f"{self.attempt_id}/{self.position}"
+
+
+MAX_DATASET_BYTES = 5 * 1024 * 1024  # DAT-01: R1 da faqat kichik datasetlar
+
+# DAT-03: faqat ochiq litsenziyalar — SPDX identifikatori -> rasmiy matn havolasi.
+LICENSES = {
+    "CC0-1.0": "https://creativecommons.org/publicdomain/zero/1.0/",
+    "CC-BY-4.0": "https://creativecommons.org/licenses/by/4.0/",
+    "CC-BY-SA-4.0": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "ODbL-1.0": "https://opendatacommons.org/licenses/odbl/1-0/",
+    "PDDL-1.0": "https://opendatacommons.org/licenses/pddl/1-0/",
+}
+
+
+class Dataset(models.Model):
+    """Kurs dataseti (DAT-01..03). Manba — `content/datasets/sources.yaml`.
+
+    Baytlar bazada (rasmlar kabi — zaxira bilan birga, media volume kerak emas).
+    """
+
+    course = models.ForeignKey(
+        Course, on_delete=models.CASCADE, related_name="datasets", db_index=False
+    )
+    name = models.CharField(_("nomi (mlab.load)"), max_length=64)
+    title = models.TextField(_("sarlavha"))
+    description = models.TextField(_("tavsif"))
+    source_url = models.URLField(_("manba"), max_length=500)
+    license = models.CharField(_("litsenziya (SPDX)"), max_length=32)
+    sha256 = models.CharField(_("SHA-256"), max_length=64)
+    size = models.PositiveIntegerField(_("hajmi (bayt)"))
+    rows = models.PositiveIntegerField(_("qatorlar"))
+    columns = models.JSONField(_("ustunlar"))
+    data = models.BinaryField(_("CSV"))
+
+    class Meta:
+        verbose_name = _("dataset")
+        verbose_name_plural = _("datasetlar")
+        constraints: ClassVar[list[models.BaseConstraint]] = [
+            # Prefiks (course) FK indeksini ham qoplaydi.
+            models.UniqueConstraint(fields=["course", "name"], name="courses_dataset_name_uniq"),
+            models.CheckConstraint(
+                condition=Q(name__regex=r"^[a-z0-9_]{1,64}$"), name="courses_dataset_name_format"
+            ),
+            models.CheckConstraint(
+                condition=Q(license__in=list(LICENSES)), name="courses_dataset_license"
+            ),
+            models.CheckConstraint(
+                condition=Q(sha256__regex=r"^[0-9a-f]{64}$"), name="courses_dataset_sha256"
+            ),
+            models.CheckConstraint(
+                condition=Q(size__gte=1, size__lte=MAX_DATASET_BYTES), name="courses_dataset_size"
+            ),
+        ]
+
+    def __str__(self) -> str:
+        return self.name

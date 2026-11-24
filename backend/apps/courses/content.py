@@ -20,6 +20,8 @@ from django.utils import timezone
 
 from apps.courses.aiken import AikenError, AikenQuestion, parse_aiken
 from apps.courses.models import (
+    LICENSES,
+    MAX_DATASET_BYTES,
     MAX_IMAGE_BYTES,
     MAX_LATE_HOURS,
     MAX_QUIZ_ATTEMPTS,
@@ -27,6 +29,7 @@ from apps.courses.models import (
     MAX_QUIZ_QUESTIONS,
     AiMode,
     Course,
+    Dataset,
     ImageType,
     Lecture,
     LectureImage,
@@ -93,6 +96,19 @@ class TopicData:
 
 
 @dataclass(frozen=True)
+class DatasetData:
+    name: str
+    title: str
+    description: str
+    source_url: str
+    license: str
+    sha256: str
+    rows: int
+    columns: tuple[str, ...]
+    data: bytes
+
+
+@dataclass(frozen=True)
 class CourseData:
     slug: str
     title: str
@@ -100,6 +116,7 @@ class CourseData:
     content_hash: str
     topics: tuple[TopicData, ...]
     defaults: dict[str, Any] = field(default_factory=dict)
+    datasets: tuple[DatasetData, ...] = ()
 
 
 @dataclass
@@ -365,6 +382,7 @@ def load_course(root: Path) -> CourseData:
         )
 
     return CourseData(
+        datasets=_load_datasets(reader, root),
         slug=course["slug"],
         title=course["title"].strip(),
         version=course["version"].strip(),
@@ -372,6 +390,77 @@ def load_course(root: Path) -> CourseData:
         topics=tuple(sorted(topics, key=lambda t: t.order)),
         defaults=_parse_defaults(course.get("defaults"), course["__lines__"].get("defaults")),
     )
+
+
+_DATASET_NAME_RE = re.compile(r"^[a-z0-9_]{1,64}\Z")
+_DATASET_FILE_RE = re.compile(r"^[a-z0-9_-]{1,64}\.csv\Z")
+_DATASET_KEYS = {"name", "title", "description", "file", "sha256", "source_url", "license"}
+
+
+def _load_datasets(reader: _Reader, root: Path) -> tuple[DatasetData, ...]:
+    """DAT-01..03: `datasets/sources.yaml` — ixtiyoriy. Litsenziya, hajm va xesh tekshiriladi."""
+    import csv
+    import io
+
+    path = root / "datasets" / "sources.yaml"
+    if not path.exists():
+        return ()
+    rel = reader.rel(path)
+    raw = reader.yaml(path, {"datasets": list})
+    line = raw["__lines__"].get("datasets")
+    result: list[DatasetData] = []
+    seen: set[str] = set()
+    for entry in raw["datasets"]:
+        if not isinstance(entry, dict) or set(entry) != _DATASET_KEYS:
+            raise ContentError(
+                rel, line, f"har dataset kalitlari: {', '.join(sorted(_DATASET_KEYS))}"
+            )
+        if not all(isinstance(v, str) and v.strip() for v in entry.values()):
+            raise ContentError(rel, line, "dataset maydonlari bo'sh bo'lmagan matn bo'lishi kerak")
+        name = entry["name"]
+        if not _DATASET_NAME_RE.match(name):
+            raise ContentError(rel, line, f"name '{name}': a-z, 0-9, _ (64 gacha)")
+        if name in seen:
+            raise ContentError(rel, line, f"dataset nomi takrorlangan: {name}")
+        seen.add(name)
+        if entry["license"] not in LICENSES:
+            raise ContentError(
+                rel, line, f"{name}: litsenziya ochiq ro'yxatda emas ({', '.join(LICENSES)})"
+            )
+        if not entry["source_url"].startswith(("https://", "http://")):
+            raise ContentError(rel, line, f"{name}: source_url http(s) havola bo'lishi kerak")
+        if not _DATASET_FILE_RE.match(entry["file"]):
+            raise ContentError(rel, line, f"{name}: fayl nomi '<nom>.csv' (datasets/ ichida)")
+        file = root / "datasets" / entry["file"]
+        if file.is_symlink() or not file.is_file():
+            raise ContentError(rel, line, f"{name}: fayl topilmadi: datasets/{entry['file']}")
+        if file.stat().st_size > MAX_DATASET_BYTES:
+            raise ContentError(
+                rel, line, f"{name}: {MAX_DATASET_BYTES // 1024 // 1024} MB dan katta"
+            )
+        data = reader.read_bytes(file)
+        if hashlib.sha256(data).hexdigest() != entry["sha256"]:
+            raise ContentError(rel, line, f"{name}: sha256 fayl bilan mos emas")
+        try:
+            rows = list(csv.reader(io.StringIO(data.decode("utf-8"))))
+        except UnicodeDecodeError as exc:
+            raise ContentError(rel, line, f"{name}: CSV UTF-8 emas") from exc
+        if not rows or not rows[0]:
+            raise ContentError(rel, line, f"{name}: CSV sarlavhasi yo'q")
+        result.append(
+            DatasetData(
+                name=name,
+                title=entry["title"].strip(),
+                description=entry["description"].strip(),
+                source_url=entry["source_url"],
+                license=entry["license"],
+                sha256=entry["sha256"],
+                rows=len(rows) - 1,
+                columns=tuple(rows[0]),
+                data=data,
+            )
+        )
+    return tuple(result)
 
 
 # SET: kurs default sozlamalari — kalit: (tur, tekshiruv, xato matni).
@@ -453,6 +542,7 @@ def apply(data: CourseData) -> ImportReport:
         _sync(course, {"imported_at": timezone.now()})
         report.bump("updated", "course")
 
+    _sync_datasets(course, data.datasets, report)
     existing = {t.code: t for t in Topic.objects.filter(course=course)}
     wanted = {t.code for t in data.topics}
     stale = [t.pk for code, t in existing.items() if code not in wanted]
@@ -558,3 +648,33 @@ def _sync_images(topic: Topic, images: tuple[ImageData, ...], report: ImportRepo
 
 def import_content(root: Path) -> ImportReport:
     return apply(load_course(root))
+
+
+def _sync_datasets(course: Course, datasets: tuple[DatasetData, ...], report: ImportReport) -> None:
+    existing = {d.name: d for d in Dataset.objects.filter(course=course).defer("data")}
+    wanted = {d.name: d for d in datasets}
+    stale = [d.pk for name, d in existing.items() if name not in wanted]
+    if stale:
+        Dataset.objects.filter(pk__in=stale).delete()
+        report.bump("deleted", "dataset", len(stale))
+    for name, item in wanted.items():
+        values = {
+            "title": item.title,
+            "description": item.description,
+            "source_url": item.source_url,
+            "license": item.license,
+            "sha256": item.sha256,
+            "size": len(item.data),
+            "rows": item.rows,
+            "columns": list(item.columns),
+        }
+        current = existing.get(name)
+        if current is None:
+            Dataset.objects.create(course=course, name=name, data=item.data, **values)
+            report.bump("created", "dataset")
+            continue
+        changed = current.sha256 != item.sha256
+        if changed:
+            values["data"] = item.data
+        if _sync(current, values) or changed:
+            report.bump("updated", "dataset")

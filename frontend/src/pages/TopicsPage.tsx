@@ -53,6 +53,7 @@ export default function TopicsPage() {
       <h1>{data ? data.course.title : t("topics.title")}</h1>
       <p className="links">
         <Link to="/">{t("nav.home")}</Link>
+        <Link to="/datasets">{t("datasets.title")}</Link>
       </p>
       {error && (
         <p role="alert" className="error">

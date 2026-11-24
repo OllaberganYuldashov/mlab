@@ -23,7 +23,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from apps.accounts.models import Role, User
-from apps.courses.models import Course, LectureImage, LectureStep, Topic
+from apps.courses.models import LICENSES, Course, Dataset, LectureImage, LectureStep, Topic
 from apps.sections.access import can_access_course
 from apps.sections.models import AccessWindow, Membership
 from apps.sections.windows import window_state
@@ -236,4 +236,65 @@ class LectureImageView(APIView):
         response = HttpResponse(bytes(image.data), content_type=image.content_type)
         response["Cache-Control"] = IMAGE_CACHE
         response["Content-Disposition"] = "inline"
+        return response
+
+
+DatasetOut = inline_serializer(
+    "DatasetOut",
+    {
+        "name": serializers.CharField(),
+        "title": serializers.CharField(),
+        "description": serializers.CharField(),
+        "source_url": serializers.URLField(),
+        "license": serializers.CharField(),
+        "license_url": serializers.URLField(),
+        "rows": serializers.IntegerField(),
+        "columns": serializers.ListField(child=serializers.CharField()),
+        "size": serializers.IntegerField(),
+    },
+    many=True,
+)
+
+
+class DatasetListView(APIView):
+    """DAT-02: datasetlar ro'yxati — manba havolasi va litsenziya bilan."""
+
+    permission_classes = (IsAuthenticated,)
+
+    @extend_schema(responses={200: DatasetOut}, summary="Kurs datasetlari (manba va litsenziya)")
+    def get(self, request: Request) -> Response:
+        course = _course_for(request.user)
+        datasets = Dataset.objects.filter(course=course).defer("data").order_by("name")
+        return Response(
+            [
+                {
+                    "name": d.name,
+                    "title": d.title,
+                    "description": d.description,
+                    "source_url": d.source_url,
+                    "license": d.license,
+                    "license_url": LICENSES.get(d.license, ""),
+                    "rows": d.rows,
+                    "columns": d.columns,
+                    "size": d.size,
+                }
+                for d in datasets
+            ]
+        )
+
+
+class DatasetFileView(APIView):
+    """LAB-04: `mlab.load("nomi")` shu yerdan CSV oladi (Pyodide worker, o'z sessiyasi bilan)."""
+
+    permission_classes = (IsAuthenticated,)
+
+    @extend_schema(responses={(200, "text/csv"): OpenApiTypes.BINARY}, summary="Dataset CSV fayli")
+    def get(self, request: Request, name: str) -> HttpResponse:
+        course = _course_for(request.user)
+        dataset = Dataset.objects.filter(course=course, name=name).only("name", "data").first()
+        if dataset is None:
+            raise NotFound
+        response = HttpResponse(bytes(dataset.data), content_type="text/csv; charset=utf-8")
+        response["Cache-Control"] = "private, max-age=300"
+        response["Content-Disposition"] = f'inline; filename="{dataset.name}.csv"'
         return response

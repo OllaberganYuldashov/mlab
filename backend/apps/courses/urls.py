@@ -22,4 +22,6 @@ urlpatterns: list[URLPattern] = [
         quiz_views.QuizSubmitView.as_view(),
         name="quiz-submit",
     ),
+    path("datasets", views.DatasetListView.as_view(), name="datasets"),
+    path("datasets/<slug:name>/file", views.DatasetFileView.as_view(), name="dataset-file"),
 ]

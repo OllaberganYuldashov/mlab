@@ -5,6 +5,7 @@ import ChangePasswordPage from "./pages/ChangePasswordPage";
 import LoginPage from "./pages/LoginPage";
 import PolicyPage from "./pages/PolicyPage";
 import RegisterPage from "./pages/RegisterPage";
+import DatasetsPage from "./pages/DatasetsPage";
 import JoinPage from "./pages/JoinPage";
 import LabPage from "./pages/LabPage";
 import LecturePage from "./pages/LecturePage";
@@ -180,6 +181,9 @@ export default function App() {
           }}
         />
       );
+    case "/datasets":
+      if (me) return <DatasetsPage />;
+      return <NotFound />;
     case "/topics":
       if (me) return <TopicsPage />;
       return <NotFound />;
