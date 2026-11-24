@@ -5,8 +5,8 @@
    "velocity_per_day": 9,
    "velocity_note": "Kuniga 2 tungi run, har biri ~4-5 ball (M=2, S=1). Yakshanba — 1 run + review.",
    "current_release": "R1",
-   "current_iteration": "I2",
-   "next_task": "#116 I2 yakuni, keyin I3 ni issue'larga bo'lish; PR #131 egasida"
+   "current_iteration": "I3",
+   "next_task": "#150 topshiriq formati, #153 sandbox image, #160 paste cheklovi; PR #131 egasida"
   }
  ]
 }
