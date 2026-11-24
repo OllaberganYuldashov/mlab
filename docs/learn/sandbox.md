@@ -73,7 +73,7 @@ echo '{"code": "x = 2 + 2", "tests": []}' | docker run --rm -i --network none ml
 - vaqt chegarasi (30 s) JS tomonda: oshsa worker o'ldiriladi va yangisi ochiladi (cheksiz sikl sahifani qotirmaydi).
   Paketlarni yuklash vaqti chegaraga kirmaydi — avval talaba kodi importlari bo'yicha paketlar yuklanadi;
 - talaba kodi va testlar Python dasturiga **JSON satr literali** sifatida qo'yiladi: kod ichidagi `"""` yoki
-  `\\` dastur tuzilishini buza olmaydi.
+  `\` dastur tuzilishini buza olmaydi.
 
 Nega bu xavfsiz? Brauzerdagi natija baho emas: talaba uni xohlagancha "soxtalashtira" oladi — bu faqat o'ziga ta'sir
 qiladi. Baho faqat serverda, yashirin testlar bilan (AGR-05) — yashirin testlar `GET .../assignment` javobiga umuman
