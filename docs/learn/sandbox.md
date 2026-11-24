@@ -62,7 +62,24 @@ docker build -f sandbox/Dockerfile -t mlab-sandbox:dev .
 echo '{"code": "x = 2 + 2", "tests": []}' | docker run --rm -i --network none mlab-sandbox:dev
 ```
 
-## 7. Atamalar
+## 7. Brauzerdagi "Tekshirish" (I3-04)
+
+"Tekshirish" tugmasi serverga hech narsa yubormaydi: ko'rinadigan testlar talabaning o'z brauzerida, Pyodide'da ishlaydi
+(`frontend/src/lab/checker.ts`). Runner `sandbox/runner.py` ning nusxasi — bir xil qoidalar:
+
+- talaba kodi (notebook'ning kod kataklari tartib bilan) **yangi** nomlar fazosida bajariladi — notebook'da qo'lda
+  yaratilgan, lekin kodda yo'q o'zgaruvchi testga "sirg'alib" o'tmaydi;
+- har `test_*(ns, params)` alohida; `assert` matni talabaga ko'rinadi (bu ko'rinadigan test);
+- vaqt chegarasi (30 s) JS tomonda: oshsa worker o'ldiriladi va yangisi ochiladi (cheksiz sikl sahifani qotirmaydi).
+  Paketlarni yuklash vaqti chegaraga kirmaydi — avval talaba kodi importlari bo'yicha paketlar yuklanadi;
+- talaba kodi va testlar Python dasturiga **JSON satr literali** sifatida qo'yiladi: kod ichidagi `"""` yoki
+  `\\` dastur tuzilishini buza olmaydi.
+
+Nega bu xavfsiz? Brauzerdagi natija baho emas: talaba uni xohlagancha "soxtalashtira" oladi — bu faqat o'ziga ta'sir
+qiladi. Baho faqat serverda, yashirin testlar bilan (AGR-05) — yashirin testlar `GET .../assignment` javobiga umuman
+kirmaydi (testda tekshirilgan).
+
+## 8. Atamalar
 
 | Atama | Ma'nosi |
 | --- | --- |
