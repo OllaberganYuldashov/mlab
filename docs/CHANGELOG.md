@@ -3,6 +3,9 @@
 Format: [Keep a Changelog](https://keepachangelog.com/), versiyalar: [SemVer](https://semver.org/).
 
 ## [Unreleased]
+### Performance
+- Monoblok sinovi (I2-20; NFR-02): `e2e/perf.spec.ts` — sahifa ochilishidan pandas bilan birinchi katak natijasigacha (birinchi va keyingi ochilish; chegaralar 2 daq / 15 s), sklearn+matplotlib importi ma'lumot uchun; o'lchov: 7,2 s va +~10 s (`docs/iterations/I2.md`); laboratoriya ochilganda Python fonda tayyorlanadi va numpy/pandas oldindan yuklanadi (`runtime.warmup()`).
+
 ### Added
 - Kontent M09–M15 (I2-11; CNT-04, CNT-02, CNT-05): qarorlar daraxti, SVM, metrikalar, k-means va DBSCAN, ierarxik klasterlash, PCA, assotsiativ qoidalar — har birida 5–7 qadam, ishlaydigan kod (mlab datasetlari, scipy dendrogramma, make_moons), tezkor savol, 3 tadan Aiken savoli; barcha kod bloklari `content-code` e2e'da haqiqiy Pyodide'da (15 mavzu ≈ 4 daqiqa).
 - Kontent M02–M08 (I2-10; CNT-04, CNT-02, CNT-05): ma'lumotlarga ishlov, vizualizatsiya va EDA, regressiya, overfitting va regulyarizatsiya, cross-validation, logistik regressiya, k-NN — har birida 6–8 qadam, "O'zing sinab ko'r" kodlari (`mlab.load` datasetlari bilan), tezkor savol, M04 va M08 da vizual qadam, 3 tadan Aiken savoli. Yangi e2e `content-code.spec.ts`: `content/` dagi barcha `python try` bloklari haqiqiy Pyodide'da ketma-ket bajariladi (birinchi ishga tushirishda 3 ta xatoni topdi: `float.round`).

@@ -64,6 +64,9 @@ Egasi I2 oxirida bitta monoblokda (8 GB RAM, Chrome) tekshiradi:
    (byudjet: ≤ 1–1,5 GB).
 4. Natijalarni `docs/iterations/I2.md` dagi jadvalga yoki kunlik hisobot issue'siga yozing.
 
+Natijalarni `docs/iterations/I2.md` dagi jadvalga yozing — u yerda bulutdagi taxminiy o'lchov ham bor
+(pandas bilan birinchi katak ~7 s, scikit-learn/matplotlib birinchi importi yana ~10 s).
+
 ## 7. Atamalar
 
 | Atama | Ma'nosi |

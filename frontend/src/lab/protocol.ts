@@ -5,7 +5,7 @@ export const PYODIDE_VERSION: string = lock.version;
 export const PYODIDE_BASE = `/pyodide/${PYODIDE_VERSION}/`;
 export const SEABORN_WHEEL = lock.files.find((f) => f.file.startsWith("seaborn-"))?.file ?? "";
 
-export type ToWorker = { type: "run"; id: number; code: string };
+export type ToWorker = { type: "run"; id: number; code: string } | { type: "warmup" };
 
 export type FromWorker =
   | { type: "status"; status: "loading" | "ready" }

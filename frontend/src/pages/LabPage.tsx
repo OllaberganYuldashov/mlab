@@ -4,6 +4,7 @@ import { showTime } from "../datetime";
 import { t } from "../i18n";
 import { Autosave, SAVE_INTERVAL_MS, type SaveStatus } from "../lab/autosave";
 import Notebook from "../lab/Notebook";
+import { getRuntime } from "../lab/runtime";
 import { type Notebook as NotebookState, emptyNotebook } from "../lab/notebook";
 import { Link } from "../Link";
 import type { LabState } from "./TopicsPage";
@@ -112,6 +113,11 @@ export default function LabPage({ code }: { code: string }) {
   const [shown, setShown] = useState<NotebookState | null>(null);
   const saver = useRef<Autosave | null>(null);
   const canSave = loaded !== null && loaded.work.policy !== "closed";
+  // NFR-02: laboratoriya ochiq bo'lsa Python fonda tayyorlanadi.
+  useEffect(() => {
+    if (canSave) getRuntime().warmup();
+  }, [canSave]);
+
   useEffect(() => {
     if (!loaded || !canSave) return;
     const autosave = new Autosave(code, loaded, setStatus);
