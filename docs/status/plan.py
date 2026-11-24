@@ -4,12 +4,12 @@ Issue raqami bor task — GitHub issue; `E-...` — hali issue'larga bo'linmagan
 """
 
 META = {
-    "as_of": "2026-11-24",
+    "as_of": "2026-11-25",
     "velocity_per_day": 9,  # ball/kun: kuniga 2 tungi run x ~4-5 ball (haftalik review aniqlaydi)
     "velocity_note": "Kuniga 2 tungi run, har biri ~4-5 ball (M=2, S=1). Yakshanba — 1 run + review.",
     "current_release": "R1",
     "current_iteration": "I3",
-    "next_task": "#152 Tekshirish (brauzerda testlar), #154 Celery va baholash, #162 shubhali holatlar",
+    "next_task": "#155 Topshirish API va navbat holati, #156 natija va eng yuqori ball, #157 frontend topshirish",
 }
 
 RELEASES = [
@@ -123,9 +123,9 @@ TASKS = [
     _t("I3", "I3-01", "#149", "ADR-0007: sandbox va navbat — Docker cheklovlari, Celery, docker soketiga kirish", "AGR-02, AGR-03, AGR-04", "S", "done", "Avtobaholovchi arxitekturasini qaror sifatida yozish: talaba kodi faqat izolyatsiyalangan konteynerda.", "#168"),
     _t("I3", "I3-02", "#150", "Topshiriq formati: assignment.yaml, variantlar, ko'rinadigan va yashirin testlar, import", "AGR-07, AGR-05, CNT-01", "M", "done", "`content/labs/<A##>-<slug>/` dan topshiriqlarni bazaga yuklash; yashirin testlar faqat serverda.", "#170"),
     _t("I3", "I3-03", "#151", "Deterministik variant tanlash (talaba ID asosida) va StudentAssignment", "AGR-08, INT-03", "M", "done", "Har talabaga topshiriq va daraja bo'yicha barqaror variant.", "#176"),
-    _t("I3", "I3-04", "#152", "\"Tekshirish\": ko'rinadigan testlar brauzerda (Pyodide)", "AGR-01, LAB-07", "M", "ready", "Talaba \"Tekshirish\" bossa, ko'rinadigan testlar darhol brauzerda ishlaydi."),
+    _t("I3", "I3-04", "#152", "\"Tekshirish\": ko'rinadigan testlar brauzerda (Pyodide)", "AGR-01, LAB-07", "M", "done", "Talaba \"Tekshirish\" bossa, ko'rinadigan testlar darhol brauzerda ishlaydi.", "#179"),
     _t("I3", "I3-05", "#153", "Sandbox image va runner (sandbox/)", "AGR-03, AGR-05", "M", "done", "Talaba kodi va yashirin testlarni izolyatsiyada bajaradigan konteyner.", "#177"),
-    _t("I3", "I3-06", "#154", "Celery va baholash vazifasi: Submission, navbat (2 parallel), qayta urinish", "AGR-02, AGR-04, AGR-06", "M", "ready", "Topshirilgan kod navbat orqali sandbox'da baholanadi."),
+    _t("I3", "I3-06", "#154", "Celery va baholash vazifasi: Submission, navbat (2 parallel), qayta urinish", "AGR-02, AGR-04, AGR-06", "M", "done", "Topshirilgan kod navbat orqali sandbox'da baholanadi.", "#180"),
     _t("I3", "I3-07", "#155", "\"Topshirish\" API va real vaqtda navbat holati", "AGR-02, AGR-04, ACC-06, ACC-07", "M", "ready", "Talaba \"Topshirish\" bosadi va navbatdagi o'rnini real vaqtda ko'radi."),
     _t("I3", "I3-08", "#156", "Natija: qadamlar bo'yicha ball, eng yuqori ball, yashirin testlar oshkor emas", "AGR-05, AGR-06", "M", "ready", "Talaba natijani tushunarli ko'radi; rasmiy ball — eng yuqorisi."),
     _t("I3", "I3-09", "#157", "Frontend: topshiriq paneli, Tekshirish/Topshirish, navbat va natija", "AGR-01, AGR-02, AGR-04, AGR-05, LAB-07", "M", "ready", "Laboratoriya sahifasida to'liq baholash oqimi."),

@@ -749,9 +749,9 @@
    "title": "\"Tekshirish\": ko'rinadigan testlar brauzerda (Pyodide)",
    "req": "AGR-01, LAB-07",
    "size": "M",
-   "status": "ready",
+   "status": "done",
    "outcome": "Talaba \"Tekshirish\" bossa, ko'rinadigan testlar darhol brauzerda ishlaydi.",
-   "pr": "",
+   "pr": "#179",
    "points": 2
   },
   {
@@ -775,9 +775,9 @@
    "title": "Celery va baholash vazifasi: Submission, navbat (2 parallel), qayta urinish",
    "req": "AGR-02, AGR-04, AGR-06",
    "size": "M",
-   "status": "ready",
+   "status": "done",
    "outcome": "Topshirilgan kod navbat orqali sandbox'da baholanadi.",
-   "pr": "",
+   "pr": "#180",
    "points": 2
   },
   {
