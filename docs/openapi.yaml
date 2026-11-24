@@ -115,6 +115,64 @@ paths:
           description: ''
         '400':
           description: No response body
+  /api/course/images/{sha256}:
+    get:
+      operationId: course_images_retrieve
+      summary: Ma'ruza rasmi (xesh bo'yicha, abadiy kesh)
+      parameters:
+      - in: path
+        name: sha256
+        schema:
+          type: string
+        required: true
+      tags:
+      - course
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            image/*:
+              schema:
+                type: string
+                format: binary
+          description: ''
+  /api/course/topics:
+    get:
+      operationId: course_topics_retrieve
+      summary: Kurs mavzulari (talabaga — laboratoriya holati bilan)
+      tags:
+      - course
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseTopics'
+          description: ''
+  /api/course/topics/{code}/lecture:
+    get:
+      operationId: course_topics_lecture_retrieve
+      summary: Ma'ruza qadamlari (rasm havolalari xesh URL bilan)
+      parameters:
+      - in: path
+        name: code
+        schema:
+          type: string
+        required: true
+      tags:
+      - course
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LectureOut'
+          description: ''
   /api/directions:
     get:
       operationId: directions_list
@@ -948,6 +1006,28 @@ components:
       required:
       - new_password
       - old_password
+    CourseBrief:
+      type: object
+      properties:
+        slug:
+          type: string
+        title:
+          type: string
+      required:
+      - slug
+      - title
+    CourseTopics:
+      type: object
+      properties:
+        course:
+          $ref: '#/components/schemas/CourseBrief'
+        topics:
+          type: array
+          items:
+            $ref: '#/components/schemas/TopicBrief'
+      required:
+      - course
+      - topics
     DeadlineList:
       type: object
       properties:
@@ -1166,6 +1246,62 @@ components:
       required:
       - join_path
       - token
+    LabState:
+      type: object
+      properties:
+        status:
+          type: string
+        opens_at:
+          type: string
+          format: date-time
+          nullable: true
+        closes_at:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+      - closes_at
+      - opens_at
+      - status
+    LectureOut:
+      type: object
+      properties:
+        topic:
+          $ref: '#/components/schemas/TopicRef'
+        title:
+          type: string
+        prev:
+          type: string
+          nullable: true
+        next:
+          type: string
+          nullable: true
+        steps:
+          type: array
+          items:
+            $ref: '#/components/schemas/LectureStepOut'
+      required:
+      - next
+      - prev
+      - steps
+      - title
+      - topic
+    LectureStepOut:
+      type: object
+      properties:
+        order:
+          type: integer
+        title:
+          type: string
+        body:
+          type: string
+        question:
+          nullable: true
+      required:
+      - body
+      - order
+      - question
+      - title
     LoginFailed:
       type: object
       properties:
@@ -1693,6 +1829,40 @@ components:
           readOnly: true
       required:
       - temporary_password
+    TopicBrief:
+      type: object
+      properties:
+        lab:
+          allOf:
+          - $ref: '#/components/schemas/LabState'
+          nullable: true
+        code:
+          type: string
+        title:
+          type: string
+        order:
+          type: integer
+        steps:
+          type: integer
+        questions:
+          type: integer
+      required:
+      - code
+      - lab
+      - order
+      - questions
+      - steps
+      - title
+    TopicRef:
+      type: object
+      properties:
+        code:
+          type: string
+        title:
+          type: string
+      required:
+      - code
+      - title
     WindowPlan:
       type: object
       properties:
