@@ -9,7 +9,7 @@ META = {
     "velocity_note": "Kuniga 2 tungi run, har biri ~4-5 ball (M=2, S=1). Yakshanba — 1 run + review.",
     "current_release": "R1",
     "current_iteration": "I2",
-    "next_task": "#109 notebook, #113 laboratoriya sahifasi, #114 datasetlar; PR #131 (Caddy CSP) egasida",
+    "next_task": "#114 datasetlar va mlab.load(), #100 vizual qadam; PR #131 (Caddy CSP) egasida",
 }
 
 RELEASES = [
@@ -110,11 +110,11 @@ TASKS = [
     _t("I2", "I2-11", "#106", "Kontent: M09–M15 minimal ma'ruzalar", "CNT-04, CNT-02", "M", "ready", "M09–M15 uchun minimal ma'ruzalar."),
     _t("I2", "I2-12", "#107", "Kontent: M16–M22 minimal ma'ruzalar", "CNT-04, CNT-02", "M", "ready", "M16–M22 uchun minimal ma'ruzalar."),
     _t("I2", "I2-13", "#108", "Pyodide Web Worker: kod bajarish protokoli, stdout/stderr, grafiklar", "LAB-02, LAB-03, AGR-03", "M", "done", "Brauzerda alohida Web Worker'da Python bajarish; asosiy oqim bloklanmaydi.", "#129"),
-    _t("I2", "I2-14", "#109", "Notebook interfeysi: kod va matn kataklari, Shift+Enter, chiqishlar", "LAB-01", "M", "ready", "Laboratoriya sahifasida Jupyter'ga o'xshash notebook."),
+    _t("I2", "I2-14", "#109", "Notebook interfeysi: kod va matn kataklari, Shift+Enter, chiqishlar", "LAB-01", "M", "done", "Laboratoriya sahifasida Jupyter'ga o'xshash notebook.", "#134"),
     _t("I2", "I2-15", "#110", "\"To'xtatish\": uzoq bajarilishni to'xtatib, muhitni qayta ishga tushirish", "LAB-06", "S", "done", "Cheksiz sikl yoki uzoq hisobda talaba to'xtatish tugmasini bosadi.", "#132"),
     _t("I2", "I2-16", "#111", "Laboratoriya ishi modeli va avtosaqlash API (versiya bilan)", "LAB-05, ACC-06, ACC-02", "M", "done", "Talabaning notebook holati serverda saqlanadi; eski versiya yangisini ustidan yozmaydi.", "#123"),
-    _t("I2", "I2-17", "#112", "Frontend avtosaqlash: har 10 soniyada va ishga tushirishda, oflayn navbat", "LAB-05", "M", "ready", "Tarmoq uzilsa ish yo'qolmaydi va tiklanganda yuboriladi."),
-    _t("I2", "I2-18", "#113", "Laboratoriya sahifasi: chapda shart va qadamlar, o'ngda AI tutor joyi", "LAB-07, ACC-05", "S", "ready", "Laboratoriya sahifasining umumiy ko'rinishi."),
+    _t("I2", "I2-17", "#112", "Frontend avtosaqlash: har 10 soniyada va ishga tushirishda, oflayn navbat", "LAB-05", "M", "done", "Tarmoq uzilsa ish yo'qolmaydi va tiklanganda yuboriladi.", "#136"),
+    _t("I2", "I2-18", "#113", "Laboratoriya sahifasi: chapda shart va qadamlar, o'ngda AI tutor joyi", "LAB-07, ACC-05", "S", "done", "Laboratoriya sahifasining umumiy ko'rinishi.", "#135"),
     _t("I2", "I2-19", "#114", "Datasetlar: `content/datasets`, manba va litsenziya, `mlab.load()`", "DAT-01, DAT-02, DAT-03, LAB-04", "M", "ready", "Kichik datasetlar platformadan yuklanadi va har birining manbasi ko'rinadi."),
     _t("I2", "I2-20", "#115", "Monoblokda erta sinov: birinchi va keyingi ochilish vaqti, xotira", "NFR-02", "S", "ready", "Laboratoriya monoblok profilida (8 GB, Chrome) talabga mos ekanini o'lchash."),
     _t("I2", "I2-21", "#116", "I2 yakuni: ko'rik va e2e", "CNT-02..07, LAB-01..07, DAT-01..03, NFR-02 (iteratsiya qabuli)", "S", "ready", "I2 ni yopish."),

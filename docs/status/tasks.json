@@ -606,9 +606,9 @@
    "title": "Notebook interfeysi: kod va matn kataklari, Shift+Enter, chiqishlar",
    "req": "LAB-01",
    "size": "M",
-   "status": "ready",
+   "status": "done",
    "outcome": "Laboratoriya sahifasida Jupyter'ga o'xshash notebook.",
-   "pr": "",
+   "pr": "#134",
    "points": 2
   },
   {
@@ -645,9 +645,9 @@
    "title": "Frontend avtosaqlash: har 10 soniyada va ishga tushirishda, oflayn navbat",
    "req": "LAB-05",
    "size": "M",
-   "status": "ready",
+   "status": "done",
    "outcome": "Tarmoq uzilsa ish yo'qolmaydi va tiklanganda yuboriladi.",
-   "pr": "",
+   "pr": "#136",
    "points": 2
   },
   {
@@ -658,9 +658,9 @@
    "title": "Laboratoriya sahifasi: chapda shart va qadamlar, o'ngda AI tutor joyi",
    "req": "LAB-07, ACC-05",
    "size": "S",
-   "status": "ready",
+   "status": "done",
    "outcome": "Laboratoriya sahifasining umumiy ko'rinishi.",
-   "pr": "",
+   "pr": "#135",
    "points": 1
   },
   {

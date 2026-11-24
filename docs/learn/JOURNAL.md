@@ -2,6 +2,16 @@
 
 > Har run oxirida Claude qo'shadi. Eng yangisi yuqorida.
 
+### 2026-11-24 — custom run 6 (kunduzi, qo'shimcha)
+- **Bajarilgan issue'lar va PR:** #109 → PR #134 (notebook), #113 → PR #135 (laboratoriya sahifasi), #112 → PR #136 (avtosaqlash). 5 ball.
+- **Nima qilindi (oddiy tilda):** Talaba `/labs/M01` da Jupyter'ga o'xshash notebook'da ishlaydi: kod va matn kataklari,
+  Shift+Enter, grafiklar. Ish har 10 soniyada va har ishga tushirishda serverga saqlanadi; internet uzilsa kompyuterda
+  saqlanib, qaytganda yuboriladi; ikki oynada ochilsa — qaysi nusxani saqlashni so'raydi. Oyna yopiq bo'lsa — ochilish vaqti.
+- **Ishlatilgan skill'lar va nima uchun:** retry-amplification (qayta urinish 2 → 60 s, bitta navbat), idempotency (versiya
+  bilan saqlash), boring-by-default (CodeMirror — ADR-0006 da ko'zda tutilgan, faqat laboratoriyada yuklanadi).
+- **Ertalab nimani ko'rish kerak:** laboratoriya monoblokda qanday ko'rinishi — e2e 1366×768 da tekshiradi.
+- **Savollar / bloklar:** yo'q. PR #131 (Caddy CSP) hali egasida.
+
 ### 2026-11-24 — custom run 5 (kunduzi, qo'shimcha)
 - **Bajarilgan issue'lar va PR:** #108 → PR #129 (Pyodide worker), #104 → PR #130 (kontent admin), #110 → PR #132 (to'xtatish). 4 ball.
   PR #131 — `deploy/Caddyfile` (CSP `'wasm-unsafe-eval'`, `/pyodide/` keshi), `needs:owner`.
