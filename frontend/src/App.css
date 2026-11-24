@@ -256,3 +256,15 @@ pre {
   width: 100%;
   max-width: 22rem;
 }
+
+/* AGR-01: "Tekshirish" natijalari */
+.task-steps {
+  padding-left: 1.2rem;
+}
+.check-tests {
+  list-style: none;
+  padding: 0;
+}
+.check-tests li.ok {
+  color: #1f6f3a;
+}

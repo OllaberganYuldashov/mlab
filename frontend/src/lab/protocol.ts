@@ -7,7 +7,7 @@ export const SEABORN_WHEEL =
   lock.files.find((f) => f.file.startsWith("seaborn-"))?.file ?? "";
 
 export type ToWorker =
-  | { type: "run"; id: number; code: string }
+  | { type: "run"; id: number; code: string; imports?: string }
   | { type: "warmup" };
 
 export type FromWorker =
