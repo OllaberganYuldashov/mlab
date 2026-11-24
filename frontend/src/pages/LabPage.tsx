@@ -3,6 +3,7 @@ import { api } from "../api";
 import { showTime } from "../datetime";
 import { t } from "../i18n";
 import { Autosave, SAVE_INTERVAL_MS, type SaveStatus } from "../lab/autosave";
+import AssignmentPanel from "../lab/AssignmentPanel";
 import Notebook from "../lab/Notebook";
 import { pasteAllowed, reportPaste } from "../lab/paste";
 import { getRuntime } from "../lab/runtime";
@@ -131,6 +132,8 @@ export default function LabPage({ code }: { code: string }) {
   const [notebookKey, setNotebookKey] = useState(0);
   const [shown, setShown] = useState<NotebookState | null>(null);
   const saver = useRef<Autosave | null>(null);
+  // AGR-01: "Tekshirish" notebook'ning eng so'nggi holatini oladi (saqlanmagan o'zgarishlar ham).
+  const latest = useRef<NotebookState | null>(null);
   const canSave = loaded !== null && loaded.work.policy !== "closed";
   // NFR-02: laboratoriya ochiq bo'lsa Python fonda tayyorlanadi.
   useEffect(() => {
@@ -189,6 +192,7 @@ export default function LabPage({ code }: { code: string }) {
       status.serverNotebook,
     );
     if (!keepMine) {
+      latest.current = notebook;
       setShown(notebook);
       setNotebookKey((k) => k + 1);
     }
@@ -224,7 +228,10 @@ export default function LabPage({ code }: { code: string }) {
             {policy !== "on_time" && (
               <p className="badge">{t(`lab.policy.${policy}`)}</p>
             )}
-            <p>{t("lab.task.placeholder")}</p>
+            <AssignmentPanel
+              code={code}
+              getNotebook={() => latest.current ?? loaded.notebook}
+            />
             <p>
               <Link to={`/topics/${code}`}>{t("lab.task.lecture")}</Link>
             </p>
@@ -244,8 +251,12 @@ export default function LabPage({ code }: { code: string }) {
             <Notebook
               key={notebookKey}
               initial={shown ?? loaded.notebook}
-              onChange={(nb) => saver.current?.change(nb)}
+              onChange={(nb) => {
+                latest.current = nb;
+                saver.current?.change(nb);
+              }}
               onRun={(nb) => {
+                latest.current = nb;
                 saver.current?.change(nb);
                 void saver.current?.flush();
               }}

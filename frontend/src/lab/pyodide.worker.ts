@@ -117,13 +117,14 @@ function show(value: unknown): string | null {
   return String(value);
 }
 
-async function run(id: number, code: string): Promise<void> {
+// `imports` — paketlarni qaysi koddan aniqlash (AGR-01 "Tekshirish": talaba kodi dastur ichida satr bo'lib turadi).
+async function run(id: number, code: string, imports = code): Promise<void> {
   current = id;
   try {
     const py = await boot();
-    await py.loadPackagesFromImports(code, quiet);
-    if (/\bmlab\b/.test(code)) await py.loadPackage(["pandas"], quiet);
-    if (/^\s*(import|from)\s+seaborn\b/m.test(code) && SEABORN_WHEEL) {
+    await py.loadPackagesFromImports(imports, quiet);
+    if (/\bmlab\b/.test(imports)) await py.loadPackage(["pandas"], quiet);
+    if (/^\s*(import|from)\s+seaborn\b/m.test(imports) && SEABORN_WHEEL) {
       await py.loadPackage(["numpy", "pandas", "matplotlib", "scipy"], quiet);
       await py.loadPackage(`${PYODIDE_BASE}${SEABORN_WHEEL}`, quiet);
     }
@@ -157,6 +158,6 @@ async function warmup(): Promise<void> {
 ctx.onmessage = (event) => {
   const message = event.data;
   if (message.type === "run")
-    queue = queue.then(() => run(message.id, message.code));
+    queue = queue.then(() => run(message.id, message.code, message.imports));
   else if (message.type === "warmup") queue = queue.then(warmup);
 };

@@ -85,15 +85,21 @@ export class PythonRuntime {
     }
   }
 
+  /** `imports` berilsa, paketlar shu koddan aniqlanadi (aks holda `code` dan). */
   run(
     code: string,
     onEvent: (event: RunEvent) => void = () => undefined,
+    imports?: string,
   ): Promise<RunResult> {
     const id = this.nextId++;
     const worker = this.ensure();
     return new Promise((resolve) => {
       this.pending.set(id, { onEvent, resolve });
-      worker.postMessage({ type: "run", id, code });
+      worker.postMessage(
+        imports === undefined
+          ? { type: "run", id, code }
+          : { type: "run", id, code, imports },
+      );
     });
   }
 
