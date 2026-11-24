@@ -26,7 +26,7 @@ describe("markdown (CNT-02)", () => {
 
   it("inline: qalin, kursiv, kod, havola, rasm", () => {
     render(
-      <Markdown text="**qalin** va *kursiv*, `kod`, [sayt](https://scikit-learn.org) ![Chiziq](/api/course/images/abc)" />,
+      <Markdown text="**qalin** va *kursiv*, `kod`, [sayt](https://scikit-learn.org) ![Chiziq](/api/course/images/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa)" />,
     );
     expect(screen.getByText("qalin").tagName).toBe("STRONG");
     expect(screen.getByText("kursiv").tagName).toBe("EM");
@@ -34,7 +34,7 @@ describe("markdown (CNT-02)", () => {
     const link = screen.getByRole("link", { name: "sayt" });
     expect(link).toHaveAttribute("href", "https://scikit-learn.org");
     expect(link).toHaveAttribute("rel", "noopener noreferrer");
-    expect(screen.getByRole("img", { name: "Chiziq" })).toHaveAttribute("src", "/api/course/images/abc");
+    expect(screen.getByRole("img", { name: "Chiziq" })).toHaveAttribute("src", "/api/course/images/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
   });
 
   it("XSS: HTML matn bo'lib chiqadi, javascript: havola va tashqi rasm yo'q", () => {
@@ -55,6 +55,13 @@ describe("markdown (CNT-02)", () => {
     expect(safeHref("data:text/html,x")).toBeNull();
     expect(safeHref("#qadam")).toBe("#qadam");
     expect(safeHref("HTTPS://example.com")).toBe("HTTPS://example.com");
+    expect(safeHref("/\\evil.example")).toBeNull();
+    expect(safeHref("/ok\u0000")).toBeNull();
+  });
+
+  it("rasm faqat xeshli kurs rasmi", () => {
+    const { container } = render(<Markdown text="![a](/api/datasets/iris/file) ![b](/api/course/images/123)" />);
+    expect(container.querySelector("img")).toBeNull();
   });
 
   it("kod bloki uchun o'z renderer'i", () => {

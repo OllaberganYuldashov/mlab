@@ -3,6 +3,9 @@
 Format: [Keep a Changelog](https://keepachangelog.com/), versiyalar: [SemVer](https://semver.org/).
 
 ## [Unreleased]
+### Security
+- I2 yakuniy ko'rigi (I2-21, security-reviewer): laboratoriya qoralamalari chiqish va kirishda tozalanadi (umumiy kompyuter); urinishlarda ishlatilgan savolning matni/variantlari/javobi admin'da qulflanadi; test javobi kalitlari faqat ASCII raqam, ≤ 100 ta (Unicode raqam 500 berardi); Markdown havolasida teskari chiziq/boshqaruv belgilari rad etiladi, rasm faqat `/api/course/images/<xesh>`; kontent importida symlink fayl/papka va `content/` dan tashqari yo'l rad etiladi; vizual qadamda NaN/inf rad etiladi. Uchidan-uchiga I2 e2e, so'rovlar soni testlari, `docs/iterations/I2.md` (matritsa).
+
 ### Performance
 - Monoblok sinovi (I2-20; NFR-02): `e2e/perf.spec.ts` — sahifa ochilishidan pandas bilan birinchi katak natijasigacha (birinchi va keyingi ochilish; chegaralar 2 daq / 15 s), sklearn+matplotlib importi ma'lumot uchun; o'lchov: 7,2 s va +~10 s (`docs/iterations/I2.md`); laboratoriya ochilganda Python fonda tayyorlanadi va numpy/pandas oldindan yuklanadi (`runtime.warmup()`).
 ### Security

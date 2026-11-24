@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { Autosave, type SaveOutcome, type SaveStatus, readLocal } from "./autosave";
+import { Autosave, type SaveOutcome, type SaveStatus, clearLabDrafts, readLocal } from "./autosave";
 import type { Notebook } from "./notebook";
 
 const nb = (source: string): Notebook => ({ format: 1, cells: [{ id: "a", type: "code", source }] });
@@ -120,6 +120,18 @@ describe("Autosave (LAB-05)", () => {
     });
     window.localStorage.setItem("mlab:lab:M01", "{buzuq");
     expect(Autosave.initial("M01", { version: 0, notebook: null }, fallback).notebook).toEqual(fallback);
+  });
+});
+
+describe("clearLabDrafts", () => {
+  it("faqat laboratoriya qoralamalarini o'chiradi", () => {
+    window.localStorage.setItem("mlab:lab:M01", "x");
+    window.localStorage.setItem("mlab:lab:M02", "y");
+    window.localStorage.setItem("boshqa", "z");
+    clearLabDrafts();
+    expect(window.localStorage.getItem("mlab:lab:M01")).toBeNull();
+    expect(window.localStorage.getItem("mlab:lab:M02")).toBeNull();
+    expect(window.localStorage.getItem("boshqa")).toBe("z");
   });
 });
 

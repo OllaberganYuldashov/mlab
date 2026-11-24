@@ -16,6 +16,7 @@ import StudentHome from "./pages/StudentHome";
 import { nextParam } from "./nav";
 import SectionsPage from "./pages/SectionsPage";
 import { Link } from "./Link";
+import { clearLabDrafts } from "./lab/autosave";
 import { navigate, usePath } from "./router";
 import "./App.css";
 
@@ -123,6 +124,7 @@ export default function App() {
       return;
     }
     setLogoutFailed(false);
+    clearLabDrafts();
     setMe(null);
     navigate("/login");
   }
@@ -161,6 +163,7 @@ export default function App() {
           )}
           <LoginPage
             onLogin={(user) => {
+              clearLabDrafts();
               setMe(user);
               navigate(user.must_change_password ? "/change-password" : (nextParam() ?? "/"));
             }}
