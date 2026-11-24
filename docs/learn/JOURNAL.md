@@ -2,6 +2,18 @@
 
 > Har run oxirida Claude qo'shadi. Eng yangisi yuqorida.
 
+### 2026-11-24 — custom run 4/4 (kunduzi)
+- **Bajarilgan issue'lar va PR:** #102 → PR #125 (mavzu testi backend), #103 → PR #127 (test sahifasi). 4 ball.
+- **Nima qilindi (oddiy tilda):** Talaba mavzu testini ishlaydi: savollar bankdan tasodifiy, variantlar aralashtirilgan,
+  vaqt serverda (30 soniya imtiyoz), urinishlar soni kurs sozlamasidan. Sahifa yangilansa test davom etadi, vaqt tugasa
+  o'zi topshiriladi. To'g'ri javoblar faqat topshirgandan keyin ko'rinadi.
+- **Ishlatilgan skill'lar va nima uchun:** clocks-and-time (muddat server soatida), isolation-anomalies (parallel "Boshlash" —
+  bitta urinish, talaba qatori qulfi), error-handling-as-design (kech topshirishda urinishni yopish tranzaksiya bilan bekor
+  bo'lib ketardi — testda ushlandi), testing-with-discernment (avtomatik topshirish ikki marta yuborilardi — testda ushlandi).
+- **Saboq:** fonda `&` bilan ishga tushirilgan merge skripti shell yopilganda to'xtaydi — fon uchun alohida buyruq kerak.
+- **Ertalab nimani ko'rish kerak:** `content/course.yaml` — `quiz_questions`, `quiz_minutes`, `quiz_attempts` qiymatlari.
+- **Savollar / bloklar:** yo'q.
+
 ### 2026-11-24 — custom run 3/4 (kunduzi)
 - **Bajarilgan issue'lar va PR:** #111 → PR #123 (avtosaqlash API), #99 → PR #124 (ma'ruza sahifalari). 4 ball.
 - **Nima qilindi (oddiy tilda):** Laboratoriyadagi ish serverda saqlanadi: ikki oynada ochilgan bo'lsa, eski oyna yangisini

@@ -9,7 +9,7 @@ META = {
     "velocity_note": "Kuniga 2 tungi run, har biri ~4-5 ball (M=2, S=1). Yakshanba — 1 run + review.",
     "current_release": "R1",
     "current_iteration": "I2",
-    "next_task": "#102 mavzu testi (PR #125), #103 test sahifasi, #108 Pyodide worker",
+    "next_task": "#108 Pyodide worker (needs:owner Caddyfile), #104 admin, #100 vizual qadam",
 }
 
 RELEASES = [
@@ -103,8 +103,8 @@ TASKS = [
     _t("I2", "I2-04", "#99", "Frontend: ma'ruza sahifasi — qadamlar bo'yicha yurish, rasm, tezkor savol", "CNT-02, NFR-13", "M", "done", "Talaba mavzular ro'yxatidan ma'ruzani ochadi va qadamma-qadam o'qiydi.", "#124"),
     _t("I2", "I2-05", "#100", "Interaktiv vizual qadam: slayder bilan parametr o'zgartirish", "CNT-03", "M", "ready", "Ma'ruzada slayderni surib grafik qanday o'zgarishini ko'rsatish (masalan, regressiya chizig'i qiyaligi, k-NN dagi k)."),
     _t("I2", "I2-06", "#101", "Aiken formatidagi testlarni import qilish va savollar banki", "CNT-05, CNT-06", "M", "done", "Egasining Aiken testlari `content/topics/<M>/quiz.txt` dan mavzu savollar bankiga yuklanadi.", "#120"),
-    _t("I2", "I2-07", "#102", "Mavzu testi: tasodifiy savollar, vaqt va urinishlar (kurs darajasida), backend", "CNT-06", "M", "ready", "Talaba mavzu testini boshlaydi, savollar bankdan tasodifiy tanlanadi, vaqt va urinish chegarasi serverda."),
-    _t("I2", "I2-08", "#103", "Frontend: mavzu testi sahifasi — taymer, javoblar, natija", "CNT-06, NFR-13", "M", "ready", "Talaba testni ishlaydi va natijasini ko'radi."),
+    _t("I2", "I2-07", "#102", "Mavzu testi: tasodifiy savollar, vaqt va urinishlar (kurs darajasida), backend", "CNT-06", "M", "done", "Talaba mavzu testini boshlaydi, savollar bankdan tasodifiy tanlanadi, vaqt va urinish chegarasi serverda.", "#125"),
+    _t("I2", "I2-08", "#103", "Frontend: mavzu testi sahifasi — taymer, javoblar, natija", "CNT-06, NFR-13", "M", "done", "Talaba testni ishlaydi va natijasini ko'radi.", "#127"),
     _t("I2", "I2-09", "#104", "Django Admin: kontentni ko'rish va kichik tuzatish", "CNT-07, ADM-02", "S", "ready", "Super admin ma'ruza qadamlari va savollarni admin'da ko'radi va matndagi kichik xatoni tuzatadi."),
     _t("I2", "I2-10", "#105", "Kontent: M02–M08 minimal ma'ruzalar (5–10 qadam)", "CNT-04, CNT-02", "M", "ready", "M02–M08 uchun sodda va minimal ma'ruzalar (`content/README.md` jadvali)."),
     _t("I2", "I2-11", "#106", "Kontent: M09–M15 minimal ma'ruzalar", "CNT-04, CNT-02", "M", "ready", "M09–M15 uchun minimal ma'ruzalar."),
