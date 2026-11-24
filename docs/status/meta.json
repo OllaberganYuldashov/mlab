@@ -5,8 +5,8 @@
    "velocity_per_day": 9,
    "velocity_note": "Kuniga 2 tungi run, har biri ~4-5 ball (M=2, S=1). Yakshanba — 1 run + review.",
    "current_release": "R1",
-   "current_iteration": "I1",
-   "next_task": "#71 I1 yakuni: ko'rik, uchidan-uchiga test, dars"
+   "current_iteration": "I2",
+   "next_task": "#101 Aiken importi (I2-06), #98 ma'ruza API, #108 Pyodide worker"
   }
  ]
 }
