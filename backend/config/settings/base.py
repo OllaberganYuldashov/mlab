@@ -164,6 +164,8 @@ SECTION_JOIN_RATE = env.optional("SECTION_JOIN_RATE", "30/hour")
 # LAB-05: avtosaqlash — talaba bo'yicha (har 10 s + har ishga tushirish; bir nechta tab).
 LAB_SAVE_RATE = env.optional("LAB_SAVE_RATE", "60/min")
 LAB_EVENT_RATE = env.optional("LAB_EVENT_RATE", "120/min")
+# AGR-08: variant tanlash HMAC kaliti; bo'sh bo'lsa SECRET_KEY dan hosil qilinadi.
+VARIANT_SECRET = env.optional("VARIANT_SECRET", "")
 # #95: guruh yaratish — o'qituvchi bo'yicha.
 SECTION_CREATE_RATE = env.optional("SECTION_CREATE_RATE", "30/hour")
 # Hamma IP uchun umumiy chegara (taqsimlangan hujum, Argon2 xotira/CPU narxi).

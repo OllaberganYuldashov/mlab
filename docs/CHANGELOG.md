@@ -4,6 +4,9 @@ Format: [Keep a Changelog](https://keepachangelog.com/), versiyalar: [SemVer](ht
 
 ## [Unreleased]
 ### Added
+- Deterministik variant (I3-03; AGR-08, INT-03): `StudentAssignment` (talaba × topshiriq: daraja, variant, dataset `seed`, holat). Variant = HMAC-SHA256(`VARIANT_SECRET`, talaba + topshiriq + daraja) mod variantlar soni; bir marta tanlanib saqlanadi, bir vaqtdagi ochilishda ham bitta yozuv. Kalit berilmasa `SECRET_KEY` dan hosil qilinadi (prod compose — I3-18). Import talabaga berilgan topshiriq yoki variantni o'chirmaydi (fayl bilan xato). `.env.example` dan ishlatilmagan `PASTE_LIMIT_CHARS` olib tashlandi (chegara endi `course.yaml` da). Migratsiya `grading 0002`.
+
+### Added
 - Lokal demo (#173): `docker compose up --build` → http://localhost:8080 — prod Dockerfile'lar va Caddyfile bilan butun ilova; `migrate` servisi migratsiya, `collectstatic`, `import_content` va yangi `seed_demo` (demo admin, o'qituvchi, 3 talaba, guruh, ochiq oynalar; idempotent, prod'da rad) ni bajaradi. `.gitattributes` (LF), Vite dev proxy va `predev` Pyodide yuklash. Dars: `docs/learn/local-run.md` (Windows).
 
 ### Added

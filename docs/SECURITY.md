@@ -23,6 +23,7 @@ Chat, repo, log, PR, issue, bulut muhiti o'zgaruvchilari va scheduled task promp
 | SECTION_JOIN_PREVIEW_RATE | Havola bo'yicha guruhni ko'rish, IP bo'yicha (default 600/hour) | .env.example | Server .env |
 | SECTION_JOIN_RATE | A'zolik so'rovi, talaba bo'yicha (default 30/hour) | .env.example | Server .env |
 | LAB_SAVE_RATE | Laboratoriya avtosaqlashi, talaba bo'yicha (default 60/min) | .env.example | Server .env |
+| VARIANT_SECRET | Variant tanlash HMAC kaliti (AGR-08); bo'sh bo'lsa SECRET_KEY dan hosil qilinadi. Almashsa yangi talabalar varianti o'zgaradi, berilganlari saqlanadi | Parol menejeri | Server .env |
 | LAB_EVENT_RATE | Laboratoriya hodisalari (paste qaydi), talaba bo'yicha (default 120/min) | .env.example | Server .env |
 | SECTION_CREATE_RATE | Guruh yaratish, o'qituvchi bo'yicha (default 30/hour) | .env.example | Server .env |
 | AUTH_LOGIN_RATE | Login so'rovlari IP bo'yicha (default 120/minute); lockout (5 xato → 15 daqiqa, Hemis ID + IP) kodda qat'iy | .env.example | Server .env |
