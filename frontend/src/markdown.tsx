@@ -90,13 +90,16 @@ export function parseBlocks(text: string): Block[] {
 const INLINE = /(!?\[[^\]]*\]\([^)\s]*\))|(\*\*[^*]+\*\*)|(`[^`]+`)|(\*[^*\s][^*]*\*)/g;
 
 export function safeHref(url: string): string | null {
+  // `/\evil.com` brauzerda `//evil.com` bo'ladi — teskari chiziq va boshqaruv belgilari rad (I2 security-review).
+  // eslint-disable-next-line no-control-regex
+  if (/[\\\u0000-\u001f\u007f]/.test(url)) return null;
   if (url.startsWith("/") && !url.startsWith("//")) return url;
   if (url.startsWith("#")) return url;
   return /^https?:\/\//i.test(url) ? url : null;
 }
 
 function safeImage(url: string): string | null {
-  return url.startsWith("/api/") ? url : null;
+  return /^\/api\/course\/images\/[0-9a-f]{64}$/.test(url) ? url : null;
 }
 
 export function renderInline(text: string, keyPrefix = "i"): ReactNode[] {
