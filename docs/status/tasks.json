@@ -541,9 +541,9 @@
    "title": "Django Admin: kontentni ko'rish va kichik tuzatish",
    "req": "CNT-07, ADM-02",
    "size": "S",
-   "status": "ready",
+   "status": "done",
    "outcome": "Super admin ma'ruza qadamlari va savollarni admin'da ko'radi va matndagi kichik xatoni tuzatadi.",
-   "pr": "",
+   "pr": "#130",
    "points": 1
   },
   {
@@ -593,9 +593,9 @@
    "title": "Pyodide Web Worker: kod bajarish protokoli, stdout/stderr, grafiklar",
    "req": "LAB-02, LAB-03, AGR-03",
    "size": "M",
-   "status": "ready",
+   "status": "done",
    "outcome": "Brauzerda alohida Web Worker'da Python bajarish; asosiy oqim bloklanmaydi.",
-   "pr": "",
+   "pr": "#129",
    "points": 2
   },
   {
@@ -619,9 +619,9 @@
    "title": "\"To'xtatish\": uzoq bajarilishni to'xtatib, muhitni qayta ishga tushirish",
    "req": "LAB-06",
    "size": "S",
-   "status": "ready",
+   "status": "done",
    "outcome": "Cheksiz sikl yoki uzoq hisobda talaba to'xtatish tugmasini bosadi.",
-   "pr": "",
+   "pr": "#132",
    "points": 1
   },
   {

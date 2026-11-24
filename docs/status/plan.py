@@ -9,7 +9,7 @@ META = {
     "velocity_note": "Kuniga 2 tungi run, har biri ~4-5 ball (M=2, S=1). Yakshanba — 1 run + review.",
     "current_release": "R1",
     "current_iteration": "I2",
-    "next_task": "#108 Pyodide worker (needs:owner Caddyfile), #104 admin, #100 vizual qadam",
+    "next_task": "#109 notebook, #113 laboratoriya sahifasi, #114 datasetlar; PR #131 (Caddy CSP) egasida",
 }
 
 RELEASES = [
@@ -105,13 +105,13 @@ TASKS = [
     _t("I2", "I2-06", "#101", "Aiken formatidagi testlarni import qilish va savollar banki", "CNT-05, CNT-06", "M", "done", "Egasining Aiken testlari `content/topics/<M>/quiz.txt` dan mavzu savollar bankiga yuklanadi.", "#120"),
     _t("I2", "I2-07", "#102", "Mavzu testi: tasodifiy savollar, vaqt va urinishlar (kurs darajasida), backend", "CNT-06", "M", "done", "Talaba mavzu testini boshlaydi, savollar bankdan tasodifiy tanlanadi, vaqt va urinish chegarasi serverda.", "#125"),
     _t("I2", "I2-08", "#103", "Frontend: mavzu testi sahifasi — taymer, javoblar, natija", "CNT-06, NFR-13", "M", "done", "Talaba testni ishlaydi va natijasini ko'radi.", "#127"),
-    _t("I2", "I2-09", "#104", "Django Admin: kontentni ko'rish va kichik tuzatish", "CNT-07, ADM-02", "S", "ready", "Super admin ma'ruza qadamlari va savollarni admin'da ko'radi va matndagi kichik xatoni tuzatadi."),
+    _t("I2", "I2-09", "#104", "Django Admin: kontentni ko'rish va kichik tuzatish", "CNT-07, ADM-02", "S", "done", "Super admin ma'ruza qadamlari va savollarni admin'da ko'radi va matndagi kichik xatoni tuzatadi.", "#130"),
     _t("I2", "I2-10", "#105", "Kontent: M02–M08 minimal ma'ruzalar (5–10 qadam)", "CNT-04, CNT-02", "M", "ready", "M02–M08 uchun sodda va minimal ma'ruzalar (`content/README.md` jadvali)."),
     _t("I2", "I2-11", "#106", "Kontent: M09–M15 minimal ma'ruzalar", "CNT-04, CNT-02", "M", "ready", "M09–M15 uchun minimal ma'ruzalar."),
     _t("I2", "I2-12", "#107", "Kontent: M16–M22 minimal ma'ruzalar", "CNT-04, CNT-02", "M", "ready", "M16–M22 uchun minimal ma'ruzalar."),
-    _t("I2", "I2-13", "#108", "Pyodide Web Worker: kod bajarish protokoli, stdout/stderr, grafiklar", "LAB-02, LAB-03, AGR-03", "M", "ready", "Brauzerda alohida Web Worker'da Python bajarish; asosiy oqim bloklanmaydi."),
+    _t("I2", "I2-13", "#108", "Pyodide Web Worker: kod bajarish protokoli, stdout/stderr, grafiklar", "LAB-02, LAB-03, AGR-03", "M", "done", "Brauzerda alohida Web Worker'da Python bajarish; asosiy oqim bloklanmaydi.", "#129"),
     _t("I2", "I2-14", "#109", "Notebook interfeysi: kod va matn kataklari, Shift+Enter, chiqishlar", "LAB-01", "M", "ready", "Laboratoriya sahifasida Jupyter'ga o'xshash notebook."),
-    _t("I2", "I2-15", "#110", "\"To'xtatish\": uzoq bajarilishni to'xtatib, muhitni qayta ishga tushirish", "LAB-06", "S", "ready", "Cheksiz sikl yoki uzoq hisobda talaba to'xtatish tugmasini bosadi."),
+    _t("I2", "I2-15", "#110", "\"To'xtatish\": uzoq bajarilishni to'xtatib, muhitni qayta ishga tushirish", "LAB-06", "S", "done", "Cheksiz sikl yoki uzoq hisobda talaba to'xtatish tugmasini bosadi.", "#132"),
     _t("I2", "I2-16", "#111", "Laboratoriya ishi modeli va avtosaqlash API (versiya bilan)", "LAB-05, ACC-06, ACC-02", "M", "done", "Talabaning notebook holati serverda saqlanadi; eski versiya yangisini ustidan yozmaydi.", "#123"),
     _t("I2", "I2-17", "#112", "Frontend avtosaqlash: har 10 soniyada va ishga tushirishda, oflayn navbat", "LAB-05", "M", "ready", "Tarmoq uzilsa ish yo'qolmaydi va tiklanganda yuboriladi."),
     _t("I2", "I2-18", "#113", "Laboratoriya sahifasi: chapda shart va qadamlar, o'ngda AI tutor joyi", "LAB-07, ACC-05", "S", "ready", "Laboratoriya sahifasining umumiy ko'rinishi."),

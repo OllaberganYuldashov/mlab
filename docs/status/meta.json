@@ -6,7 +6,7 @@
    "velocity_note": "Kuniga 2 tungi run, har biri ~4-5 ball (M=2, S=1). Yakshanba — 1 run + review.",
    "current_release": "R1",
    "current_iteration": "I2",
-   "next_task": "#108 Pyodide worker (needs:owner Caddyfile), #104 admin, #100 vizual qadam"
+   "next_task": "#109 notebook, #113 laboratoriya sahifasi, #114 datasetlar; PR #131 (Caddy CSP) egasida"
   }
  ]
 }
