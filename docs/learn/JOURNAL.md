@@ -2,6 +2,19 @@
 
 > Har run oxirida Claude qo'shadi. Eng yangisi yuqorida.
 
+### 2026-11-24 — custom run 3/4 (kunduzi)
+- **Bajarilgan issue'lar va PR:** #111 → PR #123 (avtosaqlash API), #99 → PR #124 (ma'ruza sahifalari). 4 ball.
+- **Nima qilindi (oddiy tilda):** Laboratoriyadagi ish serverda saqlanadi: ikki oynada ochilgan bo'lsa, eski oyna yangisini
+  ustidan yozmaydi (409 va serverdagi holat), javob yo'qolib qayta yuborilgan saqlash ikki marta yozilmaydi, oyna yopiq
+  bo'lsa saqlanmaydi. Talaba "Ma'ruzalar" sahifasidan mavzuni ochib qadamma-qadam o'qiydi va tezkor savolga javob beradi.
+- **Ishlatilgan skill'lar va nima uchun:** idempotency-and-side-effects (takroriy saqlash), isolation-anomalies (qator qulfi,
+  ikki tab bir vaqtda), security-discipline (Markdown — innerHTML'siz, `javascript:` havolalar rad), boring-by-default
+  (Markdown uchun yangi kutubxona qo'shilmadi).
+- **Saboq:** ikki PR bir vaqtda CHANGELOG'ga yozsa, ikkinchisi konfliktga tushadi. Force-push o'rniga main'ni branch'ga merge
+  qildik (tarix qayta yozilmaydi).
+- **Ertalab nimani ko'rish kerak:** `docs/learn/react-typescript.md` — "Markdown'ni xavfsiz ko'rsatish".
+- **Savollar / bloklar:** yo'q.
+
 ### 2026-11-24 — custom run 2/4 (kunduzi)
 - **Bajarilgan issue'lar va PR:** #101 → PR #120 (Aiken importi), #98 → PR #121 (ma'ruza API). 4 ball.
 - **Nima qilindi (oddiy tilda):** Egasining Moodle'dagi Aiken testlari endi `quiz.aiken` fayli sifatida mavzu savollar

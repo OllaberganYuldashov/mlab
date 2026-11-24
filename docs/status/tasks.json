@@ -476,9 +476,9 @@
    "title": "Frontend: ma'ruza sahifasi — qadamlar bo'yicha yurish, rasm, tezkor savol",
    "req": "CNT-02, NFR-13",
    "size": "M",
-   "status": "ready",
+   "status": "done",
    "outcome": "Talaba mavzular ro'yxatidan ma'ruzani ochadi va qadamma-qadam o'qiydi.",
-   "pr": "",
+   "pr": "#124",
    "points": 2
   },
   {
@@ -632,9 +632,9 @@
    "title": "Laboratoriya ishi modeli va avtosaqlash API (versiya bilan)",
    "req": "LAB-05, ACC-06, ACC-02",
    "size": "M",
-   "status": "ready",
+   "status": "done",
    "outcome": "Talabaning notebook holati serverda saqlanadi; eski versiya yangisini ustidan yozmaydi.",
-   "pr": "",
+   "pr": "#123",
    "points": 2
   },
   {
