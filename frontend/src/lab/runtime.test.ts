@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 import lock from "../../pyodide.lock.json";
-import { PYODIDE_BASE, SEABORN_WHEEL, type FromWorker, type ToWorker } from "./protocol";
+import {
+  PYODIDE_BASE,
+  SEABORN_WHEEL,
+  type FromWorker,
+  type ToWorker,
+} from "./protocol";
 import { PythonRuntime } from "./runtime";
 
 class FakeWorker {
@@ -32,8 +37,11 @@ describe("PythonRuntime (LAB-02)", () => {
   it("lock fayl: versiya, o'z server yo'li va xeshlar", () => {
     expect(PYODIDE_BASE).toBe(`/pyodide/${lock.version}/`);
     expect(SEABORN_WHEEL).toMatch(/^seaborn-.*\.whl$/);
-    for (const file of lock.files) expect(file.sha256).toMatch(/^[0-9a-f]{64}$/);
-    expect(lock.files.map((f) => f.file)).toEqual(expect.arrayContaining(["pyodide.mjs", "pyodide.asm.wasm"]));
+    for (const file of lock.files)
+      expect(file.sha256).toMatch(/^[0-9a-f]{64}$/);
+    expect(lock.files.map((f) => f.file)).toEqual(
+      expect.arrayContaining(["pyodide.mjs", "pyodide.asm.wasm"]),
+    );
   });
 
   it("run: hodisalar va natija, status", async () => {
@@ -65,7 +73,11 @@ describe("PythonRuntime (LAB-02)", () => {
     const { runtime, workers } = setup();
     const first = runtime.run("1/0");
     workers[0]?.emit({ type: "error", id: 1, message: "ZeroDivisionError" });
-    expect(await first).toEqual({ ok: false, result: null, error: "ZeroDivisionError" });
+    expect(await first).toEqual({
+      ok: false,
+      result: null,
+      error: "ZeroDivisionError",
+    });
     const second = runtime.run("2");
     expect(workers).toHaveLength(1);
     workers[0]?.emit({ type: "done", id: 2, result: null });
@@ -77,7 +89,12 @@ describe("PythonRuntime (LAB-02)", () => {
     const pending = runtime.run("while True: pass");
     runtime.restart();
     expect(workers[0]?.terminated).toBe(true);
-    expect(await pending).toEqual({ ok: false, result: null, error: null, interrupted: true });
+    expect(await pending).toEqual({
+      ok: false,
+      result: null,
+      error: null,
+      interrupted: true,
+    });
     expect(runtime.status).toBe("idle");
     void runtime.run("1");
     expect(workers).toHaveLength(2);

@@ -4,6 +4,9 @@ Format: [Keep a Changelog](https://keepachangelog.com/), versiyalar: [SemVer](ht
 
 ## [Unreleased]
 ### Added
+- Paste cheklovi va qaydi (I3-12; INT-01, ACC-09, RPT-03): CodeMirror'da paste va drop ushlanadi — kurs chegarasidan (`course.yaml` `defaults.paste_limit`, default 200 belgi) katta matn rad etiladi va xabar chiqadi; nazorat rejimidagi oynada har qanday paste taqiq. Har urinish `POST /api/labs/{code}/events` ga qayd qilinadi (faqat hajm va katak, matn emas; rad etish serverda qayta hisoblanadi; talaba bo'yicha `LAB_EVENT_RATE`). `GET /api/labs/{code}/work` ga `paste_limit`, `proctored` qo'shildi. Migratsiyalar `courses 0007`, `labs 0002` (`LabEvent`).
+
+### Added
 - ADR-0007 (I3-01; AGR-02..05): avtobaholovchi — Celery + Redis (`concurrency=2`, idempotent vazifa), Docker'ga faqat alohida `sandbox-launcher` xizmati kiradi (docker-socket-proxy konteyner sozlamasini cheklamaydi — rad etildi), sandbox cheklovlari (tarmoqsiz, read-only, root'siz, 512 MB, 1 CPU, 60 s, pids 64, cap-drop ALL), kod va testlar stdin orqali, image'da Pyodide bilan aynan bir xil paket versiyalari (Python 3.14); `docs/learn/sandbox.md`.
 ### Security
 - I2 yakuniy ko'rigi (I2-21, security-reviewer): laboratoriya qoralamalari chiqish va kirishda tozalanadi (umumiy kompyuter); urinishlarda ishlatilgan savolning matni/variantlari/javobi admin'da qulflanadi; test javobi kalitlari faqat ASCII raqam, ≤ 100 ta (Unicode raqam 500 berardi); Markdown havolasida teskari chiziq/boshqaruv belgilari rad etiladi, rasm faqat `/api/course/images/<xesh>`; kontent importida symlink fayl/papka va `content/` dan tashqari yo'l rad etiladi; vizual qadamda NaN/inf rad etiladi. Uchidan-uchiga I2 e2e, so'rovlar soni testlari, `docs/iterations/I2.md` (matritsa).

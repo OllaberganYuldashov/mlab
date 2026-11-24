@@ -40,8 +40,11 @@ const key = (code: string) => `${PREFIX}${code}`;
 /** Chiqish va kirishda: umumiy kompyuterda keyingi talaba oldingisining yuborilmagan ishini ko'rmasin. */
 export function clearLabDrafts(): void {
   try {
-    const keys = Array.from({ length: window.localStorage.length }, (_, i) => window.localStorage.key(i));
-    for (const k of keys) if (k?.startsWith(PREFIX)) window.localStorage.removeItem(k);
+    const keys = Array.from({ length: window.localStorage.length }, (_, i) =>
+      window.localStorage.key(i),
+    );
+    for (const k of keys)
+      if (k?.startsWith(PREFIX)) window.localStorage.removeItem(k);
   } catch {
     // localStorage yo'q — tozalaydigan narsa ham yo'q.
   }
@@ -52,7 +55,9 @@ export function readLocal(code: string): LocalCopy | null {
     const raw = window.localStorage.getItem(key(code));
     if (!raw) return null;
     const value = JSON.parse(raw) as LocalCopy;
-    return typeof value.base === "number" && value.notebook?.format === 1 ? value : null;
+    return typeof value.base === "number" && value.notebook?.format === 1
+      ? value
+      : null;
   } catch {
     return null;
   }
@@ -67,18 +72,40 @@ function writeLocal(code: string, copy: LocalCopy | null): void {
   }
 }
 
-export async function putWork(code: string, version: number, notebook: Notebook): Promise<SaveOutcome> {
+export async function putWork(
+  code: string,
+  version: number,
+  notebook: Notebook,
+): Promise<SaveOutcome> {
   try {
-    const result = await api<{ version: number; saved_at: string }>(`/api/labs/${code}/work`, {
-      method: "PUT",
-      body: { version, notebook },
-    });
-    if (result.ok) return { kind: "saved", version: result.data.version, savedAt: result.data.saved_at };
-    const data = (result.data ?? {}) as { code?: string; current_version?: number; notebook?: Notebook | null };
+    const result = await api<{ version: number; saved_at: string }>(
+      `/api/labs/${code}/work`,
+      {
+        method: "PUT",
+        body: { version, notebook },
+      },
+    );
+    if (result.ok)
+      return {
+        kind: "saved",
+        version: result.data.version,
+        savedAt: result.data.saved_at,
+      };
+    const data = (result.data ?? {}) as {
+      code?: string;
+      current_version?: number;
+      notebook?: Notebook | null;
+    };
     if (result.status === 409 && data.code === "version_conflict")
-      return { kind: "conflict", version: data.current_version ?? 0, notebook: data.notebook ?? null };
-    if (result.status === 403 && data.code === "lab_closed") return { kind: "closed" };
-    if (result.status >= 500 || result.status === 429) return { kind: "offline" };
+      return {
+        kind: "conflict",
+        version: data.current_version ?? 0,
+        notebook: data.notebook ?? null,
+      };
+    if (result.status === 403 && data.code === "lab_closed")
+      return { kind: "closed" };
+    if (result.status >= 500 || result.status === 429)
+      return { kind: "offline" };
     return { kind: "error" };
   } catch {
     return { kind: "offline" };
@@ -115,7 +142,8 @@ export class Autosave {
     this.version = start.version;
     this.notebook = start.notebook;
     this.dirty = start.dirty;
-    if (start.dirty) writeLocal(code, { base: this.version, notebook: this.notebook });
+    if (start.dirty)
+      writeLocal(code, { base: this.version, notebook: this.notebook });
   }
 
   /** Sahifa ochilganda: yuborilmagan lokal nusxa bo'lsa — o'sha (asosi bilan), aks holda serverdagi. */
@@ -126,7 +154,10 @@ export class Autosave {
   ): { version: number; notebook: Notebook; dirty: boolean } {
     const local = readLocal(code);
     const serverNotebook = server.notebook ?? fallback;
-    if (local && JSON.stringify(local.notebook) !== JSON.stringify(server.notebook))
+    if (
+      local &&
+      JSON.stringify(local.notebook) !== JSON.stringify(server.notebook)
+    )
       return { version: local.base, notebook: local.notebook, dirty: true };
     return { version: server.version, notebook: serverNotebook, dirty: false };
   }
@@ -164,7 +195,10 @@ export class Autosave {
           this.dirty = false;
           writeLocal(this.code, null);
         } else {
-          writeLocal(this.code, { base: this.version, notebook: this.notebook });
+          writeLocal(this.code, {
+            base: this.version,
+            notebook: this.notebook,
+          });
         }
         this.onStatus({ kind: "saved", at: outcome.savedAt });
         break;
@@ -177,7 +211,11 @@ export class Autosave {
       }
       case "conflict":
         this.stopped = true;
-        this.onStatus({ kind: "conflict", serverVersion: outcome.version, serverNotebook: outcome.notebook });
+        this.onStatus({
+          kind: "conflict",
+          serverVersion: outcome.version,
+          serverNotebook: outcome.notebook,
+        });
         return;
       case "closed":
         this.stopped = true;
@@ -194,7 +232,11 @@ export class Autosave {
   }
 
   /** 409 dan keyin: o'zimnikini serverdagi versiya ustidan yozish yoki serverdagini olish. */
-  resolve(keepMine: boolean, serverVersion: number, serverNotebook: Notebook | null): Notebook {
+  resolve(
+    keepMine: boolean,
+    serverVersion: number,
+    serverNotebook: Notebook | null,
+  ): Notebook {
     this.stopped = false;
     this.version = serverVersion;
     if (keepMine) {

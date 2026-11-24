@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { MAX_CELLS, addCell, emptyNotebook, moveCell, removeCell, setSource } from "./notebook";
+import {
+  MAX_CELLS,
+  addCell,
+  emptyNotebook,
+  moveCell,
+  removeCell,
+  setSource,
+} from "./notebook";
 
 describe("notebook amallari (LAB-01)", () => {
   it("qo'shish, ko'chirish, manba, o'chirish", () => {
@@ -8,7 +15,11 @@ describe("notebook amallari (LAB-01)", () => {
     nb = addCell(nb, 0, "markdown");
     nb = addCell(nb, 1, "code");
     const [a, b, c] = nb.cells.map((cell) => cell.id);
-    expect(nb.cells.map((cell) => cell.type)).toEqual(["code", "markdown", "code"]);
+    expect(nb.cells.map((cell) => cell.type)).toEqual([
+      "code",
+      "markdown",
+      "code",
+    ]);
     expect(new Set([a, b, c]).size).toBe(3);
     nb = moveCell(nb, 2, -1);
     expect(nb.cells.map((cell) => cell.id)).toEqual([a, c, b]);

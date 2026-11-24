@@ -47,21 +47,37 @@ export default function RunnableCode({ code }: { code: string }) {
       </button>
       {running && (
         // LAB-06: cheksiz sikl yoki uzoq hisob — worker o'ldiriladi, muhit qayta ishga tushadi.
-        <button type="button" className="secondary" onClick={() => runtime.restart()}>
+        <button
+          type="button"
+          className="secondary"
+          onClick={() => runtime.restart()}
+        >
           {t("lab.stop")}
         </button>
       )}
-      {running && status === "loading" && <span role="status"> {t("lab.loading")}</span>}
-      {running && status !== "loading" && <span role="status"> {t("lab.running")}</span>}
+      {running && status === "loading" && (
+        <span role="status"> {t("lab.loading")}</span>
+      )}
+      {running && status !== "loading" && (
+        <span role="status"> {t("lab.running")}</span>
+      )}
       {output && (
         <div className="output" aria-live="polite" data-testid="run-output">
           {text && <pre>{text}</pre>}
           {output.events
-            .filter((e): e is { kind: "figure"; png: string } => e.kind === "figure")
+            .filter(
+              (e): e is { kind: "figure"; png: string } => e.kind === "figure",
+            )
             .map((e, i) => (
-              <img key={i} src={`data:image/png;base64,${e.png}`} alt={t("lab.figure", { n: i + 1 })} />
+              <img
+                key={i}
+                src={`data:image/png;base64,${e.png}`}
+                alt={t("lab.figure", { n: i + 1 })}
+              />
             ))}
-          {output.result !== null && <pre className="result">{output.result}</pre>}
+          {output.result !== null && (
+            <pre className="result">{output.result}</pre>
+          )}
           {output.error && (
             <pre role="alert" className="error">
               {output.error}

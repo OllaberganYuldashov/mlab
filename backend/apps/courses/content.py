@@ -26,6 +26,7 @@ from apps.courses.models import (
     MAX_DATASET_BYTES,
     MAX_IMAGE_BYTES,
     MAX_LATE_HOURS,
+    MAX_PASTE_LIMIT,
     MAX_QUIZ_ATTEMPTS,
     MAX_QUIZ_MINUTES,
     MAX_QUIZ_QUESTIONS,
@@ -542,6 +543,8 @@ _DEFAULTS: dict[str, tuple[type, Any, str]] = {
     "quiz_questions": (int, lambda v: 1 <= v <= MAX_QUIZ_QUESTIONS, f"1..{MAX_QUIZ_QUESTIONS}"),
     "quiz_minutes": (int, lambda v: 1 <= v <= MAX_QUIZ_MINUTES, f"1..{MAX_QUIZ_MINUTES} daqiqa"),
     "quiz_attempts": (int, lambda v: 1 <= v <= MAX_QUIZ_ATTEMPTS, f"1..{MAX_QUIZ_ATTEMPTS}"),
+    # INT-01: paste chegarasi (faqat kurs darajasida)
+    "paste_limit": (int, lambda v: 0 <= v <= MAX_PASTE_LIMIT, f"0..{MAX_PASTE_LIMIT} belgi"),
 }
 
 

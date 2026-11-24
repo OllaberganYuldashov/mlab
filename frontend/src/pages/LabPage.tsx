@@ -1,9 +1,10 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { api } from "../api";
 import { showTime } from "../datetime";
 import { t } from "../i18n";
 import { Autosave, SAVE_INTERVAL_MS, type SaveStatus } from "../lab/autosave";
 import Notebook from "../lab/Notebook";
+import { pasteAllowed, reportPaste } from "../lab/paste";
 import { getRuntime } from "../lab/runtime";
 import { type Notebook as NotebookState, emptyNotebook } from "../lab/notebook";
 import { Link } from "../Link";
@@ -16,6 +17,8 @@ interface Work {
   notebook: NotebookState | null;
   saved_at: string | null;
   policy: Policy;
+  paste_limit: number;
+  proctored: boolean;
 }
 
 interface TopicBrief {
@@ -32,14 +35,24 @@ interface Loaded {
   dirty: boolean;
 }
 
-function SaveIndicator({ status, onResolve }: { status: SaveStatus; onResolve: (keepMine: boolean) => void }) {
+function SaveIndicator({
+  status,
+  onResolve,
+}: {
+  status: SaveStatus;
+  onResolve: (keepMine: boolean) => void;
+}) {
   switch (status.kind) {
     case "idle":
       return null;
     case "saving":
       return <span className="muted">{t("save.saving")}</span>;
     case "saved":
-      return <span className="muted">{t("save.saved", { time: showTime(status.at) })}</span>;
+      return (
+        <span className="muted">
+          {t("save.saved", { time: showTime(status.at) })}
+        </span>
+      );
     case "offline":
       return (
         <span role="status" className="error">
@@ -91,14 +104,20 @@ export default function LabPage({ code }: { code: string }) {
       if (!active) return;
       if (!work.ok) {
         setError(
-          work.status === 404 ? t("lecture.notFound") : work.status === 403 ? t("topics.noAccess") : t("common.unexpectedError"),
+          work.status === 404
+            ? t("lecture.notFound")
+            : work.status === 403
+              ? t("topics.noAccess")
+              : t("common.unexpectedError"),
         );
         return;
       }
       const start = Autosave.initial(code, work.data, emptyNotebook());
       setLoaded({
         work: work.data,
-        topic: topics.ok ? topics.data.topics.find((x) => x.code === code) : undefined,
+        topic: topics.ok
+          ? topics.data.topics.find((x) => x.code === code)
+          : undefined,
         ...start,
       });
     })();
@@ -139,9 +158,36 @@ export default function LabPage({ code }: { code: string }) {
     };
   }, [code, loaded, canSave]);
 
+  // INT-01, ACC-09: har paste qayd qilinadi; chegaradan katta yoki nazorat rejimida — rad.
+  const [pasteBlocked, setPasteBlocked] = useState<string | null>(null);
+  const onPaste = useCallback(
+    (cell: string, size: number) => {
+      if (!loaded) return true;
+      reportPaste(code, cell, size);
+      const rules = {
+        limit: loaded.work.paste_limit,
+        proctored: loaded.work.proctored,
+      };
+      const allowed = pasteAllowed(size, rules);
+      setPasteBlocked(
+        allowed
+          ? null
+          : rules.proctored
+            ? t("lab.paste.proctored")
+            : t("lab.paste.tooLarge", { limit: rules.limit, size }),
+      );
+      return allowed;
+    },
+    [code, loaded],
+  );
+
   function resolve(keepMine: boolean) {
     if (status.kind !== "conflict" || !saver.current) return;
-    const notebook = saver.current.resolve(keepMine, status.serverVersion, status.serverNotebook);
+    const notebook = saver.current.resolve(
+      keepMine,
+      status.serverVersion,
+      status.serverNotebook,
+    );
     if (!keepMine) {
       setShown(notebook);
       setNotebookKey((k) => k + 1);
@@ -175,7 +221,9 @@ export default function LabPage({ code }: { code: string }) {
         <div className="lab-layout">
           <aside className="lab-task" aria-labelledby="lab-task-title">
             <h2 id="lab-task-title">{t("lab.task.title")}</h2>
-            {policy !== "on_time" && <p className="badge">{t(`lab.policy.${policy}`)}</p>}
+            {policy !== "on_time" && (
+              <p className="badge">{t(`lab.policy.${policy}`)}</p>
+            )}
             <p>{t("lab.task.placeholder")}</p>
             <p>
               <Link to={`/topics/${code}`}>{t("lab.task.lecture")}</Link>
@@ -185,6 +233,14 @@ export default function LabPage({ code }: { code: string }) {
             <p className="save-status" aria-live="polite">
               <SaveIndicator status={status} onResolve={resolve} />
             </p>
+            {loaded.work.proctored && (
+              <p className="badge">{t("lab.proctored")}</p>
+            )}
+            {pasteBlocked && (
+              <p role="alert" className="error">
+                {pasteBlocked}
+              </p>
+            )}
             <Notebook
               key={notebookKey}
               initial={shown ?? loaded.notebook}
@@ -193,6 +249,7 @@ export default function LabPage({ code }: { code: string }) {
                 saver.current?.change(nb);
                 void saver.current?.flush();
               }}
+              onPaste={onPaste}
             />
           </section>
           <aside className="lab-tutor" aria-labelledby="lab-tutor-title">

@@ -266,5 +266,8 @@
   "visual.knn.alt": "Ikki sinf nuqtalari va k = {k} bo'lgandagi qaror hududlari",
   "visual.knn.k": "Qo'shnilar soni (k): {k}",
   "visual.knn.accuracy": "O'quv to'plamidagi aniqlik: {value}%",
-  "visual.unknown": "Bu vizual qadamni ko'rsatib bo'lmadi."
+  "visual.unknown": "Bu vizual qadamni ko'rsatib bo'lmadi.",
+  "lab.paste.tooLarge": "Katta matnni joylashtirish cheklangan: ko'pi bilan {limit} belgi (siz {size} belgi joylashtirmoqchi bo'ldingiz). Kodni o'zingiz yozing.",
+  "lab.paste.proctored": "Nazorat rejimida matn joylashtirish taqiqlangan.",
+  "lab.proctored": "Nazorat rejimi: matn joylashtirish taqiqlangan."
 }

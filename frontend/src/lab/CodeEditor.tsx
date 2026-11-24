@@ -6,15 +6,24 @@ interface Props {
   label: string;
   onChange: (value: string) => void;
   onRun: () => void;
+  onPaste?: (size: number) => boolean;
 }
 
 /** CodeMirror'ni dangasa yuklaydigan muharrir. Boshqaruv bir tomonlama: boshlang'ich qiymat, keyin `onChange`. */
-export default function CodeEditor({ value, language, label, onChange, onRun }: Props) {
+export default function CodeEditor({
+  value,
+  language,
+  label,
+  onChange,
+  onRun,
+  onPaste,
+}: Props) {
   const host = useRef<HTMLDivElement>(null);
-  const latest = useRef({ onChange, onRun });
+  const latest = useRef({ onChange, onRun, onPaste });
   useEffect(() => {
-    latest.current = { onChange, onRun };
-  }, [onChange, onRun]);
+    latest.current = { onChange, onRun, onPaste };
+  }, [onChange, onRun, onPaste]);
+  const guarded = onPaste !== undefined;
 
   useEffect(() => {
     let editor: { destroy(): void } | null = null;
@@ -28,6 +37,11 @@ export default function CodeEditor({ value, language, label, onChange, onRun }: 
         label,
         onChange: (v) => latest.current.onChange(v),
         onRun: () => latest.current.onRun(),
+        ...(guarded
+          ? {
+              onPaste: (size: number) => latest.current.onPaste?.(size) ?? true,
+            }
+          : {}),
       });
     });
     return () => {

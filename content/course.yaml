@@ -13,3 +13,4 @@ defaults:
   quiz_questions: 10          # CNT-06: mavzu testidagi savollar soni (1..50; bank kichik bo'lsa — hammasi)
   quiz_minutes: 15            # CNT-06: test vaqti, daqiqa (1..180)
   quiz_attempts: 3            # CNT-06: urinishlar soni (1..10)
+  paste_limit: 200            # INT-01: laboratoriyada bir martada joylashtirish chegarasi, belgi (0..10000)
