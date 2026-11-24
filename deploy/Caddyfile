@@ -23,7 +23,7 @@
 		Permissions-Policy "camera=(), microphone=(), geolocation=()"
 		# ADR-0006: Pyodide (WebAssembly) uchun faqat 'wasm-unsafe-eval'; 'unsafe-eval' va CDN kerak emas.
 		# Shu satr frontend/vite.config.ts dagi preview CSP bilan bir xil (e2e shu siyosatda sinaydi; test tekshiradi).
-		Content-Security-Policy "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
+		Content-Security-Policy "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self'; object-src 'none'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
 		-Server
 	}
 
@@ -31,6 +31,11 @@
 	# Caddy X-Forwarded-For ga mijoz IP'sini qo'shadi (TRUSTED_PROXY_COUNT=1); WebSocket'ni o'zi uzatadi.
 	@backend path /api/* /ws/* /admin/* /healthz /readyz
 	handle @backend {
+		# I2 security-review: JSON tanasi Django'da hajm tekshiruvidan oldin to'liq o'qiladi — kirishda chegara.
+		# Eng kattasi — notebook (1 MB); 2 MB zaxira bilan.
+		request_body {
+			max_size 2MB
+		}
 		reverse_proxy web:8000
 	}
 

@@ -147,6 +147,9 @@ def test_lab_03_caddy_serves_pyodide_with_wasm_csp_matching_preview() -> None:
     assert prod.group(1) == preview.group(1)
     assert "script-src 'self' 'wasm-unsafe-eval'" in prod.group(1)
     assert "'unsafe-eval'" not in prod.group(1).replace("'wasm-unsafe-eval'", "")
+    assert "object-src 'none'" in prod.group(1)
+    backend = caddy[caddy.index("handle @backend") :]
+    assert "max_size 2MB" in backend[: backend.index("reverse_proxy")]
     block = caddy[caddy.index("handle /pyodide/*") :]
     block = block[: block.index("}")]
     assert "immutable" in block
