@@ -2,6 +2,20 @@
 
 > Har run oxirida Claude qo'shadi. Eng yangisi yuqorida.
 
+### 2026-11-24 — custom run 5 (kunduzi, qo'shimcha)
+- **Bajarilgan issue'lar va PR:** #108 → PR #129 (Pyodide worker), #104 → PR #130 (kontent admin), #110 → PR #132 (to'xtatish). 4 ball.
+  PR #131 — `deploy/Caddyfile` (CSP `'wasm-unsafe-eval'`, `/pyodide/` keshi), `needs:owner`.
+- **Nima qilindi (oddiy tilda):** Ma'ruzadagi "O'zing sinab ko'r" kodi endi talabaning brauzerida haqiqiy Python'da ishlaydi
+  (print, xatolar, matplotlib grafiklari). Python fayllari (50 MB) o'z serverimizdan, har biri xesh bilan tekshirilgan.
+  Cheksiz sikl bo'lsa — "To'xtatish". Super admin ma'ruza va test matnidagi kichik xatoni admin panelda tuzatadi (audit bilan).
+- **Ishlatilgan skill'lar va nima uchun:** dependency-confusion (fayllar xesh bilan qotirilgan, uch manbadan solishtirilgan),
+  security-discipline (CSP'ga faqat `'wasm-unsafe-eval'`, e2e prod siyosatida, tashqi so'rov yo'qligi tekshirildi),
+  migration-safety (audit CHECK `NOT VALID` + `VALIDATE`, katta jadvalda yozish bloklanmaydi).
+- **Saboq:** qo'lda yozilgan migratsiya SQL'ini avtomatik yasashda ro'yxatga ortiqcha qiymatlar tushdi — endi bazadagi CHECK
+  `Action` bilan testda solishtiriladi.
+- **Ertalab nimani ko'rish kerak:** PR #131 ni merge qiling — busiz serverda Python ishlamaydi.
+- **Savollar / bloklar:** yo'q.
+
 ### 2026-11-24 — custom run 4/4 (kunduzi)
 - **Bajarilgan issue'lar va PR:** #102 → PR #125 (mavzu testi backend), #103 → PR #127 (test sahifasi). 4 ball.
 - **Nima qilindi (oddiy tilda):** Talaba mavzu testini ishlaydi: savollar bankdan tasodifiy, variantlar aralashtirilgan,
