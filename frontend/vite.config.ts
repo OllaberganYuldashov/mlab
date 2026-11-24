@@ -4,7 +4,17 @@ import { defineConfig } from "vite";
 
 export default defineConfig({
   plugins: [react()],
-  server: { port: 5173, strictPort: true },
+  // `npm run dev` + `manage.py runserver` (8000): API, WebSocket va admin backend'ga (#173).
+  server: {
+    port: 5173,
+    strictPort: true,
+    proxy: {
+      "/api": "http://127.0.0.1:8000",
+      "/admin": "http://127.0.0.1:8000",
+      "/static": "http://127.0.0.1:8000",
+      "/ws": { target: "ws://127.0.0.1:8000", ws: true },
+    },
+  },
   worker: { format: "es" },
   // Preview prod CSP bilan (deploy/Caddyfile + ADR-0006 'wasm-unsafe-eval'): e2e Pyodide'ni shu siyosatda sinaydi.
   preview: {

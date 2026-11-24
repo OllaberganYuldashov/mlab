@@ -1,0 +1,12 @@
+# Windows'da ham repo fayllari LF bilan (#173): konteyner ichidagi skriptlar va Caddyfile CRLF'dan buzilmasin.
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.whl binary
+*.zip binary
+*.parquet binary
