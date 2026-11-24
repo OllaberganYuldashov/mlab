@@ -21,8 +21,9 @@
 		X-Frame-Options "DENY"
 		Referrer-Policy "strict-origin-when-cross-origin"
 		Permissions-Policy "camera=(), microphone=(), geolocation=()"
-		# Pyodide (R1 I2) 'wasm-unsafe-eval' va CDN talab qilishi mumkin — shunda CSP shu yerda kengaytiriladi.
-		Content-Security-Policy "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
+		# ADR-0006: Pyodide (WebAssembly) uchun faqat 'wasm-unsafe-eval'; 'unsafe-eval' va CDN kerak emas.
+		# Shu satr frontend/vite.config.ts dagi preview CSP bilan bir xil (e2e shu siyosatda sinaydi; test tekshiradi).
+		Content-Security-Policy "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
 		-Server
 	}
 
@@ -37,6 +38,13 @@
 	handle_path /static/* {
 		root * /srv/static
 		header Cache-Control "public, max-age=86400"
+		file_server
+	}
+
+	# --- Pyodide (ADR-0006): yo'lda versiya bor — abadiy kesh; yo'q fayl 404 (SPA sahifasi emas) ---
+	handle /pyodide/* {
+		root * /srv/frontend
+		header Cache-Control "public, max-age=31536000, immutable"
 		file_server
 	}
 
