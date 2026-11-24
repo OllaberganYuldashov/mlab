@@ -27,10 +27,22 @@ Masalan, spam filtri uchun minglab "spam" va "spam emas" xatlar beriladi — mod
 
 Quyidagi kod eng oddiy "model"ni ko'rsatadi: o'rtacha qiymat bilan bashorat.
 
-```python
+```python try
 narxlar = [120, 135, 150, 128]
 bashorat = sum(narxlar) / len(narxlar)
 print(f"Yangi uy narxi taxminan: {bashorat:.1f}")
 ```
 
 **Savol:** bu modelning kamchiligi nimada? (Maslahat: u uy maydoniga qaraydimi?)
+
+## Tezkor savol
+
+```quiz
+question: Spam filtrini "spam" va "spam emas" deb belgilangan xatlarda o'qitish qaysi turga kiradi?
+options:
+  - Nazoratli (supervised)
+  - Nazoratsiz (unsupervised)
+  - Mustahkamlovchi (reinforcement)
+answer: A
+explain: Har xatning to'g'ri javobi (belgisi) bor — bu nazoratli o'qitish.
+```

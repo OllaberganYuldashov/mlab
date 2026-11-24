@@ -18,7 +18,17 @@ from django.db import transaction
 from django.db.models import Field, ProtectedError
 from django.utils import timezone
 
-from apps.courses.models import MAX_LATE_HOURS, AiMode, Course, Lecture, LectureStep, Topic
+from apps.courses.models import (
+    MAX_IMAGE_BYTES,
+    MAX_LATE_HOURS,
+    AiMode,
+    Course,
+    ImageType,
+    Lecture,
+    LectureImage,
+    LectureStep,
+    Topic,
+)
 
 # AGR-05: bu papkalar ma'ruza importida o'qilmaydi va hech qachon API'ga chiqmaydi.
 PRIVATE_DIRS = ("tests/hidden", "solutions")
@@ -26,6 +36,18 @@ PRIVATE_DIRS = ("tests/hidden", "solutions")
 _CODE_RE = re.compile(r"^[A-Z][0-9]{2}\Z")
 _SLUG_RE = re.compile(r"^[a-z0-9][a-z0-9-]{0,49}\Z")
 _FENCE_RE = re.compile(r"^(```|~~~)")
+_INFO_RE = re.compile(r"^(?:```|~~~)\s*(.*)$")
+_IMAGE_MD_RE = re.compile(r"!\[([^\]]*)\]\(([^)]*)\)")
+_IMAGE_PATH_RE = re.compile(r"^images/([A-Za-z0-9_-]+\.(png|jpg|jpeg|webp))\Z")
+# Kengaytma -> (MIME, fayl boshidagi "magic bytes" tekshiruvi, nomi).
+# SVG yo'q: u skript ichishi mumkin.
+_IMAGE_KINDS: dict[str, tuple[str, Any, str]] = {
+    "png": (ImageType.PNG, lambda b: b.startswith(b"\x89PNG\r\n\x1a\n"), "PNG"),
+    "jpg": (ImageType.JPEG, lambda b: b.startswith(b"\xff\xd8\xff"), "JPEG"),
+    "jpeg": (ImageType.JPEG, lambda b: b.startswith(b"\xff\xd8\xff"), "JPEG"),
+    "webp": (ImageType.WEBP, lambda b: b[:4] == b"RIFF" and b[8:12] == b"WEBP", "WEBP"),
+}
+_QUIZ_LETTERS = "ABCDEF"
 
 
 class ContentError(Exception):
@@ -40,6 +62,18 @@ class StepData:
     order: int
     title: str
     body: str
+    question: dict[str, Any] | None = None
+
+
+@dataclass(frozen=True)
+class ImageData:
+    name: str
+    content_type: str
+    data: bytes
+
+    @property
+    def sha256(self) -> str:
+        return hashlib.sha256(self.data).hexdigest()
 
 
 @dataclass(frozen=True)
@@ -49,6 +83,7 @@ class TopicData:
     order: int
     lecture_title: str
     steps: tuple[StepData, ...]
+    images: tuple[ImageData, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -100,6 +135,11 @@ class _Reader:
         self.digest.update(rel.encode() + b"\0" + text.encode() + b"\0")
         return text
 
+    def read_bytes(self, path: Path) -> bytes:
+        data = path.read_bytes()
+        self.digest.update(self.rel(path).encode() + b"\0" + data + b"\0")
+        return data
+
     def yaml(
         self,
         path: Path,
@@ -132,10 +172,102 @@ class _Reader:
         return {**data, "__lines__": lines}
 
 
-def _parse_lecture(rel: str, text: str) -> tuple[str, tuple[StepData, ...]]:
+def _parse_quiz(rel: str, line: int, text: str) -> dict[str, Any]:
+    """```quiz bloki (CNT-02): question, options (2..6), answer (harf), explain (ixtiyoriy)."""
+    try:
+        data = yaml.safe_load(text)
+    except yaml.YAMLError as exc:
+        raise ContentError(rel, line, f"quiz: YAML xatosi ({exc.__class__.__name__})") from exc
+    if not isinstance(data, dict):
+        raise ContentError(rel, line, "quiz: YAML obyekt (kalit: qiymat) bo'lishi kerak")
+    unknown = set(data) - {"question", "options", "answer", "explain"}
+    if unknown:
+        raise ContentError(rel, line, f"quiz: noma'lum kalit '{sorted(map(str, unknown))[0]}'")
+    question, options, answer = data.get("question"), data.get("options"), data.get("answer")
+    explain = data.get("explain", "")
+    if not isinstance(question, str) or not question.strip():
+        raise ContentError(rel, line, "quiz: 'question' matni kerak")
+    if not isinstance(options, list) or not 2 <= len(options) <= len(_QUIZ_LETTERS):
+        raise ContentError(rel, line, f"quiz: 'options' 2..{len(_QUIZ_LETTERS)} ta variant")
+    if not all(isinstance(o, str) and o.strip() for o in options):
+        raise ContentError(rel, line, "quiz: variant bo'sh yoki matn emas")
+    letters = _QUIZ_LETTERS[: len(options)]
+    if not isinstance(answer, str) or len(answer) != 1 or answer not in letters:
+        raise ContentError(rel, line, f"quiz: 'answer' bittasi: {', '.join(letters)}")
+    if not isinstance(explain, str):
+        raise ContentError(rel, line, "quiz: 'explain' matn bo'lishi kerak")
+    return {
+        "question": question.strip(),
+        "options": [o.strip() for o in options],
+        "answer": letters.index(answer),
+        "explain": explain.strip(),
+    }
+
+
+def _load_image(
+    reader: _Reader, topic_dir: Path, rel: str, line: int, alt: str, target: str
+) -> ImageData:
+    match = _IMAGE_PATH_RE.match(target.strip())
+    if not match:
+        raise ContentError(rel, line, "rasm yo'li 'images/<nom>.png|jpg|webp' bo'lishi kerak")
+    if not alt.strip():
+        raise ContentError(rel, line, "rasm uchun alt matn kerak (NFR-13)")
+    name, ext = match.group(1), match.group(2)
+    path = topic_dir / "images" / name
+    if path.is_symlink() or not path.is_file():
+        raise ContentError(rel, line, f"rasm fayli topilmadi: images/{name}")
+    if path.stat().st_size > MAX_IMAGE_BYTES:
+        raise ContentError(rel, line, f"rasm {MAX_IMAGE_BYTES // 1024} KB dan katta")
+    content_type, check, label = _IMAGE_KINDS[ext]
+    data = reader.read_bytes(path)
+    if not data or not check(data):
+        raise ContentError(rel, line, f"rasm fayli {label} formatida emas")
+    return ImageData(name=name, content_type=str(content_type), data=data)
+
+
+def _parse_step(
+    reader: _Reader, topic_dir: Path, rel: str, numbered: list[tuple[int, str]]
+) -> tuple[str, dict[str, Any] | None, list[ImageData]]:
+    body: list[str] = []
+    question: dict[str, Any] | None = None
+    images: list[ImageData] = []
+    fence: tuple[int, str, list[str]] | None = None  # (qator, info, quiz qatorlari)
+    for number, line in numbered:
+        if _FENCE_RE.match(line.lstrip()):
+            if fence is None:
+                info = _INFO_RE.match(line.lstrip())
+                words = info.group(1).split() if info else []
+                if "try" in words[1:] and words[0] != "python":
+                    raise ContentError(rel, number, "'try' faqat python kod blokida")
+                fence = (number, words[0] if words else "", [])
+                if fence[1] == "quiz":
+                    continue
+            else:
+                start, kind, quiz_lines = fence
+                fence = None
+                if kind == "quiz":
+                    if question is not None:
+                        raise ContentError(rel, start, "qadamda faqat bitta tezkor savol bo'ladi")
+                    question = _parse_quiz(rel, start, "\n".join(quiz_lines))
+                    continue
+        elif fence is not None and fence[1] == "quiz":
+            fence[2].append(line)
+            continue
+        elif fence is None:
+            for match in _IMAGE_MD_RE.finditer(line):
+                image = _load_image(reader, topic_dir, rel, number, match.group(1), match.group(2))
+                if all(i.name != image.name for i in images):
+                    images.append(image)
+        body.append(line)
+    return "\n".join(body).strip(), question, images
+
+
+def _parse_lecture(
+    reader: _Reader, topic_dir: Path, rel: str, text: str
+) -> tuple[str, tuple[StepData, ...], tuple[ImageData, ...]]:
     lines = text.splitlines()
     title: str | None = None
-    steps: list[tuple[int, str, list[str]]] = []  # (qator, sarlavha, matn qatorlari)
+    steps: list[tuple[int, str, list[tuple[int, str]]]] = []  # (qator, sarlavha, qatorlar)
     in_fence = False
     for number, line in enumerate(lines, start=1):
         if _FENCE_RE.match(line.lstrip()):
@@ -149,7 +281,7 @@ def _parse_lecture(rel: str, text: str) -> tuple[str, tuple[StepData, ...]]:
             steps.append((number, line[3:].strip(), []))
             continue
         if steps:
-            steps[-1][2].append(line)
+            steps[-1][2].append((number, line))
         elif line.strip() and title is None:
             raise ContentError(rel, number, "fayl '# Ma'ruza sarlavhasi' bilan boshlanishi kerak")
         elif line.strip():
@@ -160,15 +292,18 @@ def _parse_lecture(rel: str, text: str) -> tuple[str, tuple[StepData, ...]]:
         raise ContentError(rel, 1, "'# Ma'ruza sarlavhasi' yo'q")
     if not steps:
         raise ContentError(rel, None, "kamida bitta '## Qadam' bo'lishi kerak")
-    result = []
-    for order, (number, step_title, body_lines) in enumerate(steps, start=1):
-        body = "\n".join(body_lines).strip()
+    result: list[StepData] = []
+    images: dict[str, ImageData] = {}
+    for order, (number, step_title, numbered) in enumerate(steps, start=1):
         if not step_title:
             raise ContentError(rel, number, "qadam sarlavhasi bo'sh")
-        if not body:
+        body, question, step_images = _parse_step(reader, topic_dir, rel, numbered)
+        if not body and question is None:
             raise ContentError(rel, number, f"'{step_title}' qadamining matni bo'sh")
-        result.append(StepData(order=order, title=step_title, body=body))
-    return title, tuple(result)
+        result.append(StepData(order=order, title=step_title, body=body, question=question))
+        for image in step_images:
+            images.setdefault(image.name, image)
+    return title, tuple(result), tuple(images.values())
 
 
 def load_course(root: Path) -> CourseData:
@@ -208,8 +343,10 @@ def load_course(root: Path) -> CourseData:
             raise ContentError(rel, lines["order"], f"order takrorlangan ({seen_orders[order]})")
         seen_codes[code], seen_orders[order] = rel, rel
         lecture_path = topic_dir / "lecture.md"
-        lecture_title, steps = _parse_lecture(reader.rel(lecture_path), reader.read(lecture_path))
-        topics.append(TopicData(code, meta["title"].strip(), order, lecture_title, steps))
+        lecture_title, steps, images = _parse_lecture(
+            reader, topic_dir, reader.rel(lecture_path), reader.read(lecture_path)
+        )
+        topics.append(TopicData(code, meta["title"].strip(), order, lecture_title, steps, images))
 
     return CourseData(
         slug=course["slug"],
@@ -337,14 +474,39 @@ def apply(data: CourseData) -> ImportReport:
             report.bump("deleted", "step", len(extra))
         for step in item.steps:
             current = steps.get(step.order)
+            values = {"title": step.title, "body": step.body, "question": step.question}
             if current is None:
-                LectureStep.objects.create(
-                    lecture=lecture, order=step.order, title=step.title, body=step.body
-                )
+                LectureStep.objects.create(lecture=lecture, order=step.order, **values)
                 report.bump("created", "step")
-            elif _sync(current, {"title": step.title, "body": step.body}):
+            elif _sync(current, values):
                 report.bump("updated", "step")
+        _sync_images(topic, item.images, report)
     return report
+
+
+def _sync_images(topic: Topic, images: tuple[ImageData, ...], report: ImportReport) -> None:
+    existing = {i.name: i for i in LectureImage.objects.filter(topic=topic).defer("data")}
+    wanted = {i.name: i for i in images}
+    stale = [i.pk for name, i in existing.items() if name not in wanted]
+    if stale:
+        LectureImage.objects.filter(pk__in=stale).delete()
+        report.bump("deleted", "image", len(stale))
+    for name, image in wanted.items():
+        values = {
+            "content_type": image.content_type,
+            "sha256": image.sha256,
+            "size": len(image.data),
+            "data": image.data,
+        }
+        current = existing.get(name)
+        if current is None:
+            LectureImage.objects.create(topic=topic, name=name, **values)
+            report.bump("created", "image")
+        elif current.sha256 != image.sha256 or current.content_type != image.content_type:
+            for key, value in values.items():
+                setattr(current, key, value)
+            current.save(update_fields=list(values))
+            report.bump("updated", "image")
 
 
 def import_content(root: Path) -> ImportReport:

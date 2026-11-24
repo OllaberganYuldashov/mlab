@@ -112,7 +112,12 @@ class LectureStep(models.Model):
     lecture = models.ForeignKey(Lecture, on_delete=models.CASCADE, related_name="steps")
     order = models.PositiveSmallIntegerField(_("tartib"))
     title = models.TextField(_("sarlavha"))
-    body = models.TextField(_("matn (Markdown)"))
+    # Bo'sh bo'lishi mumkin, agar qadamda faqat tezkor savol bo'lsa (CNT-02).
+    body = models.TextField(_("matn (Markdown)"), blank=True)
+    # CNT-02 tezkor savol: {"question", "options": [..], "answer": indeks, "explain"}.
+    # Baholanmaydi — shuning uchun to'g'ri javob talabaga ham beriladi (mijozda darhol
+    # tekshiriladi). Shakli importda tekshiriladi.
+    question = models.JSONField(_("tezkor savol"), null=True, blank=True)
 
     class Meta:
         verbose_name = _("ma'ruza qadami")
@@ -126,3 +131,50 @@ class LectureStep(models.Model):
 
     def __str__(self) -> str:
         return f"{self.order}. {self.title}"
+
+
+MAX_IMAGE_BYTES = 500 * 1024
+
+
+class ImageType(models.TextChoices):
+    PNG = "image/png", "PNG"
+    JPEG = "image/jpeg", "JPEG"
+    WEBP = "image/webp", "WebP"
+
+
+class LectureImage(models.Model):
+    """Ma'ruza rasmi (CNT-02). Baytlar bazada: kichik (<= 500 KB), zaxira (`deploy/backup.sh`) bilan
+    birga saqlanadi va media volume kerak emas. SVG qabul qilinmaydi (skript ichishi mumkin)."""
+
+    topic = models.ForeignKey(
+        Topic, on_delete=models.CASCADE, related_name="images", db_index=False
+    )
+    name = models.CharField(_("fayl nomi"), max_length=64)
+    content_type = models.CharField(_("turi"), max_length=16, choices=ImageType.choices)
+    sha256 = models.CharField(_("SHA-256"), max_length=64)
+    size = models.PositiveIntegerField(_("hajmi (bayt)"))
+    data = models.BinaryField(_("baytlar"))
+
+    class Meta:
+        verbose_name = _("ma'ruza rasmi")
+        verbose_name_plural = _("ma'ruza rasmlari")
+        constraints: ClassVar[list[models.BaseConstraint]] = [
+            # Prefiks (topic) FK indeksini ham qoplaydi.
+            models.UniqueConstraint(fields=["topic", "name"], name="courses_image_name_uniq"),
+            models.CheckConstraint(
+                condition=Q(name__regex=r"^[A-Za-z0-9_-]+\.(png|jpg|jpeg|webp)$"),
+                name="courses_image_name_format",
+            ),
+            models.CheckConstraint(
+                condition=Q(content_type__in=ImageType.values), name="courses_image_type"
+            ),
+            models.CheckConstraint(
+                condition=Q(sha256__regex=r"^[0-9a-f]{64}$"), name="courses_image_sha256"
+            ),
+            models.CheckConstraint(
+                condition=Q(size__gte=1, size__lte=MAX_IMAGE_BYTES), name="courses_image_size"
+            ),
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.topic_id}/{self.name}"
