@@ -1,0 +1,17 @@
+Precision qanday hisoblanadi?
+A) TP / (TP + FP)
+B) TP / (TP + FN)
+C) (TP + TN) / hammasi
+ANSWER: A
+
+Sinflar juda nomutanosib bo'lsa, accuracy nega aldaydi?
+A) Ko'pchilik sinfni aytgan model ham yuqori aniqlik oladi
+B) Accuracy faqat regressiyada ishlaydi
+C) Accuracy manfiy bo'lishi mumkin
+ANSWER: A
+
+AUC = 0.5 nimani bildiradi?
+A) Mukammal model
+B) Tasodifiy taxmin darajasi
+C) Har doim noto'g'ri model
+ANSWER: B
