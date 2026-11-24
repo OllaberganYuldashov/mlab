@@ -30,6 +30,7 @@ Har run oxirida `JOURNAL.md`ga qisqa yozuv qo'shiladi.
 | `docker.md` ✅, `caddy.md` ✅, `server.md` (R0-16) | R0 | Universitet serverida ishga tushirish, zaxira |
 | `celery-channels.md` ✅ | R0–I1 | Fon vazifalari va real vaqt (WebSocket) |
 | `sections.md` ✅ | I1 | Guruhlar, a'zolik invariantlari, oynalar va vaqt, real vaqt |
+| `sandbox.md` ✅ | I3 | Talaba kodi serverda xavfsiz tekshirilishi (konteyner, navbat, launcher) |
 | `pyodide.md` ✅ | I2 | Python brauzerda qanday ishlaydi |
 | `sandbox.md` | I3 | Begona kodni xavfsiz bajarish |
 | `autograder.md` | I3 | Ko'rinadigan va yashirin testlar |

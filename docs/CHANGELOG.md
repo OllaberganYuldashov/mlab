@@ -3,6 +3,9 @@
 Format: [Keep a Changelog](https://keepachangelog.com/), versiyalar: [SemVer](https://semver.org/).
 
 ## [Unreleased]
+### Added
+- ADR-0007 (I3-01; AGR-02..05): avtobaholovchi — Celery + Redis (`concurrency=2`, idempotent vazifa), Docker'ga faqat alohida `sandbox-launcher` xizmati kiradi (docker-socket-proxy konteyner sozlamasini cheklamaydi — rad etildi), sandbox cheklovlari (tarmoqsiz, read-only, root'siz, 512 MB, 1 CPU, 60 s, pids 64, cap-drop ALL), kod va testlar stdin orqali, image'da Pyodide bilan aynan bir xil paket versiyalari (Python 3.14); `docs/learn/sandbox.md`.
+
 ### Performance
 - Monoblok sinovi (I2-20; NFR-02): `e2e/perf.spec.ts` — sahifa ochilishidan pandas bilan birinchi katak natijasigacha (birinchi va keyingi ochilish; chegaralar 2 daq / 15 s), sklearn+matplotlib importi ma'lumot uchun; o'lchov: 7,2 s va +~10 s (`docs/iterations/I2.md`); laboratoriya ochilganda Python fonda tayyorlanadi va numpy/pandas oldindan yuklanadi (`runtime.warmup()`).
 ### Security
