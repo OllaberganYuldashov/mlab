@@ -2,6 +2,18 @@
 
 > Har run oxirida Claude qo'shadi. Eng yangisi yuqorida.
 
+### 2026-11-24 — custom run 10 (kunduzi, qo'shimcha)
+- **Bajarilgan issue'lar va PR:** #116 → PR #148 (I2 yakuni), #149 → PR #168 (ADR-0007). 2 ball + I3 rejasi (19 issue, #149–#167).
+  **I2 yopildi (21/21).**
+- **Nima qilindi (oddiy tilda):** I2 bo'yicha mustaqil xavfsizlik ko'rigi o'tkazildi va topilganlar tuzatildi: umumiy
+  kompyuterda laboratoriya qoralamasi keyingi talabaga ko'rinardi (endi chiqishda o'chadi), admin'da ishlatilgan test
+  savolini o'zgartirish eski natijalarni buzardi (endi qulflanadi) va boshqalar. Avtobaholovchi (talaba kodini serverda
+  yashirin testlar bilan tekshirish) arxitekturasi tanlandi: alohida kichik "launcher" xizmati — Docker huquqi faqat unda.
+- **Ishlatilgan skill'lar va nima uchun:** security-reviewer agenti (I2 oxiri), security-discipline (Docker soketi = host'da
+  root; socket-proxy konteyner sozlamasini cheklamasligi aniqlandi), boring-by-default (Celery — stack'da bor).
+- **Ertalab nimani ko'rish kerak:** `docs/iterations/I2.md`, `docs/learn/sandbox.md`, ADR-0007.
+- **Savollar / bloklar:** yo'q. PR #131 (Caddy CSP) hali egasida — yangi qo'shimchalar bilan.
+
 ### 2026-11-24 — custom run 9 (kunduzi, qo'shimcha)
 - **Bajarilgan issue'lar va PR:** #107 → PR #144 (M16–M22), #95 → PR #145 (qattiqlashtirish), #115 → PR #146 (monoblok sinovi). 4 ball.
 - **Nima qilindi (oddiy tilda):** Kursning 22 ta ma'ruzasi to'liq (neyron tarmoqlar va MLOps — TensorFlow'siz, numpy bilan).
