@@ -106,6 +106,21 @@ Har biri: umumiy topshiriq, 3 daraja × kamida 5 variant, 1 challenge, 1 mustaqi
 | A14 | CNN bilan tasvir tasnifi | MVP'da oldindan o'qitilgan model namoyishi; to'liq — R4 |
 | A15 | Modelni mini-veb ilovaga aylantirish | Brauzerdagi Streamlit (stlite) |
 
+### Topshiriq fayllari (I3-02, ADR-0007)
+
+```text
+labs/A01-pandas-numpy/
+  assignment.yaml            # code, title, topic (M02), statement ({parametr} bilan), steps [{key, title, points}] — jami 100,
+                             # challenge, independent (ixtiyoriy)
+  variants/basic-1.yaml      # params: {dataset: iris, column: ...}; har daraja (basic, medium, advanced) kamida 5 ta
+  tests/visible/<qadam>.py   # "Tekshirish" — brauzerda (ixtiyoriy)
+  tests/hidden/<qadam>.py    # "Topshirish" — faqat sandbox'da, har qadamga majburiy; talabaga hech qachon ko'rinmaydi
+  solutions/<daraja>.py      # import qilinmaydi; CI yechim yashirin testlardan o'tishini tekshiradi
+```
+
+Test funksiyasi: `def test_<nom>(ns, params):` — `ns` talaba kodi bajarilgandan keyingi global nomlar, `params` — variant
+parametrlari. Shartdagi har `{parametr}` har variantda bo'lishi shart (import tekshiradi).
+
 Jamoaviy mini-loyihalar (R2): tabular tasniflash konveyeri, regressiya konveyeri, klasterlash va segmentatsiya.
 
 ## Egasining materiallari
