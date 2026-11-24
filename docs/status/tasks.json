@@ -554,9 +554,9 @@
    "title": "Kontent: M02–M08 minimal ma'ruzalar (5–10 qadam)",
    "req": "CNT-04, CNT-02",
    "size": "M",
-   "status": "ready",
+   "status": "done",
    "outcome": "M02–M08 uchun sodda va minimal ma'ruzalar (`content/README.md` jadvali).",
-   "pr": "",
+   "pr": "#141",
    "points": 2
   },
   {
@@ -567,9 +567,9 @@
    "title": "Kontent: M09–M15 minimal ma'ruzalar",
    "req": "CNT-04, CNT-02",
    "size": "M",
-   "status": "ready",
+   "status": "done",
    "outcome": "M09–M15 uchun minimal ma'ruzalar.",
-   "pr": "",
+   "pr": "#142",
    "points": 2
   },
   {

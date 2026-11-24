@@ -2,6 +2,16 @@
 
 > Har run oxirida Claude qo'shadi. Eng yangisi yuqorida.
 
+### 2026-11-24 — custom run 8 (kunduzi, qo'shimcha)
+- **Bajarilgan issue'lar va PR:** #105 → PR #141 (M02–M08), #106 → PR #142 (M09–M15). 4 ball.
+- **Nima qilindi (oddiy tilda):** 14 ta yangi ma'ruza: ma'lumotga ishlovdan PCA va assotsiativ qoidalargacha. Har birida
+  tushuntirish, brauzerda ishlaydigan kod (Iris, Wine, Breast Cancer datasetlari bilan), tezkor savol va 3 tadan test savoli.
+  Yangi avtomatik tekshiruv: kontentdagi har bir kod bloki haqiqiy Pyodide'da ishga tushiriladi — xato bo'lsa CI qizil.
+- **Saboq:** tekshiruvchi birinchi ishga tushishdayoq 3 ta xatoni topdi (`score(...).round` — Python `float` da yo'q),
+  import esa YAML xatosini ushladi. Kontent ham kod kabi test qilinishi kerak.
+- **Ertalab nimani ko'rish kerak:** bir-ikki ma'ruzani o'qib chiqing (masalan, M07, M11) — til va soddaligi mosmi?
+- **Savollar / bloklar:** yo'q. PR #131 (Caddy CSP) hali egasida.
+
 ### 2026-11-24 — custom run 7 (kunduzi, qo'shimcha)
 - **Bajarilgan issue'lar va PR:** #114 → PR #138 (datasetlar va `mlab.load()`), #100 → PR #139 (vizual qadam). 4 ball.
 - **Nima qilindi (oddiy tilda):** Talaba laboratoriyada `df = mlab.load("iris")` deb yozsa, platformadagi dataset pandas

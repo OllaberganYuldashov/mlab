@@ -9,7 +9,7 @@ META = {
     "velocity_note": "Kuniga 2 tungi run, har biri ~4-5 ball (M=2, S=1). Yakshanba — 1 run + review.",
     "current_release": "R1",
     "current_iteration": "I2",
-    "next_task": "#105–#107 kontent (M02–M22), #115 monoblok sinovi, #116 I2 yakuni; PR #131 egasida",
+    "next_task": "#107 kontent M16–M22, #115 monoblok sinovi, #95 qattiqlashtirish; PR #131 egasida",
 }
 
 RELEASES = [
@@ -106,8 +106,8 @@ TASKS = [
     _t("I2", "I2-07", "#102", "Mavzu testi: tasodifiy savollar, vaqt va urinishlar (kurs darajasida), backend", "CNT-06", "M", "done", "Talaba mavzu testini boshlaydi, savollar bankdan tasodifiy tanlanadi, vaqt va urinish chegarasi serverda.", "#125"),
     _t("I2", "I2-08", "#103", "Frontend: mavzu testi sahifasi — taymer, javoblar, natija", "CNT-06, NFR-13", "M", "done", "Talaba testni ishlaydi va natijasini ko'radi.", "#127"),
     _t("I2", "I2-09", "#104", "Django Admin: kontentni ko'rish va kichik tuzatish", "CNT-07, ADM-02", "S", "done", "Super admin ma'ruza qadamlari va savollarni admin'da ko'radi va matndagi kichik xatoni tuzatadi.", "#130"),
-    _t("I2", "I2-10", "#105", "Kontent: M02–M08 minimal ma'ruzalar (5–10 qadam)", "CNT-04, CNT-02", "M", "ready", "M02–M08 uchun sodda va minimal ma'ruzalar (`content/README.md` jadvali)."),
-    _t("I2", "I2-11", "#106", "Kontent: M09–M15 minimal ma'ruzalar", "CNT-04, CNT-02", "M", "ready", "M09–M15 uchun minimal ma'ruzalar."),
+    _t("I2", "I2-10", "#105", "Kontent: M02–M08 minimal ma'ruzalar (5–10 qadam)", "CNT-04, CNT-02", "M", "done", "M02–M08 uchun sodda va minimal ma'ruzalar (`content/README.md` jadvali).", "#141"),
+    _t("I2", "I2-11", "#106", "Kontent: M09–M15 minimal ma'ruzalar", "CNT-04, CNT-02", "M", "done", "M09–M15 uchun minimal ma'ruzalar.", "#142"),
     _t("I2", "I2-12", "#107", "Kontent: M16–M22 minimal ma'ruzalar", "CNT-04, CNT-02", "M", "ready", "M16–M22 uchun minimal ma'ruzalar."),
     _t("I2", "I2-13", "#108", "Pyodide Web Worker: kod bajarish protokoli, stdout/stderr, grafiklar", "LAB-02, LAB-03, AGR-03", "M", "done", "Brauzerda alohida Web Worker'da Python bajarish; asosiy oqim bloklanmaydi.", "#129"),
     _t("I2", "I2-14", "#109", "Notebook interfeysi: kod va matn kataklari, Shift+Enter, chiqishlar", "LAB-01", "M", "done", "Laboratoriya sahifasida Jupyter'ga o'xshash notebook.", "#134"),
