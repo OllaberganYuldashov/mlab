@@ -463,9 +463,9 @@
    "title": "Ma'ruza API: mavzular ro'yxati va ma'ruza qadamlari (a'zo talabaga, ACC-01)",
    "req": "CNT-02, ACC-01, SEC-05",
    "size": "M",
-   "status": "ready",
+   "status": "done",
    "outcome": "Talaba va o'qituvchi ma'ruzalarni API orqali oladi; ruxsat `can_access_course` bo'yicha.",
-   "pr": "",
+   "pr": "#121",
    "points": 2
   },
   {
@@ -502,9 +502,9 @@
    "title": "Aiken formatidagi testlarni import qilish va savollar banki",
    "req": "CNT-05, CNT-06",
    "size": "M",
-   "status": "ready",
+   "status": "done",
    "outcome": "Egasining Aiken testlari `content/topics/<M>/quiz.txt` dan mavzu savollar bankiga yuklanadi.",
-   "pr": "",
+   "pr": "#120",
    "points": 2
   },
   {

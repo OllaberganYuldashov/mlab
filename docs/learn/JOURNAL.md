@@ -2,6 +2,18 @@
 
 > Har run oxirida Claude qo'shadi. Eng yangisi yuqorida.
 
+### 2026-11-24 — custom run 2/4 (kunduzi)
+- **Bajarilgan issue'lar va PR:** #101 → PR #120 (Aiken importi), #98 → PR #121 (ma'ruza API). 4 ball.
+- **Nima qilindi (oddiy tilda):** Egasining Moodle'dagi Aiken testlari endi `quiz.aiken` fayli sifatida mavzu savollar
+  bankiga yuklanadi (xatolar qator raqami bilan). Fayldan olib tashlangan savol o'chirilmaydi — arxivlanadi, chunki keyin
+  talabalarning urinishlari unga bog'lanadi. Ma'ruzalar API orqali beriladi: mavzular ro'yxati (talabaga laboratoriya
+  holati bilan), qadamlar va rasmlar (xesh URL — brauzer abadiy keshlaydi).
+- **Ishlatilgan skill'lar va nima uchun:** unicode-pitfalls (savol kaliti NFC xeshi, matnning o'zi o'zgarmaydi — oʻ/gʻ
+  saqlanadi), data-modeling-discipline (arxiv o'rniga o'chirish yo'q), auth-and-authorization (har endpoint'da kursga ruxsat,
+  begona/pending/guruhsiz o'qituvchi testlari), query-discipline (so'rovlar soni qadamlar soniga bog'liq emas).
+- **Ertalab nimani ko'rish kerak:** `content/README.md` — Aiken fayli qanday yoziladi (egasi o'z testlarini qo'shishi mumkin).
+- **Savollar / bloklar:** yo'q.
+
 ### 2026-11-24 — custom run 1/4 (kunduzi)
 - **Bajarilgan issue'lar va PR:** #71 → PR #94 (I1 yakuni), #96 → PR #117 (ADR-0006 Pyodide), #97 → PR #118 (ma'ruza qadamlari formati). 4 ball.
   I2 21 ta issue'ga bo'lindi (#96–#116, 36 ball); qattiqlashtirish takliflari — #95.
