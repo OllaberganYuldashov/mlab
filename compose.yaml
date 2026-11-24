@@ -1,5 +1,7 @@
-# compose.yaml — egasining kompyuterida lokal servislar (R0-03).
-# Ishga tushirish: docker compose up -d db redis
+# compose.yaml — egasining kompyuterida lokal servislar (R0-03) va to'liq demo (#173).
+# Butun ilova (Windows, Docker Desktop): docker compose up --build  →  http://localhost:8080
+#   (migratsiya, kontent importi va demo akkauntlar avtomatik — docs/learn/local-run.md)
+# Faqat baza va Redis (backend'ni kompyuterda ishlatish uchun): docker compose up -d db redis
 # To'xtatish (ma'lumot saqlanadi): docker compose down
 # DIQQAT: "down" buyrug'iga volume'larni o'chirish bayrog'i qo'shilsa, baza ma'lumoti butunlay
 # yo'qoladi — docs/learn/docker.md ga qarang.
@@ -45,6 +47,79 @@ services:
       retries: 5
       start_period: 5s
 
+  # --- To'liq demo (#173): prod image'lari (backend/Dockerfile, frontend/Dockerfile + deploy/Caddyfile) ---
+  # Bir martalik: migratsiya, statik fayllar, kontent va demo ma'lumot. Xato bo'lsa web ishga tushmaydi.
+  migrate:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    image: mlab-backend:dev
+    restart: "no"
+    command:
+      - sh
+      - -c
+      - >-
+        python manage.py migrate --noinput &&
+        python manage.py collectstatic --noinput -v0 &&
+        python manage.py import_content /app/content &&
+        python manage.py seed_demo
+    environment: &backend-env
+      # Soxta lokal qiymatlar (.env.example bilan bir xil ma'noda); prod sozlamalari emas.
+      DJANGO_SETTINGS_MODULE: config.settings.dev
+      APP_ENV: development
+      SECRET_KEY: dev-only-change-me
+      DEBUG: "false"
+      ALLOWED_HOSTS: localhost,127.0.0.1,web
+      CSRF_TRUSTED_ORIGINS: http://localhost:${MLAB_PORT:-8080},http://127.0.0.1:${MLAB_PORT:-8080}
+      DATABASE_URL: postgres://${POSTGRES_USER:-mlab}:${POSTGRES_PASSWORD:-mlab}@db:5432/${POSTGRES_DB:-mlab}
+      REDIS_URL: redis://redis:6379/0
+      TRUSTED_PROXY_COUNT: "1"
+      TIME_ZONE: Asia/Tashkent
+      AI_PROVIDER: fake
+    volumes:
+      - static:/app/staticfiles
+    depends_on:
+      db: {condition: service_healthy}
+      redis: {condition: service_healthy}
+
+  web:
+    image: mlab-backend:dev
+    restart: unless-stopped
+    environment: *backend-env
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - |
+          import urllib.request
+          req = urllib.request.Request("http://127.0.0.1:8000/readyz", headers={"Host": "localhost"})
+          urllib.request.urlopen(req, timeout=4)
+      interval: 10s
+      timeout: 6s
+      retries: 10
+      start_period: 20s
+
+  # React ilovasi (Pyodide ichida) + Caddy: serverdagi bilan bir xil Caddyfile va CSP.
+  caddy:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    image: mlab-caddy:dev
+    restart: unless-stopped
+    environment:
+      SITE_ADDRESS: ":80"
+    # Faqat shu kompyuterdan ochiladi (127.0.0.1). Port band bo'lsa: MLAB_PORT=8090 docker compose up
+    ports:
+      - "127.0.0.1:${MLAB_PORT:-8080}:80"
+    volumes:
+      - static:/srv/static:ro
+    depends_on:
+      web: {condition: service_healthy}
+
 volumes:
   db-data:
   redis-data:
+  static:

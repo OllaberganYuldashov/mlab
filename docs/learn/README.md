@@ -32,6 +32,7 @@ Har run oxirida `JOURNAL.md`ga qisqa yozuv qo'shiladi.
 | `sections.md` ✅ | I1 | Guruhlar, a'zolik invariantlari, oynalar va vaqt, real vaqt |
 | `sandbox.md` ✅ | I3 | Talaba kodi serverda xavfsiz tekshirilishi (konteyner, navbat, launcher) |
 | `pyodide.md` ✅ | I2 | Python brauzerda qanday ishlaydi |
+| `local-run.md` ✅ | I3 | **Loyihani o'z kompyuteringizda (Windows) bitta buyruq bilan ishlatish** |
 | `sandbox.md` | I3 | Begona kodni xavfsiz bajarish |
 | `autograder.md` | I3 | Ko'rinadigan va yashirin testlar |
 | `gemini-tutor.md` | I4 | AI tutor, promptlar, limitlar, maxfiylik |
