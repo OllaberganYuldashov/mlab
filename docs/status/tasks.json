@@ -489,9 +489,9 @@
    "title": "Interaktiv vizual qadam: slayder bilan parametr o'zgartirish",
    "req": "CNT-03",
    "size": "M",
-   "status": "ready",
+   "status": "done",
    "outcome": "Ma'ruzada slayderni surib grafik qanday o'zgarishini ko'rsatish (masalan, regressiya chizig'i qiyaligi, k-NN dagi k).",
-   "pr": "",
+   "pr": "#139",
    "points": 2
   },
   {
@@ -671,9 +671,9 @@
    "title": "Datasetlar: `content/datasets`, manba va litsenziya, `mlab.load()`",
    "req": "DAT-01, DAT-02, DAT-03, LAB-04",
    "size": "M",
-   "status": "ready",
+   "status": "done",
    "outcome": "Kichik datasetlar platformadan yuklanadi va har birining manbasi ko'rinadi.",
-   "pr": "",
+   "pr": "#138",
    "points": 2
   },
   {

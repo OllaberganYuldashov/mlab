@@ -9,7 +9,7 @@ META = {
     "velocity_note": "Kuniga 2 tungi run, har biri ~4-5 ball (M=2, S=1). Yakshanba — 1 run + review.",
     "current_release": "R1",
     "current_iteration": "I2",
-    "next_task": "#114 datasetlar va mlab.load(), #100 vizual qadam; PR #131 (Caddy CSP) egasida",
+    "next_task": "#105–#107 kontent (M02–M22), #115 monoblok sinovi, #116 I2 yakuni; PR #131 egasida",
 }
 
 RELEASES = [
@@ -101,7 +101,7 @@ TASKS = [
     _t("I2", "I2-02", "#97", "Ma'ruza qadamlari formati: matn va rasm, \"O'zing sinab ko'r\" kod bloki, tezkor savol", "CNT-02, CNT-01", "M", "done", "`lecture.md` qadamlarida rasm, sinab ko'riladigan kod bloki va tezkor savolni qo'llab-quvvatlash (ADR-0002 kengaytmasi).", "#118"),
     _t("I2", "I2-03", "#98", "Ma'ruza API: mavzular ro'yxati va ma'ruza qadamlari (a'zo talabaga, ACC-01)", "CNT-02, ACC-01, SEC-05", "M", "done", "Talaba va o'qituvchi ma'ruzalarni API orqali oladi; ruxsat `can_access_course` bo'yicha.", "#121"),
     _t("I2", "I2-04", "#99", "Frontend: ma'ruza sahifasi — qadamlar bo'yicha yurish, rasm, tezkor savol", "CNT-02, NFR-13", "M", "done", "Talaba mavzular ro'yxatidan ma'ruzani ochadi va qadamma-qadam o'qiydi.", "#124"),
-    _t("I2", "I2-05", "#100", "Interaktiv vizual qadam: slayder bilan parametr o'zgartirish", "CNT-03", "M", "ready", "Ma'ruzada slayderni surib grafik qanday o'zgarishini ko'rsatish (masalan, regressiya chizig'i qiyaligi, k-NN dagi k)."),
+    _t("I2", "I2-05", "#100", "Interaktiv vizual qadam: slayder bilan parametr o'zgartirish", "CNT-03", "M", "done", "Ma'ruzada slayderni surib grafik qanday o'zgarishini ko'rsatish (masalan, regressiya chizig'i qiyaligi, k-NN dagi k).", "#139"),
     _t("I2", "I2-06", "#101", "Aiken formatidagi testlarni import qilish va savollar banki", "CNT-05, CNT-06", "M", "done", "Egasining Aiken testlari `content/topics/<M>/quiz.txt` dan mavzu savollar bankiga yuklanadi.", "#120"),
     _t("I2", "I2-07", "#102", "Mavzu testi: tasodifiy savollar, vaqt va urinishlar (kurs darajasida), backend", "CNT-06", "M", "done", "Talaba mavzu testini boshlaydi, savollar bankdan tasodifiy tanlanadi, vaqt va urinish chegarasi serverda.", "#125"),
     _t("I2", "I2-08", "#103", "Frontend: mavzu testi sahifasi — taymer, javoblar, natija", "CNT-06, NFR-13", "M", "done", "Talaba testni ishlaydi va natijasini ko'radi.", "#127"),
@@ -115,7 +115,7 @@ TASKS = [
     _t("I2", "I2-16", "#111", "Laboratoriya ishi modeli va avtosaqlash API (versiya bilan)", "LAB-05, ACC-06, ACC-02", "M", "done", "Talabaning notebook holati serverda saqlanadi; eski versiya yangisini ustidan yozmaydi.", "#123"),
     _t("I2", "I2-17", "#112", "Frontend avtosaqlash: har 10 soniyada va ishga tushirishda, oflayn navbat", "LAB-05", "M", "done", "Tarmoq uzilsa ish yo'qolmaydi va tiklanganda yuboriladi.", "#136"),
     _t("I2", "I2-18", "#113", "Laboratoriya sahifasi: chapda shart va qadamlar, o'ngda AI tutor joyi", "LAB-07, ACC-05", "S", "done", "Laboratoriya sahifasining umumiy ko'rinishi.", "#135"),
-    _t("I2", "I2-19", "#114", "Datasetlar: `content/datasets`, manba va litsenziya, `mlab.load()`", "DAT-01, DAT-02, DAT-03, LAB-04", "M", "ready", "Kichik datasetlar platformadan yuklanadi va har birining manbasi ko'rinadi."),
+    _t("I2", "I2-19", "#114", "Datasetlar: `content/datasets`, manba va litsenziya, `mlab.load()`", "DAT-01, DAT-02, DAT-03, LAB-04", "M", "done", "Kichik datasetlar platformadan yuklanadi va har birining manbasi ko'rinadi.", "#138"),
     _t("I2", "I2-20", "#115", "Monoblokda erta sinov: birinchi va keyingi ochilish vaqti, xotira", "NFR-02", "S", "ready", "Laboratoriya monoblok profilida (8 GB, Chrome) talabga mos ekanini o'lchash."),
     _t("I2", "I2-21", "#116", "I2 yakuni: ko'rik va e2e", "CNT-02..07, LAB-01..07, DAT-01..03, NFR-02 (iteratsiya qabuli)", "S", "ready", "I2 ni yopish."),
     # --- R1 keyingi iteratsiyalar (epiklar, taxminiy) ---
