@@ -939,6 +939,19 @@
   {
    "release": "R1",
    "iteration": "I3",
+   "key": "I3-00",
+   "issue": "#173",
+   "title": "Lokal demo: docker compose up bilan butun ilova (Windows)",
+   "req": "NFR-08",
+   "size": "M",
+   "status": "done",
+   "outcome": "Egasi har merge'dan keyin o'zgarishlarni o'z kompyuterida ko'radi.",
+   "pr": "#174",
+   "points": 2
+  },
+  {
+   "release": "R1",
+   "iteration": "I3",
    "key": "I3-19",
    "issue": "#167",
    "title": "I3 yakuni: ko'rik va e2e",

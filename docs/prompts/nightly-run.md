@@ -45,6 +45,8 @@ Talablarning yagona manbai docs/SRS.md; joriy reliz va tasklar docs/BACKLOG.md v
    Sarlavha: sana va run (1/2 yoki 2/2). Tarkibi: sog'liq, merge bo'lgan PR'lar va talab ID'lari, egasini kutayotgan
    needs:owner PR'lar (qaysi himoyalangan fayl va nega), merge bo'lmagan boshqa PR'lar va sababi, status:blocked
    savollar (havola, kontekst, 2–3 variant, tavsiyang), keyingi tasklar, o'qish uchun dars. 10–15 qator, oddiy tilda.
+   "🖥 Lokal ko'rish" qatori (#173, egasining 2026-11-24 so'rovi): `git pull` + `docker compose up --build` dan keyin
+   qaysi sahifada, qaysi demo akkaunt bilan nimani bosib ko'rish kerak (docs/learn/local-run.md).
    Egasi shu hisobotni o'qiydi, savollarga javob beradi va needs:owner PR'larni merge qiladi.
 
 Qat'iy taqiqlar: main'ga push qilma, PR'ni skriptdan boshqa yo'l bilan merge qilma, tekshiruvni o'tkazish uchun

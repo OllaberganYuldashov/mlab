@@ -138,6 +138,7 @@ TASKS = [
     _t("I3", "I3-16", "#164", "Kontent: A6–A10 topshiriqlari", "AGR-07, AGR-08", "M", "ready", "A6–A10 amaliy topshiriqlari."),
     _t("I3", "I3-17", "#165", "Kontent: A11–A15 topshiriqlari", "AGR-07, AGR-08", "M", "ready", "A11–A15 amaliy topshiriqlari."),
     _t("I3", "I3-18", "#166", "Deploy: Celery worker, docker-socket-proxy va sandbox image compose'da", "AGR-03, AGR-04, NFR-08", "S", "ready", "Prod'da baholash ishlashi."),
+    _t("I3", "I3-00", "#173", "Lokal demo: docker compose up bilan butun ilova (Windows)", "NFR-08", "M", "done", "Egasi har merge'dan keyin o'zgarishlarni o'z kompyuterida ko'radi.", "#174"),
     _t("I3", "I3-19", "#167", "I3 yakuni: ko'rik va e2e", "AGR-01..08, ADP-01..03, INT-01..05 (iteratsiya qabuli)", "S", "ready", "I3 ni yopish."),
     _t("I4", "E-I4-1", "", "Jonli monitoring, yordam navbati", "MON-01..07", "", "planned", "O'qituvchi sinfni real vaqtda ko'radi", ""),
     _t("I4", "E-I4-2", "", "Guruh chati va e'lonlar", "COM-01..03", "", "planned", "Moderatsiyali chat", ""),
