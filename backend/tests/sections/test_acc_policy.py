@@ -164,7 +164,7 @@ def test_acc_10_independent_policy_with_late_hours() -> None:
     assert independent_policy(section, None, CLOSE) == SubmissionStatus.ON_TIME  # muddat yo'q
 
 
-@pytest.mark.parametrize("code", ["", "B01", "A1", "A100", "a01"])
+@pytest.mark.parametrize("code", ["", "B01", "A1", "A100", "a01", "A00"])
 def test_acc_10_assignment_code_format_at_db_level(code: str) -> None:
     section, _ = _setup()
     # A100 — uzunlik (DataError), qolganlari — format CHECK (IntegrityError).

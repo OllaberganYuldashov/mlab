@@ -22,7 +22,7 @@ from apps.sections.member_views import STAFF_OR_INSTRUCTOR
 from apps.sections.models import IndependentDeadline, Membership
 from apps.sections.views import _locked_visible_section, sections_for
 
-_CODE_RE = re.compile(r"^A[0-9]{2}$")
+_CODE_RE = re.compile(r"^A(0[1-9]|[1-9][0-9])$")
 
 DeadlineOut = inline_serializer(
     "IndependentDeadline",

@@ -89,9 +89,15 @@ def _mask_ipv6(match: re.Match[str]) -> str:
     return ":".join(head) + ":x:x"
 
 
+# Matn ichidagi join token, masalan `django.request` ning
+# "Internal Server Error: /api/join/<token>" xabari.
+_JOIN_TOKEN_IN_TEXT = re.compile(r"(/(?:api/)?join/)[A-Za-z0-9_-]{16,64}")
+
+
 def mask_text(text: str) -> str:
-    """Matndagi secret qiymatlar, Hemis ID va IP manzillarni yashiradi."""
+    """Matndagi secret qiymatlar, join token, Hemis ID va IP manzillarni yashiradi."""
     text = _SENSITIVE_IN_TEXT.sub(lambda m: f"{m[1]}{m[2]}{m[3] or ''}{REDACTED}", text)
+    text = _JOIN_TOKEN_IN_TEXT.sub(rf"\1{REDACTED}", text)
     text = _IPV4_RE.sub(_mask_ipv4, text)
     text = _IPV6_CANDIDATE_RE.sub(_mask_ipv6, text)
     return _HEMIS_ID_RE.sub(lambda m: "********" + m.group(0)[-4:], text)

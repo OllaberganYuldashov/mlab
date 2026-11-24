@@ -252,3 +252,17 @@ def test_nfr_17_secret_path_segments_redacted(raw: str, safe: str) -> None:
     from config.observability import safe_path
 
     assert safe_path(raw) == safe
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "Internal Server Error: /api/join/abcDEF123_-xyz4567",
+        '127.0.0.1:5 - "POST /join/abcDEF123_-xyz4567 HTTP/1.1" 500',
+    ],
+)
+def test_nfr_17_join_token_inside_log_text_redacted(text: str) -> None:
+    """I1-15 xavfsizlik ko'rigi: `django.request` xato xabaridagi join token ham yashiriladi."""
+    masked = mask_text(text)
+    assert "abcDEF123_-xyz4567" not in masked
+    assert "join/[REDACTED]" in masked

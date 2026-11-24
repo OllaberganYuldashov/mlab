@@ -4,6 +4,15 @@ Format: [Keep a Changelog](https://keepachangelog.com/), versiyalar: [SemVer](ht
 
 ## [Unreleased]
 ### Added
+- I1 yakuni (I1-15): uchidan-uchiga Playwright e2e (`e2e/flow.spec.ts` — o'qituvchi va talaba ikki brauzer kontekstida: guruh → havola → tasdiq → "Hozir ochish" → talabada WebSocket orqali "Hozir ochiq"); so'rovlar soni regressiya testlari (`test_i1_query_counts.py`, `/hunt-n-plus-one` — N+1 topilmadi); `docs/iterations/I1.md` (talab → test matritsasi), `docs/learn/sections.md`; qattiqlashtirish takliflari #95.
+
+### Security
+- I1 security-reviewer: uvicorn access log'i o'chirildi (`--no-access-log`) — u JSON formatterdan o'tmay `/api/join/<token>` ni ochiq yozardi; `mask_text` xato xabarlaridagi join token'ni ham niqoblaydi; WebSocket ulanishida a'zolik `group_add` dan keyin qayta tekshiriladi (oradagi `force.close` yo'qolishi mumkin edi).
+
+### Changed
+- I1 schema-reviewer: `AccessWindow.section` ortiqcha indeksi olib tashlandi (unique `(section, topic)` qoplaydi); mustaqil topshiriq kodi `A00` rad etiladi (`A01..A99`, migratsiya `sections 0007`, orqaga qaytariladi).
+
+### Added
 - O'qituvchi: sozlamalar va oynalar (I1-14; SET-01..05, ACC-03, ACC-04, ACC-09, ACC-10): guruh sahifasida sozlamalar paneli (kurs qiymati ko'rinadi, "Kurs qiymati" — override'ni olib tashlash; AI tutorni bir tugmada o'chirish/yoqish, holat darhol), mavzular jadvali (holat Asia/Tashkent vaqtida, "Hozir ochish" N daqiqa yoki qo'lda, "Yopish", jadval sanasi/vaqti va nazorat rejimi), haftalik jadval yordamchisi (oldindan ko'rish → saqlash, mavjud oynalar uchun aniq bayroq), mustaqil topshiriq muddatlari; Vitest 10 yangi test, Playwright e2e (slot rejalashtirish va hozir ochish).
 - Talaba sahifalari (I1-13; SEC-03, SEC-04, SEC-06, ACC-05): `/join/<token>` — guruh nomi va o'qituvchi; kirmagan foydalanuvchiga kirish/ro'yxatdan o'tish havolalari, keyin shu sahifaga qaytish (`next` faqat `/join/<token>` ko'rinishida — open redirect yo'q); so'rov yuborish, to'lgan/o'chirilgan/boshqa guruh xabarlari; bosh sahifada a'zolik holati, ochiq laboratoriya va keyingi mavzuga qolgan vaqt (server vaqti bilan), WebSocket xabarida yangilanadi, uzilsa qayta ulanadi (1→30 s), rejalashtirilgan ochilish lahzasida qayta so'raydi; Vitest 22 yangi test, Playwright e2e (havola → kirish → so'rov).
 - O'qituvchi guruhlari sahifalari (I1-12; SEC-01, SEC-02, SEC-04, SEC-07): `/sections` (ro'yxat, a'zolar soni, yangi guruh formasi), `/sections/<id>` (qo'shilish havolasi — faqat yaratilganda ko'rinadi, nusxa olish, **QR** brauzerda yasaladi; havolani o'chirish; kutilayotgan so'rovlar — belgilash va ommaviy tasdiq/rad, sig'im xatosi aniq; a'zolar — boshqa guruhga o'tkazish va chiqarish; sig'im va qo'shilishni saqlash); faqat o'qituvchiga (talaba — "topilmadi"); ADR-0005: `qrcode-generator` (MIT, bog'liqliksiz) va o'zimizning router qoladi; Vitest 18 yangi test, Playwright e2e (guruh → havola/QR → tasdiq).
