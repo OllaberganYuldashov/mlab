@@ -580,9 +580,9 @@
    "title": "Kontent: M16–M22 minimal ma'ruzalar",
    "req": "CNT-04, CNT-02",
    "size": "M",
-   "status": "ready",
+   "status": "done",
    "outcome": "M16–M22 uchun minimal ma'ruzalar.",
-   "pr": "",
+   "pr": "#144",
    "points": 2
   },
   {
@@ -684,9 +684,9 @@
    "title": "Monoblokda erta sinov: birinchi va keyingi ochilish vaqti, xotira",
    "req": "NFR-02",
    "size": "S",
-   "status": "ready",
+   "status": "done",
    "outcome": "Laboratoriya monoblok profilida (8 GB, Chrome) talabga mos ekanini o'lchash.",
-   "pr": "",
+   "pr": "#146",
    "points": 1
   },
   {
@@ -788,9 +788,9 @@
    "title": "I1 qattiqlashtirish: WS chegarasi, cheklov",
    "req": "NFR",
    "size": "S",
-   "status": "planned",
+   "status": "done",
    "outcome": "security-reviewer takliflari",
-   "pr": "",
+   "pr": "#145",
    "points": 1
   },
   {

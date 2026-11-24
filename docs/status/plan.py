@@ -9,7 +9,7 @@ META = {
     "velocity_note": "Kuniga 2 tungi run, har biri ~4-5 ball (M=2, S=1). Yakshanba — 1 run + review.",
     "current_release": "R1",
     "current_iteration": "I2",
-    "next_task": "#107 kontent M16–M22, #115 monoblok sinovi, #95 qattiqlashtirish; PR #131 egasida",
+    "next_task": "#116 I2 yakuni, keyin I3 ni issue'larga bo'lish; PR #131 egasida",
 }
 
 RELEASES = [
@@ -108,7 +108,7 @@ TASKS = [
     _t("I2", "I2-09", "#104", "Django Admin: kontentni ko'rish va kichik tuzatish", "CNT-07, ADM-02", "S", "done", "Super admin ma'ruza qadamlari va savollarni admin'da ko'radi va matndagi kichik xatoni tuzatadi.", "#130"),
     _t("I2", "I2-10", "#105", "Kontent: M02–M08 minimal ma'ruzalar (5–10 qadam)", "CNT-04, CNT-02", "M", "done", "M02–M08 uchun sodda va minimal ma'ruzalar (`content/README.md` jadvali).", "#141"),
     _t("I2", "I2-11", "#106", "Kontent: M09–M15 minimal ma'ruzalar", "CNT-04, CNT-02", "M", "done", "M09–M15 uchun minimal ma'ruzalar.", "#142"),
-    _t("I2", "I2-12", "#107", "Kontent: M16–M22 minimal ma'ruzalar", "CNT-04, CNT-02", "M", "ready", "M16–M22 uchun minimal ma'ruzalar."),
+    _t("I2", "I2-12", "#107", "Kontent: M16–M22 minimal ma'ruzalar", "CNT-04, CNT-02", "M", "done", "M16–M22 uchun minimal ma'ruzalar.", "#144"),
     _t("I2", "I2-13", "#108", "Pyodide Web Worker: kod bajarish protokoli, stdout/stderr, grafiklar", "LAB-02, LAB-03, AGR-03", "M", "done", "Brauzerda alohida Web Worker'da Python bajarish; asosiy oqim bloklanmaydi.", "#129"),
     _t("I2", "I2-14", "#109", "Notebook interfeysi: kod va matn kataklari, Shift+Enter, chiqishlar", "LAB-01", "M", "done", "Laboratoriya sahifasida Jupyter'ga o'xshash notebook.", "#134"),
     _t("I2", "I2-15", "#110", "\"To'xtatish\": uzoq bajarilishni to'xtatib, muhitni qayta ishga tushirish", "LAB-06", "S", "done", "Cheksiz sikl yoki uzoq hisobda talaba to'xtatish tugmasini bosadi.", "#132"),
@@ -116,7 +116,7 @@ TASKS = [
     _t("I2", "I2-17", "#112", "Frontend avtosaqlash: har 10 soniyada va ishga tushirishda, oflayn navbat", "LAB-05", "M", "done", "Tarmoq uzilsa ish yo'qolmaydi va tiklanganda yuboriladi.", "#136"),
     _t("I2", "I2-18", "#113", "Laboratoriya sahifasi: chapda shart va qadamlar, o'ngda AI tutor joyi", "LAB-07, ACC-05", "S", "done", "Laboratoriya sahifasining umumiy ko'rinishi.", "#135"),
     _t("I2", "I2-19", "#114", "Datasetlar: `content/datasets`, manba va litsenziya, `mlab.load()`", "DAT-01, DAT-02, DAT-03, LAB-04", "M", "done", "Kichik datasetlar platformadan yuklanadi va har birining manbasi ko'rinadi.", "#138"),
-    _t("I2", "I2-20", "#115", "Monoblokda erta sinov: birinchi va keyingi ochilish vaqti, xotira", "NFR-02", "S", "ready", "Laboratoriya monoblok profilida (8 GB, Chrome) talabga mos ekanini o'lchash."),
+    _t("I2", "I2-20", "#115", "Monoblokda erta sinov: birinchi va keyingi ochilish vaqti, xotira", "NFR-02", "S", "done", "Laboratoriya monoblok profilida (8 GB, Chrome) talabga mos ekanini o'lchash.", "#146"),
     _t("I2", "I2-21", "#116", "I2 yakuni: ko'rik va e2e", "CNT-02..07, LAB-01..07, DAT-01..03, NFR-02 (iteratsiya qabuli)", "S", "ready", "I2 ni yopish."),
     # --- R1 keyingi iteratsiyalar (epiklar, taxminiy) ---
     _t("I3", "E-I3-1", "", "Avtobaholovchi (sandbox, navbat)", "AGR-01..06", "", "planned", "Kod xavfsiz konteynerda baholanadi", ""),
@@ -125,7 +125,7 @@ TASKS = [
     _t("I4", "E-I4-1", "", "Jonli monitoring, yordam navbati", "MON-01..07", "", "planned", "O'qituvchi sinfni real vaqtda ko'radi", ""),
     _t("I4", "E-I4-2", "", "Guruh chati va e'lonlar", "COM-01..03", "", "planned", "Moderatsiyali chat", ""),
     _t("I4", "E-I4-3", "", "AI tutor (Gemini, cheklovli)", "AI-01..07, LAB-08", "", "planned", "Yechimsiz yo'naltiruvchi yordamchi", ""),
-    _t("I5", "I1-H", "#95", "I1 qattiqlashtirish: WS chegarasi, cheklov", "NFR", "S", "planned", "security-reviewer takliflari", ""),
+    _t("I5", "I1-H", "#95", "I1 qattiqlashtirish: WS chegarasi, cheklov", "NFR", "S", "done", "security-reviewer takliflari", "#145"),
     _t("I5", "E-I5-1", "", "Baholash, jurnal, Excel", "GRD-01..04", "", "planned", "100 ball, faollik, tasdiqlash", ""),
     _t("I5", "E-I5-2", "", "Sertifikat, QR, tekshirish", "GRD-05..07", "", "planned", "Tekshiriladigan sertifikat", ""),
     _t("I5", "E-I5-3", "", "Hisobotlar, tizim holati, yuklama sinovi, sinov darsi", "RPT, ADM, SRS 10", "", "planned", "MVP qabul mezonlari", ""),
