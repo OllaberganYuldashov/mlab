@@ -194,7 +194,6 @@
   "lecture.end": "Kurs oxiri",
   "lecture.nav": "Qadamlar",
   "lecture.try": "O'zing sinab ko'r",
-  "lecture.tryLater": "Kodni brauzerda ishga tushirish laboratoriya tayyor bo'lganda qo'shiladi.",
   "lecture.check": "Tekshirish",
   "lecture.correct": "To'g'ri!",
   "lecture.wrong": "Noto'g'ri. To'g'ri javob: {answer}.",
@@ -217,5 +216,10 @@
   "quiz.rightAnswer": "To'g'ri javob: {answer}",
   "quiz.noAttempts": "Urinishlar tugagan.",
   "quiz.noQuestions": "Bu mavzuda hali test savollari yo'q.",
-  "quiz.timeOver": "Test vaqti tugagan — javoblar qabul qilinmadi."
+  "quiz.timeOver": "Test vaqti tugagan — javoblar qabul qilinmadi.",
+  "lab.run": "▶ Ishga tushirish",
+  "lab.loading": "Python yuklanmoqda (birinchi marta biroz vaqt oladi)…",
+  "lab.running": "Bajarilmoqda…",
+  "lab.figure": "Grafik {n}",
+  "lab.interrupted": "To'xtatildi. Muhit qayta ishga tushdi — o'zgaruvchilar o'chdi."
 }

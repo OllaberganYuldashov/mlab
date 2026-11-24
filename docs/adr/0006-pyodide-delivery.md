@@ -69,6 +69,14 @@ lekin COOP/COEP sarlavhalari va butun saytning cross-origin isolation'i kerak).
    (`matplotlib` Agg) — DOM'da SVG to'planmaydi; chiqish bitta katakda 1 MB dan oshsa qisqartiriladi. I2-20 da
    o'lchanadi; oshsa — kontentda og'ir misollar kichraytiriladi.
 
+## Amalga oshirish (I2-13, 2026-11-24)
+- `frontend/pyodide.lock.json` — 23 fayl, 49,9 MB: yadro (`pyodide.mjs`, `pyodide.asm.mjs`, `pyodide.asm.wasm`,
+  `python_stdlib.zip`, `pyodide-lock.json`), 17 paket va seaborn wheel. Xeshlar uch manbadan solishtirildi: npm paketi = CDN,
+  paketlar = `pyodide-lock.json` ichidagi sha256, seaborn = PyPI digest.
+- `npm run build` dan oldin `prebuild` → `scripts/fetch-pyodide.mjs` (bor va xeshi to'g'ri fayl qayta yuklanmaydi).
+- Vite `preview` prod CSP bilan ishlaydi (`script-src 'self' 'wasm-unsafe-eval'`) — Playwright haqiqiy Pyodide'ni shu siyosatda
+  sinaydi va tashqi domenga so'rov yo'qligini tekshiradi. `'unsafe-eval'` kerak bo'lmadi.
+
 ## Oqibatlar
 - Frontend image ~50 MB kattalashadi; birinchi ochilish uchun asosiy omil — monoblok CPU (wasm kompilyatsiyasi), tarmoq
   emas (lokal server). Keyingi ochilishlar brauzer keshidan.
