@@ -431,6 +431,27 @@ paths:
               schema:
                 $ref: '#/components/schemas/JoinRefused'
           description: ''
+  /api/labs/{code}/assignment:
+    get:
+      operationId: labs_assignment_retrieve
+      summary: Mening topshirig'im (shart va testlar)
+      parameters:
+      - in: path
+        name: code
+        schema:
+          type: string
+        required: true
+      tags:
+      - labs
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MyAssignmentOut'
+          description: ''
   /api/labs/{code}/events:
     post:
       operationId: labs_events_create
@@ -1236,6 +1257,23 @@ components:
         * `guide` - Yo'naltiruvchi
         * `explain` - Tushuntirish
         * `full` - To'liq yordam
+    AssignmentStepOut:
+      type: object
+      properties:
+        key:
+          type: string
+        title:
+          type: string
+        points:
+          type: integer
+        visible_test:
+          type: string
+          nullable: true
+      required:
+      - key
+      - points
+      - title
+      - visible_test
     ChangePasswordRequest:
       type: object
       properties:
@@ -1750,6 +1788,29 @@ components:
           minimum: 1
       required:
       - target_section
+    MyAssignmentOut:
+      type: object
+      properties:
+        code:
+          type: string
+        title:
+          type: string
+        level:
+          type: string
+        statement:
+          type: string
+        params: {}
+        steps:
+          type: array
+          items:
+            $ref: '#/components/schemas/AssignmentStepOut'
+      required:
+      - code
+      - level
+      - params
+      - statement
+      - steps
+      - title
     MyDeadlines:
       type: object
       properties:

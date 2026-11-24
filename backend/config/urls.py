@@ -13,5 +13,6 @@ urlpatterns: list[URLPattern | URLResolver] = [
     path("api/", include("apps.sections.urls")),
     path("api/", include("apps.courses.urls")),
     path("api/", include("apps.labs.urls")),
+    path("api/", include("apps.grading.urls")),
     path("api/schema/", SpectacularAPIView.as_view(), name="openapi-schema"),
 ]
