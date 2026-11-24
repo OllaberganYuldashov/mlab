@@ -129,3 +129,54 @@ main section {
   flex-wrap: wrap;
   align-items: center;
 }
+
+.topic-list li {
+  margin: 0.4rem 0;
+}
+.muted {
+  color: #5b6470;
+  font-size: 0.9em;
+  margin-left: 0.4rem;
+}
+.badge {
+  display: inline-block;
+  margin-left: 0.5rem;
+  padding: 0 0.4rem;
+  border-radius: 0.3rem;
+  font-size: 0.85em;
+  background: #e8ecf1;
+}
+.badge-open {
+  background: #d7f2df;
+}
+.lecture-img {
+  max-width: 100%;
+  height: auto;
+}
+.try-block {
+  margin: 1rem 0;
+  border-left: 4px solid #3a6ea5;
+  padding-left: 0.75rem;
+}
+.try-block figcaption {
+  font-weight: 600;
+}
+.quick-question {
+  margin: 1rem 0;
+}
+.quick-question .option {
+  display: block;
+  margin: 0.25rem 0;
+}
+.ok {
+  color: #1d6b35;
+}
+.step-nav {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  margin-top: 1.5rem;
+}
+pre {
+  overflow-x: auto;
+}
