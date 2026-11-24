@@ -114,3 +114,11 @@ def test_nfr_08_dockerignore_excludes_secrets() -> None:
     lines = (ROOT / ".dockerignore").read_text(encoding="utf-8").splitlines()
     for entry in (".env", ".env.*", ".git"):
         assert entry in lines
+
+
+def test_acc_05_websocket_routed_to_django_with_small_frame_limit() -> None:
+    caddy = (ROOT / "deploy" / "Caddyfile").read_text(encoding="utf-8")
+    matcher = next(ln for ln in caddy.splitlines() if ln.strip().startswith("@backend"))
+    assert "/ws/*" in matcher
+    dockerfile = (ROOT / "backend" / "Dockerfile").read_text(encoding="utf-8")
+    assert '"--ws-max-size", "65536"' in dockerfile

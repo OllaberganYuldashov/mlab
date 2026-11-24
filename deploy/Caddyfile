@@ -26,9 +26,9 @@
 		-Server
 	}
 
-	# --- API, Django Admin va sog'liq tekshiruvlari: Django'ga (ichki tarmoq) ---
-	# Caddy X-Forwarded-For ga mijoz IP'sini qo'shadi (TRUSTED_PROXY_COUNT=1).
-	@backend path /api/* /admin/* /healthz /readyz
+	# --- API, WebSocket (ACC-05), Django Admin va sog'liq tekshiruvlari: Django'ga (ichki tarmoq) ---
+	# Caddy X-Forwarded-For ga mijoz IP'sini qo'shadi (TRUSTED_PROXY_COUNT=1); WebSocket'ni o'zi uzatadi.
+	@backend path /api/* /ws/* /admin/* /healthz /readyz
 	handle @backend {
 		reverse_proxy web:8000
 	}
