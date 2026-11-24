@@ -2,6 +2,25 @@
 
 > Har run oxirida Claude qo'shadi. Eng yangisi yuqorida.
 
+### 2026-11-25 — tungi run 2/2
+- **Bajarilgan issue'lar va PR:** #152 → PR #179 ("Tekshirish" — brauzerda ko'rinadigan testlar), #154 → PR #180
+  (Celery baholash navbati). 4 ball.
+- **Nima qilindi (oddiy tilda):** Laboratoriyaning chap panelida endi talabaning o'z topshirig'i chiqadi: sharti uning
+  varianti raqamlari bilan, qadamlar va ballar. "✓ Tekshirish" tugmasi ko'rinadigan testlarni talabaning brauzerida
+  darhol ishga tushiradi va har test uchun "o'tdi / o'tmadi" va sababini ko'rsatadi. Cheksiz sikl bo'lsa 30 soniyadan
+  keyin to'xtatiladi. Yashirin testlar brauzerga umuman yuborilmaydi. Server tomonda baholash navbati tayyor: topshirilgan
+  kod navbatga tushadi, bir vaqtda ko'pi bilan 2 tasi tekshiriladi; bitta urinish hech qachon ikki marta baholanmaydi;
+  sandbox vaqtincha ishlamasa 3 martagacha qayta urinadi, talaba xatosi esa qayta urinilmaydi.
+- **Ishlatilgan skill'lar va nima uchun:** security-discipline (yashirin testlar oshkor emas, shartni to'ldirishda
+  `str.format` atribut teshigi yopildi, IDOR testi), query-discipline (Prefetch, so'rovlar soni testi),
+  database-queues va idempotency-and-side-effects (qulf bilan "egallash", `attempts` tekshiruvi, commit'dan keyin
+  navbat), retry-amplification (faqat infratuzilma xatosida, eksponensial kutish + jitter), error-handling-as-design.
+- **Yangi texnologiya / tushuncha:** Celery amalda — `docs/learn/celery-channels.md` "Amalda: baholash navbati";
+  brauzerdagi tekshiruv — `docs/learn/sandbox.md` 7-bo'lim.
+- **Ertalab nimani ko'rish kerak:** ikkala dars bo'limi. Lokal demoda panel hozircha "topshiriq hali qo'shilmagan"
+  deydi — topshiriqlar kontentga #163 da qo'shiladi.
+- **Savollar / bloklar:** yo'q. Worker, launcher va davriy sweeper compose'ga #166 da (`needs:owner`).
+
 ### 2026-11-24 — tungi run 1/2
 - **Bajarilgan issue'lar va PR:** #151 → PR #176 (variant tanlash), #153 → PR #177 (sandbox image va runner). 4 ball.
 - **Nima qilindi (oddiy tilda):** Har talaba topshiriqning o'z variantini oladi: variant maxfiy kalit bilan hisoblanadi,
