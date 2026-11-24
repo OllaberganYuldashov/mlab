@@ -1,0 +1,25 @@
+# Datasetlar (DAT-01..03; I2-19). Import tekshiradi: litsenziya ruxsat etilgan ro'yxatda, fayl <= 5 MB, sha256 mos.
+# Talaba kodida: df = mlab.load("iris")
+# Fayllar scikit-learn tarqatmasidagi nusxalardan CSV ga (sarlavha va sinf nomlari bilan) aylantirilgan.
+datasets:
+  - name: iris
+    title: Iris gullari
+    description: 3 tur zambaq gulining 150 ta o'lchovi (kosachabarg va gulbarg uzunligi/kengligi). Tasniflash uchun klassik dataset.
+    file: iris.csv
+    sha256: 9cc1c345c71bcc9b486b74cbf6063fa66f4bb5e0f603a4b3c3471ec2e5e8e355
+    source_url: https://archive.ics.uci.edu/dataset/53/iris
+    license: CC-BY-4.0
+  - name: wine
+    title: Vino tarkibi
+    description: Italiyaning bir hududidagi 3 nav uzumdan olingan 178 vino namunasining 13 kimyoviy ko'rsatkichi.
+    file: wine.csv
+    sha256: bafc97afa2272002ba7475929632cf1425754f8055d1be1b3b11bd63d110d866
+    source_url: https://archive.ics.uci.edu/dataset/109/wine
+    license: CC-BY-4.0
+  - name: breast_cancer
+    title: Ko'krak bezi o'smasi (Wisconsin, diagnostik)
+    description: 569 namunaning 30 ta tasvir belgisi; maqsad — o'sma xavfli (malignant) yoki xavfsiz (benign). Shaxsiy ma'lumot yo'q.
+    file: breast_cancer.csv
+    sha256: bbe6bc506fec05b65edfb905b871a229bdc97341f512e7548a9ecc6081644251
+    source_url: https://archive.ics.uci.edu/dataset/17/breast+cancer+wisconsin+diagnostic
+    license: CC-BY-4.0

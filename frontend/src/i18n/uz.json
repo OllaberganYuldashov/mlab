@@ -252,5 +252,10 @@
   "save.error": "Saqlab bo'lmadi. Sahifani yangilang.",
   "save.conflict": "Ish boshqa oynada o'zgargan.",
   "save.keepMine": "Shu yerdagisini saqlash",
-  "save.useServer": "Serverdagisini olish"
+  "save.useServer": "Serverdagisini olish",
+  "datasets.title": "Datasetlar",
+  "datasets.empty": "Hozircha dataset yo'q.",
+  "datasets.shape": "{rows} qator, {columns} ustun",
+  "datasets.source": "Manba",
+  "datasets.license": "Litsenziya"
 }

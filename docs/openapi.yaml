@@ -269,6 +269,48 @@ paths:
               schema:
                 $ref: '#/components/schemas/QuizAttemptOut'
           description: ''
+  /api/datasets:
+    get:
+      operationId: datasets_list
+      description: 'DAT-02: datasetlar ro''yxati — manba havolasi va litsenziya bilan.'
+      summary: Kurs datasetlari (manba va litsenziya)
+      tags:
+      - datasets
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DatasetOut'
+          description: ''
+  /api/datasets/{name}/file:
+    get:
+      operationId: datasets_file_retrieve
+      description: 'LAB-04: `mlab.load("nomi")` shu yerdan CSV oladi (Pyodide worker,
+        o''z sessiyasi bilan).'
+      summary: Dataset CSV fayli
+      parameters:
+      - in: path
+        name: name
+        schema:
+          type: string
+        required: true
+      tags:
+      - datasets
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            text/csv:
+              schema:
+                type: string
+                format: binary
+          description: ''
   /api/directions:
     get:
       operationId: directions_list
@@ -1202,6 +1244,41 @@ components:
       required:
       - course
       - topics
+    DatasetOut:
+      type: object
+      properties:
+        name:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        source_url:
+          type: string
+          format: uri
+        license:
+          type: string
+        license_url:
+          type: string
+          format: uri
+        rows:
+          type: integer
+        columns:
+          type: array
+          items:
+            type: string
+        size:
+          type: integer
+      required:
+      - columns
+      - description
+      - license
+      - license_url
+      - name
+      - rows
+      - size
+      - source_url
+      - title
     DeadlineList:
       type: object
       properties:

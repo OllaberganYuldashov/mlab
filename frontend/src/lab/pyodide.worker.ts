@@ -45,6 +45,30 @@ def _mlab_figures():
 _mlab_figures()
 `;
 
+// LAB-04: `mlab.load("nomi")` — platforma datasetini pandas DataFrame qilib beradi. Sinxron XHR (faqat
+// worker'da ruxsat) talabaning o'z sessiyasi bilan `/api/datasets/<nom>/file` ni oladi.
+const MLAB_MODULE = `
+import io, re, sys, types
+_mlab = types.ModuleType("mlab")
+_mlab.__doc__ = "MLab platformasi yordamchilari: mlab.load('iris')"
+def _load(name):
+    """Platformadagi datasetni pandas DataFrame sifatida yuklaydi: df = mlab.load("iris")."""
+    if not isinstance(name, str) or not re.fullmatch(r"[a-z0-9_]{1,64}", name):
+        raise ValueError("Dataset nomi kichik harf, raqam va _ dan iborat (masalan, 'iris').")
+    import pandas as pd
+    from js import XMLHttpRequest
+    req = XMLHttpRequest.new()
+    req.open("GET", f"/api/datasets/{name}/file", False)
+    req.send(None)
+    if req.status == 404:
+        raise FileNotFoundError(f"'{name}' dataseti topilmadi. Ro'yxat: Datasetlar sahifasi.")
+    if req.status != 200:
+        raise ConnectionError(f"Datasetni yuklab bo'lmadi (HTTP {req.status}).")
+    return pd.read_csv(io.StringIO(req.responseText))
+_mlab.load = _load
+sys.modules["mlab"] = _mlab
+`;
+
 let current = 0;
 let booting: Promise<Pyodide> | null = null;
 
@@ -58,6 +82,7 @@ function boot(): Promise<Pyodide> {
     py.setStdout({ batched: (text) => post({ type: "stdout", id: current, text }) });
     py.setStderr({ batched: (text) => post({ type: "stderr", id: current, text }) });
     py.runPython("import os; os.environ['MPLBACKEND'] = 'AGG'");
+    py.runPython(MLAB_MODULE);
     post({ type: "status", status: "ready" });
     return py;
   })();
@@ -80,6 +105,7 @@ async function run(id: number, code: string): Promise<void> {
   try {
     const py = await boot();
     await py.loadPackagesFromImports(code, quiet);
+    if (/\bmlab\b/.test(code)) await py.loadPackage(["pandas"], quiet);
     if (/^\s*(import|from)\s+seaborn\b/m.test(code) && SEABORN_WHEEL) {
       await py.loadPackage(["numpy", "pandas", "matplotlib", "scipy"], quiet);
       await py.loadPackage(`${PYODIDE_BASE}${SEABORN_WHEEL}`, quiet);
