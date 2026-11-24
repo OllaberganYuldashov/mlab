@@ -1,0 +1,17 @@
+Support nimani o'lchaydi?
+A) To'plam savatlarning qancha qismida uchrashini
+B) Qoidaning ishonchliligini
+C) Mahsulot narxini
+ANSWER: A
+
+Confidence(A → B) qanday hisoblanadi?
+A) support(A∪B) / support(A)
+B) support(A) / support(B)
+C) support(A) + support(B)
+ANSWER: A
+
+Lift = 1 nimani bildiradi?
+A) A va B bir-biriga bog'liq emas
+B) A va B doim birga
+C) Qoida noto'g'ri
+ANSWER: A

@@ -1,0 +1,17 @@
+Birinchi bosh komponent qaysi yo'nalish?
+A) Dispersiya eng katta yo'nalish
+B) Birinchi belgi ustuni
+C) Dispersiya eng kichik yo'nalish
+ANSWER: A
+
+PCA qaysi turdagi usul?
+A) Nazoratli tasniflash
+B) O'lchovni kamaytirish (nazoratsiz)
+C) Regressiya
+ANSWER: B
+
+explained_variance_ratio_ nimani ko'rsatadi?
+A) Har komponent tushuntirgan dispersiya ulushini
+B) Model aniqligini
+C) Belgilar sonini
+ANSWER: A

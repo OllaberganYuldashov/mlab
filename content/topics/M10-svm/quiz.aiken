@@ -1,0 +1,17 @@
+SVM qaysi chegarani tanlaydi?
+A) Sinflar orasidagi masofasi (margin) eng katta bo'lganini
+B) Birinchi topilganini
+C) Eng ko'p nuqtadan o'tadiganini
+ANSWER: A
+
+C parametri katta bo'lsa nima bo'ladi?
+A) Margin kengayadi, xatolarga ko'proq yo'l qo'yiladi
+B) Margin torayadi, har nuqtani to'g'ri ajratishga urinadi
+C) Yadro o'zgaradi
+ANSWER: B
+
+RBF yadrosi nima uchun kerak?
+A) Chiziq bilan ajralmaydigan sinflarni ajratish uchun
+B) O'qitishni tezlashtirish uchun
+C) Belgilarni masshtablash uchun
+ANSWER: A

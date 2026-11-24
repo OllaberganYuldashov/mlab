@@ -1,0 +1,17 @@
+k-means'da markaz qanday yangilanadi?
+A) Klasterdagi nuqtalarning o'rtachasi
+B) Klasterdagi eng uzoq nuqta
+C) Tasodifiy nuqta
+ANSWER: A
+
+DBSCAN'da -1 belgisi nimani bildiradi?
+A) Eng katta klaster
+B) Shovqin (hech bir klasterga tegishli emas)
+C) Xato
+ANSWER: B
+
+"Tirsak" usuli nimani tanlash uchun?
+A) eps
+B) Klasterlar soni k
+C) O'qitish to'plami hajmi
+ANSWER: B
