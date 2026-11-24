@@ -129,3 +129,25 @@ def test_nfr_17_uvicorn_access_log_disabled() -> None:
     yozardi (I1-15); so'rov logi Django `request.finished` qatorida (yo'l `safe_path` bilan)."""
     dockerfile = (ROOT / "backend" / "Dockerfile").read_text(encoding="utf-8")
     assert '"--no-access-log"' in dockerfile
+
+
+def test_lab_03_caddy_serves_pyodide_with_wasm_csp_matching_preview() -> None:
+    """ADR-0006: prod CSP = Vite preview CSP (e2e Pyodide'ni shu siyosatda sinaydi).
+
+    `/pyodide/` — abadiy kesh va SPA fallback'siz.
+    """
+    import re
+
+    caddy = (ROOT / "deploy" / "Caddyfile").read_text(encoding="utf-8")
+    vite = (ROOT / "frontend" / "vite.config.ts").read_text(encoding="utf-8")
+    prod = re.search(r'Content-Security-Policy "([^"]+)"', caddy)
+    preview = re.search(r'"Content-Security-Policy":\s*"([^"]+)"', vite)
+    assert prod is not None
+    assert preview is not None
+    assert prod.group(1) == preview.group(1)
+    assert "script-src 'self' 'wasm-unsafe-eval'" in prod.group(1)
+    assert "'unsafe-eval'" not in prod.group(1).replace("'wasm-unsafe-eval'", "")
+    block = caddy[caddy.index("handle /pyodide/*") :]
+    block = block[: block.index("}")]
+    assert "immutable" in block
+    assert "try_files" not in block
