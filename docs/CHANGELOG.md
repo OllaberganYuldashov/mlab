@@ -4,6 +4,9 @@ Format: [Keep a Changelog](https://keepachangelog.com/), versiyalar: [SemVer](ht
 
 ## [Unreleased]
 ### Added
+- Topshiriq formati va importi (I3-02; AGR-07, AGR-05): yangi `apps.grading` — `Assignment` (A##, mavzu, shart {parametr} bilan, challenge, mustaqil), `AssignmentStep` (kalit, ball — jami 100), `Variant` (basic/medium/advanced × kamida 5), `TestFile` (visible/hidden); `content/labs/` importi: fayl:qator xatolari, Python sintaksisi tekshiruvi, har qadamga yashirin test majburiy, shartdagi parametrlar har variantda, `solutions/` o'qilmaydi; `import_content` kurs va topshiriqlarni bitta tranzaksiyada yuklaydi. Migratsiya `grading 0001`.
+
+### Added
 - ADR-0007 (I3-01; AGR-02..05): avtobaholovchi — Celery + Redis (`concurrency=2`, idempotent vazifa), Docker'ga faqat alohida `sandbox-launcher` xizmati kiradi (docker-socket-proxy konteyner sozlamasini cheklamaydi — rad etildi), sandbox cheklovlari (tarmoqsiz, read-only, root'siz, 512 MB, 1 CPU, 60 s, pids 64, cap-drop ALL), kod va testlar stdin orqali, image'da Pyodide bilan aynan bir xil paket versiyalari (Python 3.14); `docs/learn/sandbox.md`.
 ### Security
 - I2 yakuniy ko'rigi (I2-21, security-reviewer): laboratoriya qoralamalari chiqish va kirishda tozalanadi (umumiy kompyuter); urinishlarda ishlatilgan savolning matni/variantlari/javobi admin'da qulflanadi; test javobi kalitlari faqat ASCII raqam, ≤ 100 ta (Unicode raqam 500 berardi); Markdown havolasida teskari chiziq/boshqaruv belgilari rad etiladi, rasm faqat `/api/course/images/<xesh>`; kontent importida symlink fayl/papka va `content/` dan tashqari yo'l rad etiladi; vizual qadamda NaN/inf rad etiladi. Uchidan-uchiga I2 e2e, so'rovlar soni testlari, `docs/iterations/I2.md` (matritsa).
