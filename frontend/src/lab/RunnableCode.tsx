@@ -45,6 +45,12 @@ export default function RunnableCode({ code }: { code: string }) {
       <button type="button" onClick={() => void run()} disabled={running}>
         {t("lab.run")}
       </button>
+      {running && (
+        // LAB-06: cheksiz sikl yoki uzoq hisob — worker o'ldiriladi, muhit qayta ishga tushadi.
+        <button type="button" className="secondary" onClick={() => runtime.restart()}>
+          {t("lab.stop")}
+        </button>
+      )}
       {running && status === "loading" && <span role="status"> {t("lab.loading")}</span>}
       {running && status !== "loading" && <span role="status"> {t("lab.running")}</span>}
       {output && (

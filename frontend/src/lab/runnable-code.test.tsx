@@ -9,6 +9,7 @@ const fake = vi.hoisted(() => ({
   status: "idle" as string,
   listener: null as null | ((s: string) => void),
   next: null as null | ((events: (e: RunEvent) => void) => Promise<RunResult>),
+  restart: (() => undefined) as () => void,
 }));
 
 vi.mock("./runtime", () => ({
@@ -21,6 +22,7 @@ vi.mock("./runtime", () => ({
       return () => undefined;
     },
     run: (_code: string, onEvent: (e: RunEvent) => void) => fake.next?.(onEvent),
+    restart: () => fake.restart(),
   }),
 }));
 
@@ -67,5 +69,19 @@ describe("RunnableCode (CNT-02, LAB-02)", () => {
     act(() => fake.listener?.("ready"));
     await waitFor(() => expect(screen.getByRole("status")).toHaveTextContent(messages["lab.running"]));
     await act(async () => finish({ ok: true, result: null, error: null }));
+  });
+
+  it("LAB-06: bajarilayotganda To'xtatish tugmasi muhitni qayta ishga tushiradi", async () => {
+    let finish: (r: RunResult) => void = () => undefined;
+    fake.next = () => new Promise((resolve) => (finish = resolve));
+    fake.restart = () => finish({ ok: false, result: null, error: null, interrupted: true });
+    const user = userEvent.setup();
+    render(<RunnableCode code="while True: pass" />);
+    expect(screen.queryByRole("button", { name: messages["lab.stop"] })).toBeNull();
+    await user.click(screen.getByRole("button", { name: messages["lab.run"] }));
+    await user.click(await screen.findByRole("button", { name: messages["lab.stop"] }));
+    expect(await screen.findByRole("alert")).toHaveTextContent(messages["lab.interrupted"]);
+    expect(screen.queryByRole("button", { name: messages["lab.stop"] })).toBeNull();
+    expect(screen.getByRole("button", { name: messages["lab.run"] })).toBeEnabled();
   });
 });

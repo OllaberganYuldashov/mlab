@@ -57,3 +57,40 @@ test("LAB-02: brauzerda Python — print, xato, grafik", async ({ page }) => {
 
   expect(external).toEqual([]);
 });
+
+/** LAB-06: cheksiz sikl → "To'xtatish" → muhit qayta ishga tushadi va keyingi kod ishlaydi (o'zgaruvchilar o'chgan). */
+test("LAB-06: to'xtatish", async ({ page }) => {
+  test.setTimeout(180_000);
+  await page.route("**/ws/**", (route) => route.abort());
+  await page.route("**/api/**", async (route) => {
+    const path = new URL(route.request().url()).pathname;
+    const json = (status: number, body: unknown) =>
+      route.fulfill({ status, contentType: "application/json", body: JSON.stringify(body) });
+    if (path === "/api/auth/me")
+      return json(200, { hemis_id: "123456789012", full_name: "Sinov Talaba", role: "student", direction: 1, must_change_password: false });
+    if (path === "/api/course/topics/M01/lecture")
+      return json(200, {
+        topic: { code: "M01", title: "ML" },
+        title: "ML",
+        prev: null,
+        next: null,
+        steps: [
+          {
+            order: 1,
+            title: "Sikl",
+            body: "```python try\ny = 5\nwhile True:\n    pass\n```\n\n```python try\nprint('tirik', 'y' in globals())\n```",
+            question: null,
+          },
+        ],
+      });
+    return json(404, {});
+  });
+  await page.goto("/topics/M01");
+  const blocks = page.locator(".runnable");
+  await blocks.nth(0).getByRole("button", { name: messages["lab.run"] }).click();
+  await expect(blocks.nth(0).getByRole("status")).toHaveText(/Bajarilmoqda/, { timeout: 90_000 });
+  await blocks.nth(0).getByRole("button", { name: messages["lab.stop"] }).click();
+  await expect(blocks.nth(0).getByRole("alert")).toHaveText(messages["lab.interrupted"]);
+  await blocks.nth(1).getByRole("button", { name: messages["lab.run"] }).click();
+  await expect(blocks.nth(1).getByTestId("run-output")).toContainText("tirik False", { timeout: 90_000 });
+});

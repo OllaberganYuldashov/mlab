@@ -221,5 +221,6 @@
   "lab.loading": "Python yuklanmoqda (birinchi marta biroz vaqt oladi)…",
   "lab.running": "Bajarilmoqda…",
   "lab.figure": "Grafik {n}",
-  "lab.interrupted": "To'xtatildi. Muhit qayta ishga tushdi — o'zgaruvchilar o'chdi."
+  "lab.interrupted": "To'xtatildi. Muhit qayta ishga tushdi — o'zgaruvchilar o'chdi.",
+  "lab.stop": "■ To'xtatish"
 }
