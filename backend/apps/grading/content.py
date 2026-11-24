@@ -24,7 +24,15 @@ from django.db import transaction
 
 from apps.courses.content import ContentError, ImportReport, _Reader
 from apps.courses.models import Course, Topic
-from apps.grading.models import Assignment, AssignmentStep, Level, TestFile, TestKind, Variant
+from apps.grading.models import (
+    Assignment,
+    AssignmentStep,
+    Level,
+    StudentAssignment,
+    TestFile,
+    TestKind,
+    Variant,
+)
 
 MIN_VARIANTS = 5  # AGR-07: har daraja kamida 5 variant
 _DIR_RE = re.compile(r"^(A[0-9]{2})-[a-z0-9-]{1,50}\Z")
@@ -204,6 +212,13 @@ def apply_labs(
     existing = {a.code: a for a in Assignment.objects.filter(course=course)}
     wanted = {lab.code for lab in labs}
     stale = [a.pk for code, a in existing.items() if code not in wanted]
+    used = StudentAssignment.objects.filter(assignment_id__in=stale).values_list(
+        "assignment__code", flat=True
+    )
+    if code := next(iter(used), None):
+        raise ContentError(
+            f"labs/{code}", None, "topshiriq talabalarga berilgan — o'chirib bo'lmaydi"
+        )
     if stale:
         Assignment.objects.filter(pk__in=stale).delete()
         report.bump("deleted", "assignment", len(stale))
@@ -260,6 +275,13 @@ def _sync_variants(assignment: Assignment, lab: LabData, report: ImportReport) -
     existing = {(v.level, v.number): v for v in Variant.objects.filter(assignment=assignment)}
     wanted = {(level, number): params for level, number, params in lab.variants}
     stale = [v.pk for k, v in existing.items() if k not in wanted]
+    used = Variant.objects.filter(pk__in=stale, student_assignments__isnull=False).first()
+    if used is not None:
+        raise ContentError(
+            f"labs/{assignment.code}/variants/{used.level}-{used.number}.yaml",
+            None,
+            "variant talabaga berilgan — o'chirib bo'lmaydi",
+        )
     if stale:
         Variant.objects.filter(pk__in=stale).delete()
         report.bump("deleted", "variant", len(stale))
