@@ -1,0 +1,17 @@
+Chiziqli regressiyada w (qiyalik) nimani bildiradi?
+A) x bir birlikka o'zgarganda y qanchaga o'zgarishini
+B) Chiziqning y o'qini kesish nuqtasini
+C) Model xatosini
+ANSWER: A
+
+MSE qanday hisoblanadi?
+A) Xatolar yig'indisi
+B) Xatolar kvadratlarining o'rtachasi
+C) Eng katta xato
+ANSWER: B
+
+Model sifatini qaysi to'plamda baholash kerak?
+A) O'qitish to'plamida
+B) Test to'plamida
+C) Ikkalasi bir xil
+ANSWER: B
