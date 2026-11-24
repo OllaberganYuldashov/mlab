@@ -293,6 +293,53 @@ paths:
               schema:
                 $ref: '#/components/schemas/JoinRefused'
           description: ''
+  /api/labs/{code}/work:
+    get:
+      operationId: labs_work_retrieve
+      summary: Mening laboratoriya ishim
+      parameters:
+      - in: path
+        name: code
+        schema:
+          type: string
+        required: true
+      tags:
+      - labs
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LabWorkOut'
+          description: ''
+    put:
+      operationId: labs_work_update
+      summary: Avtosaqlash (optimistik versiya bilan)
+      parameters:
+      - in: path
+        name: code
+        schema:
+          type: string
+        required: true
+      tags:
+      - labs
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LabSaveInRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LabSaveOut'
+          description: ''
   /api/me/deadlines:
     get:
       operationId: me_deadlines_retrieve
@@ -609,6 +656,37 @@ paths:
       responses:
         '204':
           description: No response body
+  /api/sections/{section_id}/labs/{code}/works/{student_id}:
+    get:
+      operationId: sections_labs_works_retrieve
+      summary: Talabaning laboratoriya ishi (o'qituvchiga)
+      parameters:
+      - in: path
+        name: code
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: section_id
+        schema:
+          type: integer
+        required: true
+      - in: path
+        name: student_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - sections
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LabWorkOut'
+          description: ''
   /api/sections/{section_id}/members:
     get:
       operationId: sections_members_list
@@ -1246,6 +1324,30 @@ components:
       required:
       - join_path
       - token
+    LabSaveInRequest:
+      type: object
+      properties:
+        version:
+          type: integer
+          minimum: 0
+        notebook: {}
+      required:
+      - notebook
+      - version
+    LabSaveOut:
+      type: object
+      properties:
+        version:
+          type: integer
+        saved_at:
+          type: string
+          format: date-time
+        policy:
+          $ref: '#/components/schemas/PolicyEnum'
+      required:
+      - policy
+      - saved_at
+      - version
     LabState:
       type: object
       properties:
@@ -1263,6 +1365,24 @@ components:
       - closes_at
       - opens_at
       - status
+    LabWorkOut:
+      type: object
+      properties:
+        version:
+          type: integer
+        notebook:
+          nullable: true
+        saved_at:
+          type: string
+          format: date-time
+          nullable: true
+        policy:
+          $ref: '#/components/schemas/PolicyEnum'
+      required:
+      - notebook
+      - policy
+      - saved_at
+      - version
     LectureOut:
       type: object
       properties:
@@ -1583,6 +1703,18 @@ components:
       required:
       - slots
       - start_date
+    PolicyEnum:
+      enum:
+      - on_time
+      - late
+      - practice
+      - closed
+      type: string
+      description: |-
+        * `on_time` - on_time
+        * `late` - late
+        * `practice` - practice
+        * `closed` - closed
     PolicyVersion:
       type: object
       properties:
