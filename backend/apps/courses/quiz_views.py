@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from typing import Any
 
 from drf_spectacular.utils import extend_schema, inline_serializer
@@ -17,6 +18,9 @@ from apps.accounts.permissions import IsStudent
 from apps.courses.models import Course, Question, QuizAttempt, Topic
 from apps.courses.quiz import QuizRefused, attempt_payload, start_attempt, submit_attempt
 from apps.courses.views import _course_for
+
+_POSITION_RE = re.compile(r"[0-9]{1,3}")
+MAX_ANSWERS = 100
 
 AttemptOut = inline_serializer(
     "QuizAttemptOut",
@@ -173,9 +177,12 @@ class QuizSubmitView(APIView):
         raw = request.data.get("answers") if isinstance(request.data, dict) else None
         if not isinstance(raw, dict):
             raise ValidationError({"answers": ["{tartib: variant} obyekti"]})
+        if len(raw) > MAX_ANSWERS:
+            raise ValidationError({"answers": [f"ko'pi bilan {MAX_ANSWERS} ta javob"]})
         answers: dict[int, int] = {}
         for key, value in raw.items():
-            if not str(key).isdigit() or type(value) is not int:
+            # Faqat ASCII raqamlar: "²" kabi Unicode raqam `int()` da 500 berardi.
+            if not _POSITION_RE.fullmatch(str(key)) or type(value) is not int:
                 raise ValidationError(
                     {"answers": ["kalit — savol tartibi, qiymat — variant raqami"]}
                 )

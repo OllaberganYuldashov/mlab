@@ -21,7 +21,7 @@ const LECTURE = {
   prev: null,
   next: "M02",
   steps: [
-    { order: 1, title: "Kirish", body: "**ML** — ma'lumotdan o'rganish.\n\n![Chiziq](/api/course/images/abc)", question: null },
+    { order: 1, title: "Kirish", body: "**ML** — ma'lumotdan o'rganish.\n\n![Chiziq](/api/course/images/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa)", question: null },
     { order: 2, title: "Sinab ko'r", body: "```python try\nprint(2 + 2)\n```", question: null },
     {
       order: 3,
@@ -82,7 +82,7 @@ describe("ma'ruzalar (CNT-02)", () => {
     expect(await screen.findByRole("heading", { name: "Kirish" })).toBeInTheDocument();
     expect(screen.getByText("Qadam 1 / 3")).toBeInTheDocument();
     expect(screen.getByText("ML").tagName).toBe("STRONG");
-    expect(screen.getByRole("img", { name: "Chiziq" })).toHaveAttribute("src", "/api/course/images/abc");
+    expect(screen.getByRole("img", { name: "Chiziq" })).toHaveAttribute("src", "/api/course/images/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
     expect(screen.getByRole("button", { name: messages["lecture.prev"] })).toBeDisabled();
 
     await user.click(screen.getByRole("button", { name: messages["lecture.next"] }));

@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -148,10 +149,19 @@ class _Reader:
     def rel(self, path: Path) -> str:
         return path.relative_to(self.root).as_posix()
 
+    def check(self, path: Path) -> None:
+        """Fayl `content/` ichida va symlink'siz bo'lishi kerak (I2 security-review)."""
+        rel = self.rel(path)
+        if path.resolve() != path.absolute() or not path.resolve().is_relative_to(self.root):
+            raise ContentError(
+                rel, None, "symlink yoki content/ dan tashqaridagi fayl qabul qilinmaydi"
+            )
+
     def read(self, path: Path) -> str:
         rel = self.rel(path)
         if not path.is_file():
             raise ContentError(rel, None, "fayl topilmadi")
+        self.check(path)
         try:
             text = path.read_text(encoding="utf-8")
         except UnicodeDecodeError as exc:
@@ -160,6 +170,7 @@ class _Reader:
         return text
 
     def read_bytes(self, path: Path) -> bytes:
+        self.check(path)
         data = path.read_bytes()
         self.digest.update(self.rel(path).encode() + b"\0" + data + b"\0")
         return data
@@ -232,7 +243,8 @@ VISUAL_WIDGETS = ("line-fit", "knn")
 
 
 def _number(value: Any) -> bool:
-    return isinstance(value, int | float) and not isinstance(value, bool)
+    # NaN/inf JSON'ni buzadi (frontend o'qiy olmaydi).
+    return isinstance(value, int | float) and not isinstance(value, bool) and math.isfinite(value)
 
 
 def _parse_visual(rel: str, line: int, text: str) -> dict[str, Any]:

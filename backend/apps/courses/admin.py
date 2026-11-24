@@ -91,6 +91,8 @@ class QuestionForm(forms.ModelForm):  # type: ignore[type-arg]  # runtime generi
 
     def clean(self) -> dict[str, Any]:
         data = super().clean() or {}
+        if "options" not in self.fields:  # qulflangan savol — faqat `is_active` o'zgaradi
+            return data
         options, answer = data.get("options"), data.get("answer")
         if not isinstance(options, list) or not 2 <= len(options) <= 6:
             raise forms.ValidationError(_("Variantlar 2..6 ta matn ro'yxati bo'lishi kerak."))
@@ -115,6 +117,13 @@ class QuestionAdmin(ContentAdmin):
     fieldsets = (
         (None, {"description": WARNING, "fields": ("text", "options", "answer", "is_active")}),
     )
+
+    def get_readonly_fields(self, request: HttpRequest, obj: Any = None) -> tuple[str, ...]:
+        # Urinishlarda ishlatilgan savolning matni, variantlari va javobi o'zgarmaydi:
+        # `QuizItem.order` eski variantlarga ishora qiladi (I2 security-review).
+        if obj is not None and obj.quiz_items.exists():
+            return ("text", "options", "answer")
+        return ()
 
     @admin.display(description=_("savol"))
     def short_text(self, obj: Question) -> str:

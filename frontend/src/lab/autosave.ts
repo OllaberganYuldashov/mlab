@@ -34,7 +34,18 @@ interface LocalCopy {
   notebook: Notebook;
 }
 
-const key = (code: string) => `mlab:lab:${code}`;
+const PREFIX = "mlab:lab:";
+const key = (code: string) => `${PREFIX}${code}`;
+
+/** Chiqish va kirishda: umumiy kompyuterda keyingi talaba oldingisining yuborilmagan ishini ko'rmasin. */
+export function clearLabDrafts(): void {
+  try {
+    const keys = Array.from({ length: window.localStorage.length }, (_, i) => window.localStorage.key(i));
+    for (const k of keys) if (k?.startsWith(PREFIX)) window.localStorage.removeItem(k);
+  } catch {
+    // localStorage yo'q — tozalaydigan narsa ham yo'q.
+  }
+}
 
 export function readLocal(code: string): LocalCopy | null {
   try {
