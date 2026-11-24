@@ -8,8 +8,10 @@ from __future__ import annotations
 
 from typing import ClassVar
 
+from django.conf import settings
 from django.db import models
 from django.db.models import Q
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from apps.courses.models import Course
@@ -132,3 +134,60 @@ class TestFile(models.Model):
 
     def __str__(self) -> str:
         return f"{self.step_id}/{self.kind}"
+
+
+class StudentAssignmentStatus(models.TextChoices):
+    ASSIGNED = "assigned", _("berilgan")
+    SUBMITTED = "submitted", _("topshirilgan")
+
+
+class StudentAssignment(models.Model):
+    """Talaba x topshiriq (AGR-08, INT-03): daraja va variant bir marta tanlanadi va saqlanadi.
+
+    Variant `apps.grading.variants.assign()` da HMAC bilan tanlanadi, keyin saqlangani ishlatiladi —
+    kontentga variant qo'shilsa yoki kalit almashsa ham talabaning varianti o'zgarmaydi.
+    `seed` — dataset qismini tanlash uchun (masalan, qatorlar namunasi), variantdan mustaqil.
+    """
+
+    student = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="student_assignments",
+        db_index=False,
+    )
+    # PROTECT: talabaga berilgan topshiriq/variant import bilan jim o'chmasin (import xato beradi).
+    assignment = models.ForeignKey(
+        Assignment, on_delete=models.PROTECT, related_name="student_assignments"
+    )
+    variant = models.ForeignKey(
+        Variant, on_delete=models.PROTECT, related_name="student_assignments"
+    )
+    level = models.CharField(_("daraja"), max_length=8, choices=Level.choices)
+    seed = models.PositiveIntegerField(_("dataset seed"))
+    status = models.CharField(
+        _("holat"),
+        max_length=16,
+        choices=StudentAssignmentStatus.choices,
+        default=StudentAssignmentStatus.ASSIGNED,
+    )
+    created_at = models.DateTimeField(_("berilgan vaqt"), default=timezone.now)
+
+    class Meta:
+        verbose_name = _("talaba topshirig'i")
+        verbose_name_plural = _("talaba topshiriqlari")
+        constraints: ClassVar[list[models.BaseConstraint]] = [
+            # Prefiks (student) FK indeksini ham qoplaydi; ikki tab bir vaqtda ochsa — bitta yozuv.
+            models.UniqueConstraint(
+                fields=["student", "assignment"], name="grading_student_assignment_uniq"
+            ),
+            models.CheckConstraint(
+                condition=Q(level__in=Level.values), name="grading_student_assignment_level"
+            ),
+            models.CheckConstraint(
+                condition=Q(status__in=StudentAssignmentStatus.values),
+                name="grading_student_assignment_status",
+            ),
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.student_id}/{self.assignment_id} {self.level}"
