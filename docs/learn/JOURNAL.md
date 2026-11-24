@@ -2,6 +2,18 @@
 
 > Har run oxirida Claude qo'shadi. Eng yangisi yuqorida.
 
+### 2026-11-24 — custom run 9 (kunduzi, qo'shimcha)
+- **Bajarilgan issue'lar va PR:** #107 → PR #144 (M16–M22), #95 → PR #145 (qattiqlashtirish), #115 → PR #146 (monoblok sinovi). 4 ball.
+- **Nima qilindi (oddiy tilda):** Kursning 22 ta ma'ruzasi to'liq (neyron tarmoqlar va MLOps — TensorFlow'siz, numpy bilan).
+  Akkaunt o'chirilsa yoki paroli tiklansa, ochiq real vaqt ulanishi darhol uziladi; bir talabaga ko'pi bilan 5 ta ulanish.
+  Laboratoriya ochilish vaqti o'lchandi: pandas bilan birinchi natija ~7 s (talab ≤ 15 s); Python endi sahifa ochilishi
+  bilan fonda tayyorlanadi.
+- **Ishlatilgan skill'lar va nima uchun:** performance-and-scaling ("qaysi yukda?" — vaqt protsessorga ketishini o'lchab
+  topdik, keshga emas), security-discipline (signal orqali har qanday yo'l bilan parol/faollik o'zgarishi), testing-with-discernment.
+- **Saboq:** taxminiy o'lchov ham foydali — kesh bilan va keshsiz bir xil vaqt "muammo tarmoqda" degan taxminni rad etdi.
+- **Ertalab nimani ko'rish kerak:** `docs/iterations/I2.md` — monoblokda o'lchash jadvali (sizdan).
+- **Savollar / bloklar:** yo'q. PR #131 (Caddy CSP) hali egasida.
+
 ### 2026-11-24 — custom run 8 (kunduzi, qo'shimcha)
 - **Bajarilgan issue'lar va PR:** #105 → PR #141 (M02–M08), #106 → PR #142 (M09–M15). 4 ball.
 - **Nima qilindi (oddiy tilda):** 14 ta yangi ma'ruza: ma'lumotga ishlovdan PCA va assotsiativ qoidalargacha. Har birida
