@@ -244,5 +244,13 @@
   "lab.policy.practice": "Mashq rejimi (baholanmaydi)",
   "lab.notebook": "Notebook",
   "lab.tutor.title": "AI tutor",
-  "lab.tutor.soon": "AI yordamchi keyingi iteratsiyada qo'shiladi."
+  "lab.tutor.soon": "AI yordamchi keyingi iteratsiyada qo'shiladi.",
+  "save.saving": "Saqlanmoqda…",
+  "save.saved": "Saqlandi: {time}",
+  "save.offline": "Tarmoq yo'q — ish shu kompyuterda saqlandi, tarmoq qaytganda yuboriladi.",
+  "save.closed": "Laboratoriya yopildi — saqlash to'xtadi. Ishingiz shu kompyuterda qoldi.",
+  "save.error": "Saqlab bo'lmadi. Sahifani yangilang.",
+  "save.conflict": "Ish boshqa oynada o'zgargan.",
+  "save.keepMine": "Shu yerdagisini saqlash",
+  "save.useServer": "Serverdagisini olish"
 }

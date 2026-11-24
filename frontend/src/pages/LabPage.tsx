@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { api } from "../api";
 import { showTime } from "../datetime";
 import { t } from "../i18n";
+import { Autosave, SAVE_INTERVAL_MS, type SaveStatus } from "../lab/autosave";
 import Notebook from "../lab/Notebook";
 import { type Notebook as NotebookState, emptyNotebook } from "../lab/notebook";
 import { Link } from "../Link";
@@ -25,6 +26,50 @@ interface TopicBrief {
 interface Loaded {
   work: Work;
   topic: TopicBrief | undefined;
+  notebook: NotebookState;
+  version: number;
+  dirty: boolean;
+}
+
+function SaveIndicator({ status, onResolve }: { status: SaveStatus; onResolve: (keepMine: boolean) => void }) {
+  switch (status.kind) {
+    case "idle":
+      return null;
+    case "saving":
+      return <span className="muted">{t("save.saving")}</span>;
+    case "saved":
+      return <span className="muted">{t("save.saved", { time: showTime(status.at) })}</span>;
+    case "offline":
+      return (
+        <span role="status" className="error">
+          {t("save.offline")}
+        </span>
+      );
+    case "closed":
+      return (
+        <span role="alert" className="error">
+          {t("save.closed")}
+        </span>
+      );
+    case "error":
+      return (
+        <span role="alert" className="error">
+          {t("save.error")}
+        </span>
+      );
+    case "conflict":
+      return (
+        <span role="alert" className="error">
+          {t("save.conflict")}{" "}
+          <button type="button" onClick={() => onResolve(true)}>
+            {t("save.keepMine")}
+          </button>{" "}
+          <button type="button" onClick={() => onResolve(false)}>
+            {t("save.useServer")}
+          </button>
+        </span>
+      );
+  }
 }
 
 /**
@@ -49,12 +94,53 @@ export default function LabPage({ code }: { code: string }) {
         );
         return;
       }
-      setLoaded({ work: work.data, topic: topics.ok ? topics.data.topics.find((x) => x.code === code) : undefined });
+      const start = Autosave.initial(code, work.data, emptyNotebook());
+      setLoaded({
+        work: work.data,
+        topic: topics.ok ? topics.data.topics.find((x) => x.code === code) : undefined,
+        ...start,
+      });
     })();
     return () => {
       active = false;
     };
   }, [code]);
+
+  // LAB-05: avtosaqlash — har 10 s (o'zgarish bo'lsa), har ishga tushirishda, tarmoq qaytganda, sahifadan chiqishda.
+  const [status, setStatus] = useState<SaveStatus>({ kind: "idle" });
+  const [notebookKey, setNotebookKey] = useState(0);
+  const [shown, setShown] = useState<NotebookState | null>(null);
+  const saver = useRef<Autosave | null>(null);
+  const canSave = loaded !== null && loaded.work.policy !== "closed";
+  useEffect(() => {
+    if (!loaded || !canSave) return;
+    const autosave = new Autosave(code, loaded, setStatus);
+    saver.current = autosave;
+    const flush = () => void autosave.flush();
+    const hidden = () => {
+      if (document.visibilityState === "hidden") flush();
+    };
+    const timer = setInterval(() => autosave.tick(), SAVE_INTERVAL_MS);
+    window.addEventListener("online", flush);
+    document.addEventListener("visibilitychange", hidden);
+    if (loaded.dirty) flush();
+    return () => {
+      clearInterval(timer);
+      window.removeEventListener("online", flush);
+      document.removeEventListener("visibilitychange", hidden);
+      autosave.stop();
+      saver.current = null;
+    };
+  }, [code, loaded, canSave]);
+
+  function resolve(keepMine: boolean) {
+    if (status.kind !== "conflict" || !saver.current) return;
+    const notebook = saver.current.resolve(keepMine, status.serverVersion, status.serverNotebook);
+    if (!keepMine) {
+      setShown(notebook);
+      setNotebookKey((k) => k + 1);
+    }
+  }
 
   const title = loaded?.topic ? `${code}. ${loaded.topic.title}` : code;
   const policy = loaded?.work.policy;
@@ -90,7 +176,18 @@ export default function LabPage({ code }: { code: string }) {
             </p>
           </aside>
           <section className="lab-main" aria-label={t("lab.notebook")}>
-            <Notebook initial={loaded.work.notebook ?? emptyNotebook()} />
+            <p className="save-status" aria-live="polite">
+              <SaveIndicator status={status} onResolve={resolve} />
+            </p>
+            <Notebook
+              key={notebookKey}
+              initial={shown ?? loaded.notebook}
+              onChange={(nb) => saver.current?.change(nb)}
+              onRun={(nb) => {
+                saver.current?.change(nb);
+                void saver.current?.flush();
+              }}
+            />
           </section>
           <aside className="lab-tutor" aria-labelledby="lab-tutor-title">
             <h2 id="lab-tutor-title">{t("lab.tutor.title")}</h2>
