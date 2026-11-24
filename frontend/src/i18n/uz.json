@@ -222,5 +222,17 @@
   "lab.running": "Bajarilmoqda…",
   "lab.figure": "Grafik {n}",
   "lab.interrupted": "To'xtatildi. Muhit qayta ishga tushdi — o'zgaruvchilar o'chdi.",
-  "lab.stop": "■ To'xtatish"
+  "lab.stop": "■ To'xtatish",
+  "lab.title.page": "{code} — laboratoriya",
+  "lab.hint": "Shift+Enter — katakni ishga tushirish.",
+  "lab.cell.code": "Kod katagi {n}",
+  "lab.cell.markdown": "Matn katagi {n}",
+  "lab.cell.run": "{n}-katakni ishga tushirish",
+  "lab.cell.edit": "Tahrirlash",
+  "lab.cell.up": "{n}-katakni yuqoriga",
+  "lab.cell.down": "{n}-katakni pastga",
+  "lab.cell.delete": "{n}-katakni o'chirish",
+  "lab.cell.addCode": "+ Kod",
+  "lab.cell.addMarkdown": "+ Matn",
+  "lab.truncated": "… (chiqish juda uzun — qisqartirildi)"
 }

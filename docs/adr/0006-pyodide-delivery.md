@@ -77,6 +77,9 @@ lekin COOP/COEP sarlavhalari va butun saytning cross-origin isolation'i kerak).
 - Vite `preview` prod CSP bilan ishlaydi (`script-src 'self' 'wasm-unsafe-eval'`) — Playwright haqiqiy Pyodide'ni shu siyosatda
   sinaydi va tashqi domenga so'rov yo'qligini tekshiradi. `'unsafe-eval'` kerak bo'lmadi.
 
+- CodeMirror (I2-14): versiyalar qat'iy (`--save-exact`), bo'lak 653 kB (gzip 228 kB) — faqat `/labs/` da dinamik `import()`;
+  asosiy bundle o'smaydi. Vite'ning 500 kB ogohlantirishi shu bo'lak uchun kutilgan.
+
 ## Oqibatlar
 - Frontend image ~50 MB kattalashadi; birinchi ochilish uchun asosiy omil — monoblok CPU (wasm kompilyatsiyasi), tarmoq
   emas (lokal server). Keyingi ochilishlar brauzer keshidan.
