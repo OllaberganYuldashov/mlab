@@ -257,5 +257,14 @@
   "datasets.empty": "Hozircha dataset yo'q.",
   "datasets.shape": "{rows} qator, {columns} ustun",
   "datasets.source": "Manba",
-  "datasets.license": "Litsenziya"
+  "datasets.license": "Litsenziya",
+  "visual.lineFit.alt": "Nuqtalar va y = {w}·x + {b} chizig'i",
+  "visual.lineFit.w": "Qiyalik (w): {value}",
+  "visual.lineFit.b": "Siljish (b): {value}",
+  "visual.lineFit.mse": "O'rtacha kvadrat xato (MSE): {value}",
+  "visual.lineFit.best": "Eng yaxshi chiziqni ko'rsatish",
+  "visual.knn.alt": "Ikki sinf nuqtalari va k = {k} bo'lgandagi qaror hududlari",
+  "visual.knn.k": "Qo'shnilar soni (k): {k}",
+  "visual.knn.accuracy": "O'quv to'plamidagi aniqlik: {value}%",
+  "visual.unknown": "Bu vizual qadamni ko'rsatib bo'lmadi."
 }

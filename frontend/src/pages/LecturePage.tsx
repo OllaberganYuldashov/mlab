@@ -3,6 +3,7 @@ import { api } from "../api";
 import { t } from "../i18n";
 import RunnableCode from "../lab/RunnableCode";
 import { Link } from "../Link";
+import VisualBlock from "../visual/VisualBlock";
 import type { CodeBlockInfo } from "../markdown";
 import { Markdown } from "../Markdown.view";
 
@@ -31,6 +32,7 @@ interface Lecture {
 const LETTERS = "ABCDEF";
 
 function TryBlock({ info }: { info: CodeBlockInfo }) {
+  if (info.language === "visual") return <VisualBlock source={info.code} />;
   if (!info.tryable) {
     return (
       <pre>
