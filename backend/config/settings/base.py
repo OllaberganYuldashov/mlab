@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     "apps.audit",
     "apps.courses",
     "apps.sections",
+    "apps.labs",
 ]
 
 # ACC-05 (I1-11): WebSocket — Django Channels, kanal qatlami Redis'da (ADR-0001).
@@ -159,6 +160,8 @@ AUTH_REGISTER_RATE = env.optional("AUTH_REGISTER_RATE", "60/hour")
 # so'rov yuborish — talaba bo'yicha.
 SECTION_JOIN_PREVIEW_RATE = env.optional("SECTION_JOIN_PREVIEW_RATE", "600/hour")
 SECTION_JOIN_RATE = env.optional("SECTION_JOIN_RATE", "30/hour")
+# LAB-05: avtosaqlash — talaba bo'yicha (har 10 s + har ishga tushirish; bir nechta tab).
+LAB_SAVE_RATE = env.optional("LAB_SAVE_RATE", "60/min")
 # Hamma IP uchun umumiy chegara (taqsimlangan hujum, Argon2 xotira/CPU narxi).
 AUTH_REGISTER_GLOBAL_RATE = env.optional("AUTH_REGISTER_GLOBAL_RATE", "300/hour")
 # AUTH-02: login so'rovlari IP bo'yicha (Hemis ID + IP lockout'dan tashqari; xona bitta NAT ortida).

@@ -1,0 +1,7 @@
+from django.apps import AppConfig
+
+
+class LabsConfig(AppConfig):
+    name = "apps.labs"
+    label = "labs"
+    verbose_name = "Laboratoriya"

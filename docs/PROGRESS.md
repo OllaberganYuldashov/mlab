@@ -3,7 +3,7 @@
 > Har sessiya oxirida Claude yangilaydi. Yangi sessiya ishni shu fayldan davom ettiradi.
 
 ## Sog'liq
-- Holat: **Yashil** (2026-11-24, custom run 1/4): main `ci` yashil, backend 682 test (coverage 96.8%),
+- Holat: **Yashil** (2026-11-24, custom run 2/4): main `ci` yashil, backend 715 test (coverage 97%),
   frontend 86 test + 7 e2e; bug va rad etilgan PR yo'q; ochiq alert yo'q.
 - Oxirgi yashil nuqta: `good-2026-11-22-2341-4e4f41c` (PR #31 dan keyingisi `known-good` tomonidan qo'yiladi)
 - Tuzatish urinishlari: 0
@@ -13,7 +13,7 @@
 - Reliz: **R1 — MVP, I2** (I1 yopildi 2026-11-24 — `docs/iterations/I1.md`) (R0 kodi yopildi 2026-11-23; serverga bog'liq qism — birinchi deploy, smoke, tiklash sinovi — server tayyor bo'lganda)
 - TZ: SRS v2 tasdiqlangan → `docs/SRS.md`
 - GitHub: label'lar va R0-01..R0-17 issue'lari (#5–#21), "📋 Kunlik hisobotlar" (#4) yaratildi
-- Oxirgi tugagan tasklar: custom run 1/4 (24-noyabr kunduzi): #71 → PR #94 (I1 yakuni), #96 → PR #117 (ADR-0006), #97 → PR #118; I2 issue'larga bo'lindi (#96–#116). Tungi run 2/2 (24-noyabr): #69 → PR #91, #70 → PR #92. Tungi run 1/2 (24-noyabr): #67 → PR #87 (+#88 `needs:owner` — Caddy `/ws/*`), #68 → PR #89. I1 custom run'lar (2026-11-23 kechqurun): #57 → PR #73, #58 → #74, #59 → #75, #60 → #76 (+#77 xavfsizlik), #61 → #78, #62 → #79, #63 → #80, #64 → #81 (14 ball); run 4: #65 → #83, #66 → #84 (4 ball). R0-15 (#19) — PR #53 va R0-16 (#20) — PR #54 (`needs:owner`, egasi merge qiladi; custom run). R0-10 (#14) — PR #48; R0-11 (#15) — PR #49 (kunduzgi run 3/3). R0-08 (#12) — PR #44; R0-09 (#13) — PR #45; R0-17 (#21) — PR #46 (kunduzgi run 2/3).
+- Oxirgi tugagan tasklar: custom run 2/4: #101 → PR #120 (Aiken), #98 → PR #121 (ma'ruza API). Custom run 1/4 (24-noyabr kunduzi): #71 → PR #94 (I1 yakuni), #96 → PR #117 (ADR-0006), #97 → PR #118; I2 issue'larga bo'lindi (#96–#116). Tungi run 2/2 (24-noyabr): #69 → PR #91, #70 → PR #92. Tungi run 1/2 (24-noyabr): #67 → PR #87 (+#88 `needs:owner` — Caddy `/ws/*`), #68 → PR #89. I1 custom run'lar (2026-11-23 kechqurun): #57 → PR #73, #58 → #74, #59 → #75, #60 → #76 (+#77 xavfsizlik), #61 → #78, #62 → #79, #63 → #80, #64 → #81 (14 ball); run 4: #65 → #83, #66 → #84 (4 ball). R0-15 (#19) — PR #53 va R0-16 (#20) — PR #54 (`needs:owner`, egasi merge qiladi; custom run). R0-10 (#14) — PR #48; R0-11 (#15) — PR #49 (kunduzgi run 3/3). R0-08 (#12) — PR #44; R0-09 (#13) — PR #45; R0-17 (#21) — PR #46 (kunduzgi run 2/3).
   Run 1/3: R0-06 (#10) — PR #37; R0-07 (#11) — PR #39. Run 2/2: R0-05 (#9) — PR #33; R0-13 (#17) — PR #35. Run 1/2: R0-04 (#8) — PR #28; R0-03 (#7) — PR #29; R0-14 (#18) — PR #30; R0-12 (#16) — PR #31
   (hammasi `merge-if-green.sh` bilan). Oldin: R0-01 (#5) — PR #22, R0-02 (#6) — PR #23.
 
@@ -25,7 +25,7 @@
 | 2026-11-22 (boshlang'ich) | 4 (R0-01, R0-02) | 1 interaktiv | ~394 (R0 24 + R1 kodi 240 + kontent 130) | 8–10 hafta (2027 yanvar oxiri – fevral boshi) |
 
 ## Keyingi task
-- I2 (21 issue, #96–#116): tayyor — #96, #97. Keyingi: **#101** (Aiken importi), **#98** (ma'ruza API), **#108** (Pyodide worker), #111 (avtosaqlash API).
+- I2 (21 issue, #96–#116): tayyor — #96, #97, #98, #101. Keyingi: **#111** (avtosaqlash API), **#108** (Pyodide worker), #99 (ma'ruza sahifasi), #102 (mavzu testi).
 - #108 da `deploy/Caddyfile` CSP (`'wasm-unsafe-eval'`) va `/pyodide/` keshi — alohida `needs:owner` PR bo'ladi.
 - #95 — I1 qattiqlashtirish (I5 dagi reliz ko'rigi bilan).
 - R0: faqat serverga bog'liq qism ochiq (birinchi deploy, smoke, tiklash sinovi — `docs/learn/server.md`).

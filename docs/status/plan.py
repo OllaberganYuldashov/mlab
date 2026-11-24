@@ -9,7 +9,7 @@ META = {
     "velocity_note": "Kuniga 2 tungi run, har biri ~4-5 ball (M=2, S=1). Yakshanba — 1 run + review.",
     "current_release": "R1",
     "current_iteration": "I2",
-    "next_task": "#101 Aiken importi (I2-06), #98 ma'ruza API, #108 Pyodide worker",
+    "next_task": "#111 avtosaqlash API, #108 Pyodide worker, #99 ma'ruza sahifasi",
 }
 
 RELEASES = [
@@ -99,10 +99,10 @@ TASKS = [
     # --- I2: Kontent va laboratoriya (2026-11-24 da issue'larga bo'lindi) ---
     _t("I2", "I2-01", "#96", "ADR-0006: Pyodide va CodeMirror versiyalari, paketlar o'z serverdan, xotira byudjeti", "LAB-02, LAB-03, NFR-02", "S", "done", "Laboratoriya texnologiyasini (ADR-0001 dagi Pyodide va CodeMirror 6) aniq versiya, yetkazish usuli va monoblok byudjeti bilan qayd etish.", "#117"),
     _t("I2", "I2-02", "#97", "Ma'ruza qadamlari formati: matn va rasm, \"O'zing sinab ko'r\" kod bloki, tezkor savol", "CNT-02, CNT-01", "M", "done", "`lecture.md` qadamlarida rasm, sinab ko'riladigan kod bloki va tezkor savolni qo'llab-quvvatlash (ADR-0002 kengaytmasi).", "#118"),
-    _t("I2", "I2-03", "#98", "Ma'ruza API: mavzular ro'yxati va ma'ruza qadamlari (a'zo talabaga, ACC-01)", "CNT-02, ACC-01, SEC-05", "M", "ready", "Talaba va o'qituvchi ma'ruzalarni API orqali oladi; ruxsat `can_access_course` bo'yicha."),
+    _t("I2", "I2-03", "#98", "Ma'ruza API: mavzular ro'yxati va ma'ruza qadamlari (a'zo talabaga, ACC-01)", "CNT-02, ACC-01, SEC-05", "M", "done", "Talaba va o'qituvchi ma'ruzalarni API orqali oladi; ruxsat `can_access_course` bo'yicha.", "#121"),
     _t("I2", "I2-04", "#99", "Frontend: ma'ruza sahifasi — qadamlar bo'yicha yurish, rasm, tezkor savol", "CNT-02, NFR-13", "M", "ready", "Talaba mavzular ro'yxatidan ma'ruzani ochadi va qadamma-qadam o'qiydi."),
     _t("I2", "I2-05", "#100", "Interaktiv vizual qadam: slayder bilan parametr o'zgartirish", "CNT-03", "M", "ready", "Ma'ruzada slayderni surib grafik qanday o'zgarishini ko'rsatish (masalan, regressiya chizig'i qiyaligi, k-NN dagi k)."),
-    _t("I2", "I2-06", "#101", "Aiken formatidagi testlarni import qilish va savollar banki", "CNT-05, CNT-06", "M", "ready", "Egasining Aiken testlari `content/topics/<M>/quiz.txt` dan mavzu savollar bankiga yuklanadi."),
+    _t("I2", "I2-06", "#101", "Aiken formatidagi testlarni import qilish va savollar banki", "CNT-05, CNT-06", "M", "done", "Egasining Aiken testlari `content/topics/<M>/quiz.txt` dan mavzu savollar bankiga yuklanadi.", "#120"),
     _t("I2", "I2-07", "#102", "Mavzu testi: tasodifiy savollar, vaqt va urinishlar (kurs darajasida), backend", "CNT-06", "M", "ready", "Talaba mavzu testini boshlaydi, savollar bankdan tasodifiy tanlanadi, vaqt va urinish chegarasi serverda."),
     _t("I2", "I2-08", "#103", "Frontend: mavzu testi sahifasi — taymer, javoblar, natija", "CNT-06, NFR-13", "M", "ready", "Talaba testni ishlaydi va natijasini ko'radi."),
     _t("I2", "I2-09", "#104", "Django Admin: kontentni ko'rish va kichik tuzatish", "CNT-07, ADM-02", "S", "ready", "Super admin ma'ruza qadamlari va savollarni admin'da ko'radi va matndagi kichik xatoni tuzatadi."),
