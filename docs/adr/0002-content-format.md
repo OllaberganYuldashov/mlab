@@ -48,3 +48,4 @@ content/
   Format misoli: `content/README.md`.
 - **2026-11-24 (I2-06):** `topics/<KOD>/quiz.aiken` — Aiken savollar banki (`Question`, kalit — NFC matn xeshi,
   olib tashlangan savol arxivlanadi, o'chirilmaydi).
+- **2026-11-24 (I3-02):** `labs/<A##>-<slug>/` — `assignment.yaml`, `variants/`, `tests/visible|hidden/`; `solutions/` import qilinmaydi. Yangi `apps.grading` (Assignment, AssignmentStep, Variant, TestFile). Import buyrug'i avval kurs va topshiriqlarni tekshiradi, keyin bitta tranzaksiyada yozadi.

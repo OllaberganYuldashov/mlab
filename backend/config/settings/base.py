@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     "apps.courses",
     "apps.sections",
     "apps.labs",
+    "apps.grading",
 ]
 
 # ACC-05 (I1-11): WebSocket — Django Channels, kanal qatlami Redis'da (ADR-0001).
