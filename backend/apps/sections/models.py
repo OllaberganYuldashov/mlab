@@ -193,7 +193,11 @@ class AccessWindow(models.Model):
     `apps.sections.windows.window_state()` orqali hisoblanadi.
     """
 
-    section = models.ForeignKey(Section, on_delete=models.PROTECT, related_name="windows")
+    # db_index=False: `sections_window_uniq (section, topic)` prefiksi shu FK'ni qoplaydi
+    # (I1-15 sxema ko'rigi).
+    section = models.ForeignKey(
+        Section, on_delete=models.PROTECT, related_name="windows", db_index=False
+    )
     topic = models.ForeignKey(
         "courses.Topic", on_delete=models.PROTECT, related_name="access_windows"
     )
@@ -256,7 +260,8 @@ class IndependentDeadline(models.Model):
                 fields=["section", "assignment"], name="sections_deadline_uniq"
             ),
             models.CheckConstraint(
-                condition=Q(assignment__regex=r"^A[0-9]{2}$"), name="sections_deadline_code"
+                condition=Q(assignment__regex=r"^A(0[1-9]|[1-9][0-9])$"),
+                name="sections_deadline_code",
             ),
         ]
 

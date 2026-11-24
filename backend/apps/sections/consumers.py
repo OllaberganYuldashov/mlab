@@ -53,6 +53,12 @@ class StudentConsumer(AsyncJsonWebsocketConsumer):  # type: ignore[misc]
             for group in (section_group(section_id), user_group(user.pk)):
                 await self.channel_layer.group_add(group, self.channel_name)
                 self.groups_joined.append(group)
+            # Tekshiruv va group_add orasida a'zolik bekor qilinsa, `force.close` hali guruhda
+            # bo'lmagan kanalga yuborilib yo'qoladi. Shuning uchun qo'shilgandan keyin qayta
+            # tekshiramiz (I1-15).
+            if await database_sync_to_async(_approved_section_id_sync)(user) != section_id:
+                await self.close(code=CLOSE_FORBIDDEN)
+                return
         except Exception:  # DB yoki Redis ishlamayapti — toza yopish
             logger.exception("realtime.connect_failed", extra={"event": "realtime.connect_failed"})
             await self.close(code=CLOSE_ERROR)

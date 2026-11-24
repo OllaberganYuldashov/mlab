@@ -238,3 +238,26 @@ def test_acc_05_connection_has_max_lifetime() -> None:
     from apps.sections import consumers
 
     assert consumers.MAX_LIFETIME_SECONDS <= 15 * 60
+
+
+def test_acc_05_membership_revoked_during_connect_is_rejected(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """I1-15 xavfsizlik ko'rigi: tekshiruv va group_add orasida a'zolik bekor qilinsa (force.close
+    yo'qoladi), ulanish qabul qilinmaydi — group_add'dan keyin a'zolik qayta tekshiriladi."""
+    from apps.sections import consumers
+
+    membership = _approved()
+    calls: list[int | None] = []
+    original = consumers._approved_section_id_sync
+
+    def flaky(user: Any) -> int | None:
+        result = (
+            original(user) if not calls else None
+        )  # ikkinchi tekshiruvda allaqachon chiqarilgan
+        calls.append(result)
+        return result
+
+    monkeypatch.setattr(consumers, "_approved_section_id_sync", flaky)
+    assert _connect_sync(membership.student) is False
+    assert calls == [membership.section_id, None]

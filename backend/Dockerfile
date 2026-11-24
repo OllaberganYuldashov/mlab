@@ -28,4 +28,4 @@ RUN mkdir -p /app/staticfiles && chown app:app /app/staticfiles
 USER app
 EXPOSE 8000
 # Healthcheck compose'da (deploy/compose.prod.yaml): PROD'da HTTPS yo'naltirish Host va X-Forwarded-Proto talab qiladi.
-CMD ["uvicorn", "config.asgi:application", "--host", "0.0.0.0", "--port", "8000", "--workers", "2", "--proxy-headers", "--forwarded-allow-ips", "*", "--no-server-header", "--ws-max-size", "65536"]
+CMD ["uvicorn", "config.asgi:application", "--host", "0.0.0.0", "--port", "8000", "--workers", "2", "--proxy-headers", "--forwarded-allow-ips", "*", "--no-server-header", "--no-access-log", "--ws-max-size", "65536"]

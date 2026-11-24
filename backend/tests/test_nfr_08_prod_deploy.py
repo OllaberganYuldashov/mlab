@@ -122,3 +122,10 @@ def test_acc_05_websocket_routed_to_django_with_small_frame_limit() -> None:
     assert "/ws/*" in matcher
     dockerfile = (ROOT / "backend" / "Dockerfile").read_text(encoding="utf-8")
     assert '"--ws-max-size", "65536"' in dockerfile
+
+
+def test_nfr_17_uvicorn_access_log_disabled() -> None:
+    """Uvicorn access log'i JsonFormatter'dan o'tmaydi va `/api/join/<token>` ni ochiq
+    yozardi (I1-15); so'rov logi Django `request.finished` qatorida (yo'l `safe_path` bilan)."""
+    dockerfile = (ROOT / "backend" / "Dockerfile").read_text(encoding="utf-8")
+    assert '"--no-access-log"' in dockerfile
