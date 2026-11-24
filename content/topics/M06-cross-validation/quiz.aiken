@@ -1,0 +1,17 @@
+5-fold cross-validationda model necha marta o'qitiladi?
+A) 1
+B) 5
+C) 10
+ANSWER: B
+
+Stratified k-fold nimani kafolatlaydi?
+A) Har bo'lakda sinflar nisbati bir xil
+B) Har bo'lakda qatorlar tartibi saqlanadi
+C) Test to'plami eng katta
+ANSWER: A
+
+Data leakage'ning oldini olish uchun nima qilinadi?
+A) Masshtablashni butun datasetda o'qitish
+B) Barcha qadamlarni Pipeline ichiga qo'yish
+C) Test to'plamini kattalashtirish
+ANSWER: B

@@ -1,0 +1,17 @@
+Pandas'da bo'sh qiymatlar sonini qaysi ifoda beradi?
+A) df.isna().sum()
+B) df.count_nan()
+C) df.empty()
+ANSWER: A
+
+One-hot kodlash nima qiladi?
+A) Sonlarni 0 va 1 oralig'iga o'tkazadi
+B) Har toifa uchun alohida 0/1 ustun yaratadi
+C) Bo'sh qiymatlarni o'chiradi
+ANSWER: B
+
+Standartlashdan keyin ustunning o'rtachasi va standart og'ishi qanday bo'ladi?
+A) 0 va 1
+B) 1 va 0
+C) 0 va 100
+ANSWER: A

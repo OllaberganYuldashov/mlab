@@ -1,0 +1,17 @@
+Overfittingning belgisi qaysi?
+A) O'qitish xatosi kichik, test xatosi katta
+B) Ikkala xato ham katta
+C) Ikkala xato ham kichik
+ANSWER: A
+
+Lasso regulyarizatsiyasining o'ziga xosligi nima?
+A) Barcha koeffitsiyentlarni bir xil qiladi
+B) Ba'zi koeffitsiyentlarni aynan 0 ga tenglashtiradi
+C) Koeffitsiyentlarni kattalashtiradi
+ANSWER: B
+
+Regulyarizatsiya kuchi (alpha) oshsa, model qanday bo'ladi?
+A) Murakkabroq
+B) Soddaroq
+C) O'zgarmaydi
+ANSWER: B

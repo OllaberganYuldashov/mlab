@@ -1,0 +1,17 @@
+k-NN da "o'qitish" bosqichida nima sodir bo'ladi?
+A) Koeffitsiyentlar hisoblanadi
+B) O'qitish ma'lumoti eslab qolinadi
+C) Daraxt quriladi
+ANSWER: B
+
+Nega k-NN dan oldin belgilarni standartlash kerak?
+A) Masofani katta masshtabli belgilar belgilab qo'ymasligi uchun
+B) Sinflar sonini kamaytirish uchun
+C) Bashoratni tezlashtirish uchun
+ANSWER: A
+
+k kattalashsa, qaror chegarasi qanday o'zgaradi?
+A) Silliqroq bo'ladi
+B) Yirtiqroq bo'ladi
+C) O'zgarmaydi
+ANSWER: A
