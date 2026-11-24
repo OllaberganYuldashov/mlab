@@ -6,7 +6,7 @@
    "velocity_note": "Kuniga 2 tungi run, har biri ~4-5 ball (M=2, S=1). Yakshanba — 1 run + review.",
    "current_release": "R1",
    "current_iteration": "I3",
-   "next_task": "#151 variantlar, #153 sandbox image, #162 shubhali holatlar; PR #131 egasida"
+   "next_task": "#152 Tekshirish (brauzerda testlar), #154 Celery va baholash, #162 shubhali holatlar"
   }
  ]
 }

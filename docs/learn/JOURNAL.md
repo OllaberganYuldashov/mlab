@@ -2,6 +2,19 @@
 
 > Har run oxirida Claude qo'shadi. Eng yangisi yuqorida.
 
+### 2026-11-24 — tungi run 1/2
+- **Bajarilgan issue'lar va PR:** #151 → PR #176 (variant tanlash), #153 → PR #177 (sandbox image va runner). 4 ball.
+- **Nima qilindi (oddiy tilda):** Har talaba topshiriqning o'z variantini oladi: variant maxfiy kalit bilan hisoblanadi,
+  qo'shnisi qaysi variant olganini taxmin qila olmaydi, va bir marta tanlangach o'zgarmaydi. Talaba kodini serverda
+  tekshiradigan "quticha" (sandbox konteyner) tayyor: internet yo'q, fayl yozib bo'lmaydi, xotira va vaqt cheklangan;
+  bularni ataylab buzishga urinadigan 8 ta test haqiqiy Docker'da o'tdi. Yashirin testlarning kodi va xabari talabaga
+  chiqmaydi.
+- **Ishlatilgan skill'lar va nima uchun:** idempotency-and-side-effects (bir vaqtda ochilganda bitta yozuv),
+  security-discipline va algorithmic-complexity-attacks (fork-bomba, cheksiz sikl, katta chiqish),
+  docker-build-strategies (digest va hash bilan qotirilgan image, pip'siz runtime).
+- **Ertalab nimani ko'rish kerak:** `docs/learn/sandbox.md` 6-bo'lim (o'zingiz `docker build` bilan sinash mumkin).
+- **Savollar / bloklar:** yo'q. Ma'lum cheklov (runner bitta jarayonda) — I3-19 ko'rigida.
+
 ### 2026-11-24 — custom run 11 (kunduzi, qo'shimcha)
 - **Bajarilgan issue'lar va PR:** #150 → PR #170 (topshiriq formati), #160 → PR #171 (paste cheklovi). 4 ball.
 - **Nima qilindi (oddiy tilda):** Amaliy topshiriqlar endi fayl ko'rinishida yoziladi (`content/labs/A01-.../`):

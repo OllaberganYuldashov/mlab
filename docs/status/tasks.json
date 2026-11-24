@@ -736,9 +736,9 @@
    "title": "Deterministik variant tanlash (talaba ID asosida) va StudentAssignment",
    "req": "AGR-08, INT-03",
    "size": "M",
-   "status": "ready",
+   "status": "done",
    "outcome": "Har talabaga topshiriq va daraja bo'yicha barqaror variant.",
-   "pr": "",
+   "pr": "#176",
    "points": 2
   },
   {
@@ -762,9 +762,9 @@
    "title": "Sandbox image va runner (sandbox/)",
    "req": "AGR-03, AGR-05",
    "size": "M",
-   "status": "ready",
+   "status": "done",
    "outcome": "Talaba kodi va yashirin testlarni izolyatsiyada bajaradigan konteyner.",
-   "pr": "",
+   "pr": "#177",
    "points": 2
   },
   {
