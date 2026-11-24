@@ -515,9 +515,9 @@
    "title": "Mavzu testi: tasodifiy savollar, vaqt va urinishlar (kurs darajasida), backend",
    "req": "CNT-06",
    "size": "M",
-   "status": "ready",
+   "status": "done",
    "outcome": "Talaba mavzu testini boshlaydi, savollar bankdan tasodifiy tanlanadi, vaqt va urinish chegarasi serverda.",
-   "pr": "",
+   "pr": "#125",
    "points": 2
   },
   {
@@ -528,9 +528,9 @@
    "title": "Frontend: mavzu testi sahifasi — taymer, javoblar, natija",
    "req": "CNT-06, NFR-13",
    "size": "M",
-   "status": "ready",
+   "status": "done",
    "outcome": "Talaba testni ishlaydi va natijasini ko'radi.",
-   "pr": "",
+   "pr": "#127",
    "points": 2
   },
   {
