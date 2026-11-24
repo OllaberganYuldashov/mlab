@@ -11,9 +11,19 @@ test("LAB-01: notebook", async ({ page }) => {
       route.fulfill({ status, contentType: "application/json", body: JSON.stringify(body) });
     if (path === "/api/auth/me")
       return json(200, { hemis_id: "123456789012", full_name: "Sinov Talaba", role: "student", direction: 1, must_change_password: false });
+    if (path === "/api/labs/M01/work") return json(200, { version: 0, notebook: null, saved_at: null, policy: "on_time" });
+    if (path === "/api/course/topics")
+      return json(200, { course: { slug: "ml", title: "ML" }, topics: [{ code: "M01", title: "ML asoslari", order: 1, steps: 1, questions: 0, lab: { status: "open", opens_at: null, closes_at: null } }] });
     return json(404, {});
   });
+  await page.setViewportSize({ width: 1366, height: 768 }); // monoblok (NFR-02 profili)
   await page.goto("/labs/M01");
+  await expect(page.getByRole("heading", { name: "M01. ML asoslari — laboratoriya" })).toBeVisible();
+  // LAB-07: uch ustun — topshiriq chapda, AI tutor o'ngda, notebook o'rtada.
+  const task = await page.getByRole("complementary", { name: messages["lab.task.title"] }).boundingBox();
+  const tutor = await page.getByRole("complementary", { name: messages["lab.tutor.title"] }).boundingBox();
+  const main = await page.getByRole("region", { name: messages["lab.notebook"] }).boundingBox();
+  expect(task && main && tutor && task.x < main.x && main.x < tutor.x).toBe(true);
   const first = page.getByRole("textbox", { name: "Kod katagi 1" });
   await first.click();
   await page.keyboard.type("a = 21\nprint(a * 2)");
