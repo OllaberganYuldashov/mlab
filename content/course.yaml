@@ -10,3 +10,6 @@ defaults:
   late_hours: 0               # ACC-07: yopilgandan keyin necha soat topshirish mumkin (0..168)
   late_penalty_percent: 0     # ACC-07: faqat kurs darajasida (0..100)
   chat_enabled: true          # SET-05
+  quiz_questions: 10          # CNT-06: mavzu testidagi savollar soni (1..50; bank kichik bo'lsa — hammasi)
+  quiz_minutes: 15            # CNT-06: test vaqti, daqiqa (1..180)
+  quiz_attempts: 3            # CNT-06: urinishlar soni (1..10)
