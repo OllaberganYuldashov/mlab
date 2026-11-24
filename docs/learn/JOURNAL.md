@@ -2,6 +2,22 @@
 
 > Har run oxirida Claude qo'shadi. Eng yangisi yuqorida.
 
+### 2026-11-24 — custom run 1/4 (kunduzi)
+- **Bajarilgan issue'lar va PR:** #71 → PR #94 (I1 yakuni), #96 → PR #117 (ADR-0006 Pyodide), #97 → PR #118 (ma'ruza qadamlari formati). 4 ball.
+  I2 21 ta issue'ga bo'lindi (#96–#116, 36 ball); qattiqlashtirish takliflari — #95.
+- **Nima qilindi (oddiy tilda):** I1 yopildi: ikkita mustaqil ko'rik (sxema va xavfsizlik) o'tkazildi va topilganlar tuzatildi —
+  join havolasi server loglariga ochiq yozilardi (endi yo'q), WebSocket ulanishida kichik poyga bor edi. O'qituvchi va talaba
+  ikki brauzerda: guruh → havola → tasdiq → "Hozir ochish" → talabada darhol "Hozir ochiq" — bitta e2e testda.
+  Laboratoriya uchun Pyodide versiyasi va yetkazish usuli tanlandi. Ma'ruzalarga rasm, "sinab ko'r" kodi va tezkor savol qo'shildi.
+- **Ishlatilgan skill'lar va nima uchun:** schema-reviewer va security-reviewer agentlari (CLAUDE.md §9 — I1 oxiri),
+  /hunt-n-plus-one (N+1 yo'q — so'rovlar soni testlari bilan qotirildi), boring-by-default (rasm bazada — yangi volume yo'q),
+  security-discipline (SVG taqiq, fayl boshi tekshiruvi, yo'l travers'i), migration-safety (ikki tomonga sinov).
+- **Saboq:** agent xulosasini ham tekshirish kerak — schema-reviewer "topic indeksi yo'q" dedi, bazada esa bor edi
+  (aksincha `section` indeksi ortiqcha edi).
+- **Yangi texnologiya / tushuncha:** `docs/learn/sections.md`, `docs/learn/pyodide.md`, ADR-0006.
+- **Ertalab nimani ko'rish kerak:** `docs/iterations/I1.md` (talab → test matritsasi), ADR-0006 qarorlari.
+- **Savollar / bloklar:** yo'q.
+
 ### 2026-11-24 — tungi run 2/2
 - **Bajarilgan issue'lar va PR:** #69 → PR #91 (talaba sahifalari), #70 → PR #92 (sozlamalar va oynalar sahifasi). 4 ball.
 - **Nima qilindi (oddiy tilda):** Talaba QR/havola orqali kiradi, ro'yxatdan o'tsa ham shu sahifaga qaytadi, so'rov yuboradi

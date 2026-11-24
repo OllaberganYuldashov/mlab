@@ -21,7 +21,7 @@
    "release": "R1",
    "order": 2,
    "name": "Kontent va laboratoriya",
-   "est_points": 55,
+   "est_points": 36,
    "outcome": "22 ma'ruza qadamlari, Aiken testlari, Pyodide notebook (brauzerda Python), datasetlar, monoblokda sinov."
   },
   {
@@ -53,7 +53,7 @@
    "release": "R1",
    "order": 6,
    "name": "Kurs kontenti (parallel)",
-   "est_points": 130,
+   "est_points": 124,
    "outcome": "M01–M22 ma'ruzalar va A1–A15 amaliy topshiriqlar matni — kod bilan parallel, I2–I5 davomida."
   },
   {
