@@ -3,6 +3,9 @@
 Format: [Keep a Changelog](https://keepachangelog.com/), versiyalar: [SemVer](https://semver.org/).
 
 ## [Unreleased]
+### Security
+- I1 qattiqlashtirish (#95): akkaunt nofaol qilinganda yoki paroli o'zgarganda (tiklash, admin, API — `User` signali) ochiq WebSocket darhol yopiladi (avval 15 daqiqagacha qolardi); bir foydalanuvchiga ko'pi bilan 5 ta bir vaqtdagi WebSocket ulanishi (Redis hisoblagichi, oshsa 4429); guruh yaratish cheklovi `SECTION_CREATE_RATE` (o'qituvchi bo'yicha, 30/hour). Audit CHECK'ini `NOT VALID` bilan kengaytirish — #104 da bajarilgan.
+
 ### Added
 - Kontent M16–M22 (I2-12; CNT-04): perseptron va MLP, backpropagation, CNN (svertka; pooling va arxitektura), RNN, LSTM va GRU, MLOps asoslari — TensorFlow'siz (numpy va scikit-learn: `MLPClassifier`, `load_digits`, qo'lda svertka/pooling, RNN va LSTM qadamlari, joblib, drift tekshiruvi); har birida tezkor savol va 3 tadan Aiken savoli; barcha kod `content-code` e2e'da (22 mavzu). Kurs ma'ruzalari to'liq: M01–M22.
 - Kontent M09–M15 (I2-11; CNT-04, CNT-02, CNT-05): qarorlar daraxti, SVM, metrikalar, k-means va DBSCAN, ierarxik klasterlash, PCA, assotsiativ qoidalar — har birida 5–7 qadam, ishlaydigan kod (mlab datasetlari, scipy dendrogramma, make_moons), tezkor savol, 3 tadan Aiken savoli; barcha kod bloklari `content-code` e2e'da haqiqiy Pyodide'da (15 mavzu ≈ 4 daqiqa).

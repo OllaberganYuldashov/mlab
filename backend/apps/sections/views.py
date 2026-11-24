@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from typing import Any
 
+from django.conf import settings
 from django.db import transaction
 from django.db.models import Count, Q, QuerySet
 from django.utils.translation import gettext_lazy as _
@@ -18,6 +19,7 @@ from rest_framework.pagination import CursorPagination
 from rest_framework.parsers import JSONParser
 from rest_framework.request import Request
 from rest_framework.response import Response
+from rest_framework.throttling import SimpleRateThrottle
 from rest_framework.views import APIView
 
 from apps.accounts.models import Role, User
@@ -59,8 +61,24 @@ def _snapshot(section: Section) -> dict[str, Any]:
     return {field: getattr(section, field) for field in EDITABLE}
 
 
+class SectionCreateThrottle(SimpleRateThrottle):
+    """#95: guruh yaratish — o'qituvchi bo'yicha (`SECTION_CREATE_RATE`)."""
+
+    scope = "section-create"
+
+    def get_rate(self) -> str:
+        return str(settings.SECTION_CREATE_RATE)
+
+    def allow_request(self, request: Request, view: APIView) -> bool:
+        return request.method != "POST" or super().allow_request(request, view)
+
+    def get_cache_key(self, request: Request, view: APIView) -> str:
+        return self.cache_format % {"scope": self.scope, "ident": str(request.user.pk)}
+
+
 class SectionListCreateView(generics.ListCreateAPIView[Section]):
     serializer_class = SectionSerializer
+    throttle_classes = (SectionCreateThrottle,)
     pagination_class = SectionCursorPagination
     parser_classes = (JSONParser,)
 
