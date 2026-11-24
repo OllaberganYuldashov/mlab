@@ -7,8 +7,10 @@ from __future__ import annotations
 
 from typing import ClassVar
 
+from django.conf import settings
 from django.db import models
 from django.db.models import Q
+from django.db.models.functions import Now
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
@@ -26,6 +28,11 @@ AI_MODE_ORDER = [AiMode.OFF, AiMode.GUIDE, AiMode.EXPLAIN, AiMode.FULL]
 MAX_LATE_HOURS = 168  # 7 kun
 
 
+MAX_QUIZ_QUESTIONS = 50
+MAX_QUIZ_MINUTES = 180
+MAX_QUIZ_ATTEMPTS = 10
+
+
 class Course(models.Model):
     slug = models.SlugField(_("slug"), max_length=50, unique=True)
     title = models.TextField(_("nomi"))
@@ -41,6 +48,10 @@ class Course(models.Model):
     late_hours = models.PositiveSmallIntegerField(_("kechikish muddati (soat)"), default=0)
     late_penalty_percent = models.PositiveSmallIntegerField(_("kechikish jarimasi (%)"), default=0)
     chat_enabled = models.BooleanField(_("guruh chati"), default=True)
+    # CNT-06: mavzu testi sozlamalari — faqat kurs darajasida.
+    quiz_questions = models.PositiveSmallIntegerField(_("testdagi savollar soni"), default=10)
+    quiz_minutes = models.PositiveSmallIntegerField(_("test vaqti (daqiqa)"), default=15)
+    quiz_attempts = models.PositiveSmallIntegerField(_("urinishlar soni"), default=3)
 
     class Meta:
         verbose_name = _("kurs")
@@ -56,6 +67,18 @@ class Course(models.Model):
                 condition=Q(late_penalty_percent__lte=100), name="courses_course_late_penalty"
             ),
             models.CheckConstraint(condition=Q(title__regex=r"\S"), name="courses_course_title"),
+            models.CheckConstraint(
+                condition=Q(quiz_questions__gte=1, quiz_questions__lte=MAX_QUIZ_QUESTIONS),
+                name="courses_course_quiz_questions",
+            ),
+            models.CheckConstraint(
+                condition=Q(quiz_minutes__gte=1, quiz_minutes__lte=MAX_QUIZ_MINUTES),
+                name="courses_course_quiz_minutes",
+            ),
+            models.CheckConstraint(
+                condition=Q(quiz_attempts__gte=1, quiz_attempts__lte=MAX_QUIZ_ATTEMPTS),
+                name="courses_course_quiz_attempts",
+            ),
             models.CheckConstraint(
                 condition=Q(content_hash__regex=r"^[0-9a-f]{64}$"), name="courses_course_hash"
             ),
@@ -215,3 +238,65 @@ class Question(models.Model):
 
     def __str__(self) -> str:
         return f"{self.topic_id}/{self.position}: {self.text[:40]}"
+
+
+class QuizAttempt(models.Model):
+    """Mavzu testiga urinish (CNT-06). Savollar va variantlar tartibi `QuizItem` da qotiriladi."""
+
+    student = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="quiz_attempts",
+        db_index=False,
+    )
+    topic = models.ForeignKey(Topic, on_delete=models.PROTECT, related_name="quiz_attempts")
+    number = models.PositiveSmallIntegerField(_("urinish raqami"))
+    started_at = models.DateTimeField(_("boshlangan"), db_default=Now())
+    deadline = models.DateTimeField(_("muddat"))
+    submitted_at = models.DateTimeField(_("topshirilgan"), null=True, blank=True)
+    score = models.PositiveSmallIntegerField(_("ball"), null=True, blank=True)
+    max_score = models.PositiveSmallIntegerField(_("maksimal ball"))
+
+    class Meta:
+        verbose_name = _("test urinishi")
+        verbose_name_plural = _("test urinishlari")
+        constraints: ClassVar[list[models.BaseConstraint]] = [
+            # Prefiks (student) FK indeksini ham qoplaydi.
+            models.UniqueConstraint(
+                fields=["student", "topic", "number"], name="courses_attempt_number_uniq"
+            ),
+            models.CheckConstraint(condition=Q(number__gte=1), name="courses_attempt_number"),
+            models.CheckConstraint(
+                condition=Q(submitted_at__isnull=True, score__isnull=True)
+                | Q(submitted_at__isnull=False, score__isnull=False),
+                name="courses_attempt_submitted_score",
+            ),
+            models.CheckConstraint(
+                condition=Q(score__isnull=True) | Q(score__lte=models.F("max_score")),
+                name="courses_attempt_score_max",
+            ),
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.student_id}/{self.topic_id} #{self.number}"
+
+
+class QuizItem(models.Model):
+    attempt = models.ForeignKey(QuizAttempt, on_delete=models.CASCADE, related_name="items")
+    question = models.ForeignKey(Question, on_delete=models.PROTECT, related_name="quiz_items")
+    position = models.PositiveSmallIntegerField(_("tartib"))
+    # Talabaga ko'rsatilgan tartib: order[i] — i-o'rindagi variantning savoldagi indeksi.
+    order = models.JSONField(_("variantlar tartibi"))
+    chosen = models.PositiveSmallIntegerField(_("tanlangan (ko'rsatilgan indeks)"), null=True)
+
+    class Meta:
+        verbose_name = _("test savoli")
+        verbose_name_plural = _("test savollari")
+        constraints: ClassVar[list[models.BaseConstraint]] = [
+            models.UniqueConstraint(
+                fields=["attempt", "position"], name="courses_item_position_uniq"
+            ),
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.attempt_id}/{self.position}"

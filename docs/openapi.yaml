@@ -137,6 +137,54 @@ paths:
                 type: string
                 format: binary
           description: ''
+  /api/course/quiz/attempts/{attempt_id}:
+    get:
+      operationId: course_quiz_attempts_retrieve
+      summary: Urinish (javoblar faqat topshirilgandan keyin)
+      parameters:
+      - in: path
+        name: attempt_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - course
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuizAttemptOut'
+          description: ''
+  /api/course/quiz/attempts/{attempt_id}/submit:
+    post:
+      operationId: course_quiz_attempts_submit_create
+      summary: Testni topshirish
+      parameters:
+      - in: path
+        name: attempt_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - course
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QuizSubmitInRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuizAttemptOut'
+          description: ''
   /api/course/topics:
     get:
       operationId: course_topics_retrieve
@@ -172,6 +220,54 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/LectureOut'
+          description: ''
+  /api/course/topics/{code}/quiz:
+    get:
+      operationId: course_topics_quiz_retrieve
+      summary: 'Mavzu testi: sozlamalar va mening urinishlarim'
+      parameters:
+      - in: path
+        name: code
+        schema:
+          type: string
+        required: true
+      tags:
+      - course
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuizSummary'
+          description: ''
+  /api/course/topics/{code}/quiz/attempts:
+    post:
+      operationId: course_topics_quiz_attempts_create
+      summary: Testni boshlash
+      parameters:
+      - in: path
+        name: code
+        schema:
+          type: string
+        required: true
+      tags:
+      - course
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuizAttemptOut'
+          description: ''
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuizAttemptOut'
           description: ''
   /api/directions:
     get:
@@ -1722,6 +1818,129 @@ components:
           type: string
       required:
       - version
+    QuizAttemptBrief:
+      type: object
+      properties:
+        id:
+          type: integer
+        number:
+          type: integer
+        score:
+          type: integer
+          nullable: true
+        max_score:
+          type: integer
+        submitted_at:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+      - id
+      - max_score
+      - number
+      - score
+      - submitted_at
+    QuizAttemptOut:
+      type: object
+      properties:
+        id:
+          type: integer
+        number:
+          type: integer
+        deadline:
+          type: string
+          format: date-time
+        server_time:
+          type: string
+          format: date-time
+        submitted_at:
+          type: string
+          format: date-time
+          nullable: true
+        score:
+          type: integer
+          nullable: true
+        max_score:
+          type: integer
+        questions:
+          type: array
+          items:
+            $ref: '#/components/schemas/QuizQuestionOut'
+      required:
+      - deadline
+      - id
+      - max_score
+      - number
+      - questions
+      - score
+      - server_time
+      - submitted_at
+    QuizQuestionOut:
+      type: object
+      properties:
+        position:
+          type: integer
+        text:
+          type: string
+        options:
+          type: array
+          items:
+            type: string
+        chosen:
+          type: integer
+          nullable: true
+        answer:
+          type: integer
+        correct:
+          type: boolean
+      required:
+      - options
+      - position
+      - text
+    QuizSettings:
+      type: object
+      properties:
+        questions:
+          type: integer
+        minutes:
+          type: integer
+        attempts:
+          type: integer
+      required:
+      - attempts
+      - minutes
+      - questions
+    QuizSubmitInRequest:
+      type: object
+      properties:
+        answers:
+          type: object
+          additionalProperties:
+            type: integer
+      required:
+      - answers
+    QuizSummary:
+      type: object
+      properties:
+        settings:
+          $ref: '#/components/schemas/QuizSettings'
+        available_questions:
+          type: integer
+        used_attempts:
+          type: integer
+        active_attempt:
+          type: integer
+          nullable: true
+        attempts:
+          type: array
+          items:
+            $ref: '#/components/schemas/QuizAttemptBrief'
+      required:
+      - active_attempt
+      - attempts
+      - available_questions
+      - settings
+      - used_attempts
     Register:
       type: object
       properties:

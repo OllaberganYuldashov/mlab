@@ -22,6 +22,9 @@ from apps.courses.aiken import AikenError, AikenQuestion, parse_aiken
 from apps.courses.models import (
     MAX_IMAGE_BYTES,
     MAX_LATE_HOURS,
+    MAX_QUIZ_ATTEMPTS,
+    MAX_QUIZ_MINUTES,
+    MAX_QUIZ_QUESTIONS,
     AiMode,
     Course,
     ImageType,
@@ -379,6 +382,10 @@ _DEFAULTS: dict[str, tuple[type, Any, str]] = {
     "late_hours": (int, lambda v: 0 <= v <= MAX_LATE_HOURS, f"0..{MAX_LATE_HOURS} soat"),
     "late_penalty_percent": (int, lambda v: 0 <= v <= 100, "0..100"),
     "chat_enabled": (bool, lambda v: True, "true yoki false"),
+    # CNT-06: mavzu testi (faqat kurs darajasida)
+    "quiz_questions": (int, lambda v: 1 <= v <= MAX_QUIZ_QUESTIONS, f"1..{MAX_QUIZ_QUESTIONS}"),
+    "quiz_minutes": (int, lambda v: 1 <= v <= MAX_QUIZ_MINUTES, f"1..{MAX_QUIZ_MINUTES} daqiqa"),
+    "quiz_attempts": (int, lambda v: 1 <= v <= MAX_QUIZ_ATTEMPTS, f"1..{MAX_QUIZ_ATTEMPTS}"),
 }
 
 
