@@ -4,6 +4,9 @@ Format: [Keep a Changelog](https://keepachangelog.com/), versiyalar: [SemVer](ht
 
 ## [Unreleased]
 ### Added
+- Sandbox image va runner (I3-05; AGR-03, AGR-05; ADR-0007): `sandbox/Dockerfile` (Python 3.14.10 digest bilan, Pyodide bilan bir xil paketlar hash bilan, UID 10003, pip'siz), `sandbox/runner.py` (stdin/stdout JSON, har test alohida vaqt chegarasi, yashirin test nomi va xabari oshkor emas, talaba chiqishi natijani soxtalashtira olmaydi, chiqish 64 KB / natija 256 KB), `mlab.load` image ichida. Runner testlari CI'da (backend), hujum testlari (`sandbox/tests`) Docker bilan — CI job'i I3-18 da.
+
+### Added
 - Lokal demo (#173): `docker compose up --build` → http://localhost:8080 — prod Dockerfile'lar va Caddyfile bilan butun ilova; `migrate` servisi migratsiya, `collectstatic`, `import_content` va yangi `seed_demo` (demo admin, o'qituvchi, 3 talaba, guruh, ochiq oynalar; idempotent, prod'da rad) ni bajaradi. `.gitattributes` (LF), Vite dev proxy va `predev` Pyodide yuklash. Dars: `docs/learn/local-run.md` (Windows).
 
 ### Added

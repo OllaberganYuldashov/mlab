@@ -1,0 +1,6 @@
+# Sandbox kodi backend bilan bir xil qoidalarda (`cd backend && uv run ruff check ../sandbox`).
+extend = "../backend/pyproject.toml"
+
+[lint.per-file-ignores]
+# Hujum testlari: assert, docker CLI va konteyner ichidagi /tmp (tmpfs) — xavfsiz.
+"tests/**" = ["S101", "S108", "S603", "S607"]
