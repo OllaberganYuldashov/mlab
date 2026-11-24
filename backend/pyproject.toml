@@ -15,6 +15,7 @@ dependencies = [
     "channels>=4.2,<5",
     "channels-redis>=4.2,<5",
     "websockets>=13,<16",
+    "celery[redis]>=5.5,<6",
 ]
 
 [dependency-groups]
@@ -29,6 +30,7 @@ dev = [
     "pip-audit>=2.9",
     "faker>=40",
     "types-pyyaml>=6.0",
+    "celery-types>=0.23",
 ]
 
 [tool.uv]

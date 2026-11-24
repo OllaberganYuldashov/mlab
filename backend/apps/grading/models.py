@@ -191,3 +191,80 @@ class StudentAssignment(models.Model):
 
     def __str__(self) -> str:
         return f"{self.student_id}/{self.assignment_id} {self.level}"
+
+
+class SubmissionStatus(models.TextChoices):
+    QUEUED = "queued", _("navbatda")
+    RUNNING = "running", _("tekshirilmoqda")
+    DONE = "done", _("baholandi")
+    ERROR = "error", _("xato")
+
+
+class Submission(models.Model):
+    """Topshirilgan kod va uning bahosi (AGR-02, AGR-04, AGR-06; I3-06).
+
+    Holat faqat oldinga: `queued → running → done | error`. Infratuzilma xatosida (sandbox javob
+    bermadi) `running → queued` qaytadi va qayta uriniladi; talaba kodi xatosi — `done` (0 ball).
+    Har urinish alohida yozuv (AGR-06): eng yuqori ball — I3-08.
+    """
+
+    student_assignment = models.ForeignKey(
+        StudentAssignment,
+        on_delete=models.PROTECT,
+        related_name="submissions",
+        db_index=False,  # (student_assignment, created_at) indeksi prefiks sifatida qoplaydi
+    )
+    code = models.TextField(_("kod"))
+    status = models.CharField(
+        _("holat"),
+        max_length=8,
+        choices=SubmissionStatus.choices,
+        default=SubmissionStatus.QUEUED,
+    )
+    score = models.PositiveSmallIntegerField(_("ball"), null=True, blank=True)
+    result = models.JSONField(_("natija"), null=True, blank=True)
+    error = models.CharField(_("infratuzilma xatosi"), max_length=32, blank=True)
+    attempts = models.PositiveSmallIntegerField(_("urinishlar"), default=0)
+    created_at = models.DateTimeField(_("topshirilgan"), default=timezone.now)
+    started_at = models.DateTimeField(_("boshlangan"), null=True, blank=True)
+    finished_at = models.DateTimeField(_("tugagan"), null=True, blank=True)
+
+    class Meta:
+        verbose_name = _("topshirish")
+        verbose_name_plural = _("topshirishlar")
+        indexes: ClassVar[list[models.Index]] = [
+            models.Index(
+                fields=["student_assignment", "created_at"], name="grading_submission_sa_created"
+            ),
+            # Navbat uzunligi va "osilib qolgan" yozuvlarni qayta navbatga qo'yish uchun.
+            models.Index(
+                fields=["created_at"],
+                name="grading_submission_pending",
+                condition=Q(status__in=["queued", "running"]),
+            ),
+        ]
+        constraints: ClassVar[list[models.BaseConstraint]] = [
+            models.CheckConstraint(
+                condition=Q(status__in=SubmissionStatus.values), name="grading_submission_status"
+            ),
+            models.CheckConstraint(
+                condition=Q(score__isnull=True) | Q(score__lte=100),
+                name="grading_submission_score",
+            ),
+            models.CheckConstraint(
+                condition=~Q(status="done")
+                | Q(score__isnull=False, result__isnull=False, finished_at__isnull=False),
+                name="grading_submission_done_complete",
+            ),
+            models.CheckConstraint(
+                condition=~Q(status="error") | (Q(finished_at__isnull=False) & ~Q(error="")),
+                name="grading_submission_error_reason",
+            ),
+            models.CheckConstraint(
+                condition=~Q(status="running") | Q(started_at__isnull=False),
+                name="grading_submission_running_started",
+            ),
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.pk} {self.status}"
