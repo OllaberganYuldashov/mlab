@@ -1,0 +1,23 @@
+Mashinali o'qitishda model qoidalarni qayerdan oladi?
+A) Dasturchi yozgan if/else shartlaridan
+B) Ma'lumotlardagi misollardan
+C) Internetdan avtomatik
+ANSWER: B
+
+Uy narxini maydoni bo'yicha bashorat qilish qaysi turdagi masala?
+A) Nazoratli o'qitish (regressiya)
+B) Nazoratsiz o'qitish (klasterlash)
+C) Mustahkamlovchi o'qitish
+ANSWER: A
+
+Mijozlarni javoblarsiz, o'xshashligiga qarab guruhlash qaysi tur?
+A) Nazoratli
+B) Nazoratsiz
+C) Mustahkamlovchi
+ANSWER: B
+
+"Belgi" (feature) nima?
+A) Model bashorat qiladigan javob
+B) Misolni tavsiflovchi kirish xususiyati
+C) Modelning xatosi
+ANSWER: B

@@ -18,6 +18,7 @@ from django.db import transaction
 from django.db.models import Field, ProtectedError
 from django.utils import timezone
 
+from apps.courses.aiken import AikenError, AikenQuestion, parse_aiken
 from apps.courses.models import (
     MAX_IMAGE_BYTES,
     MAX_LATE_HOURS,
@@ -27,6 +28,7 @@ from apps.courses.models import (
     Lecture,
     LectureImage,
     LectureStep,
+    Question,
     Topic,
 )
 
@@ -84,6 +86,7 @@ class TopicData:
     lecture_title: str
     steps: tuple[StepData, ...]
     images: tuple[ImageData, ...] = ()
+    questions: tuple[AikenQuestion, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -346,7 +349,17 @@ def load_course(root: Path) -> CourseData:
         lecture_title, steps, images = _parse_lecture(
             reader, topic_dir, reader.rel(lecture_path), reader.read(lecture_path)
         )
-        topics.append(TopicData(code, meta["title"].strip(), order, lecture_title, steps, images))
+        questions: tuple[AikenQuestion, ...] = ()
+        quiz_path = topic_dir / "quiz.aiken"
+        if quiz_path.exists():
+            quiz_rel = reader.rel(quiz_path)
+            try:
+                questions = parse_aiken(reader.read(quiz_path))
+            except AikenError as exc:
+                raise ContentError(quiz_rel, exc.line, exc.message) from exc
+        topics.append(
+            TopicData(code, meta["title"].strip(), order, lecture_title, steps, images, questions)
+        )
 
     return CourseData(
         slug=course["slug"],
@@ -481,7 +494,34 @@ def apply(data: CourseData) -> ImportReport:
             elif _sync(current, values):
                 report.bump("updated", "step")
         _sync_images(topic, item.images, report)
+        _sync_questions(topic, item.questions, report)
     return report
+
+
+def _sync_questions(
+    topic: Topic, questions: tuple[AikenQuestion, ...], report: ImportReport
+) -> None:
+    """CNT-05: tabiiy kalit bo'yicha yaratadi/yangilaydi; fayldan yo'qolgani arxivga
+    o'tadi (o'chirilmaydi)."""
+    existing = {q.key: q for q in Question.objects.filter(topic=topic)}
+    wanted = {q.key for q in questions}
+    for key, current in existing.items():
+        if key not in wanted and _sync(current, {"is_active": False}):
+            report.bump("updated", "question")
+    for position, item in enumerate(questions, start=1):
+        values = {
+            "text": item.text,
+            "options": list(item.options),
+            "answer": item.answer,
+            "position": position,
+            "is_active": True,
+        }
+        found = existing.get(item.key)
+        if found is None:
+            Question.objects.create(topic=topic, key=item.key, **values)
+            report.bump("created", "question")
+        elif _sync(found, values):
+            report.bump("updated", "question")
 
 
 def _sync_images(topic: Topic, images: tuple[ImageData, ...], report: ImportReport) -> None:

@@ -29,6 +29,13 @@ Qadam ichida (CNT-02, I2-02):
   ```
   ````
 
+## Mavzu testi (CNT-05, Aiken)
+
+`topics/<KOD>-<slug>/quiz.aiken` — savollar banki (ixtiyoriy fayl). Har savol: matn (bir yoki bir necha qator),
+`A)` yoki `A.` bilan 2–6 variant, `ANSWER: <harf>`, keyin bo'sh qator. Moodle'dan eksport qilingan fayl (BOM, CRLF)
+ham o'qiladi. Fayldan olib tashlangan savol bazadan o'chirilmaydi — arxivlanadi (eski urinishlar saqlanadi).
+Savol matni o'zgarsa — u yangi savol hisoblanadi (eski arxivga); faqat variantlar o'zgarsa — o'sha savol yangilanadi.
+
 ## Rejalashtirilgan tuzilma
 
 ```text

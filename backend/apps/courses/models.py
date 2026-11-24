@@ -178,3 +178,40 @@ class LectureImage(models.Model):
 
     def __str__(self) -> str:
         return f"{self.topic_id}/{self.name}"
+
+
+class Question(models.Model):
+    """Mavzu savollar banki (CNT-05/06). Manba — `topics/<KOD>/quiz.aiken`.
+
+    Tabiiy kalit `key` — savol matnining NFC xeshi (`apps.courses.aiken.question_key`).
+    Fayldan olib tashlangan savol o'chirilmaydi, `is_active=False` bo'ladi: test urinishlari
+    (I2-07) unga bog'lanadi. To'g'ri javob (`answer`) talaba API'siga topshirishdan oldin chiqmaydi.
+    """
+
+    topic = models.ForeignKey(
+        Topic, on_delete=models.CASCADE, related_name="questions", db_index=False
+    )
+    key = models.CharField(_("kalit (matn xeshi)"), max_length=64)
+    text = models.TextField(_("savol"))
+    options = models.JSONField(_("variantlar"))
+    answer = models.PositiveSmallIntegerField(_("to'g'ri variant (0 dan)"))
+    position = models.PositiveSmallIntegerField(_("fayldagi tartib"))
+    is_active = models.BooleanField(_("faol"), default=True)
+
+    class Meta:
+        verbose_name = _("savol")
+        verbose_name_plural = _("savollar")
+        ordering = ("topic", "position")
+        constraints: ClassVar[list[models.BaseConstraint]] = [
+            # Prefiks (topic) FK indeksini ham qoplaydi.
+            models.UniqueConstraint(fields=["topic", "key"], name="courses_question_key_uniq"),
+            models.CheckConstraint(
+                condition=Q(key__regex=r"^[0-9a-f]{64}$"), name="courses_question_key_format"
+            ),
+            models.CheckConstraint(condition=Q(text__regex=r"\S"), name="courses_question_text"),
+            models.CheckConstraint(condition=Q(answer__lte=5), name="courses_question_answer"),
+            models.CheckConstraint(condition=Q(position__gte=1), name="courses_question_position"),
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.topic_id}/{self.position}: {self.text[:40]}"

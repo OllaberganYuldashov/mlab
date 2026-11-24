@@ -46,3 +46,5 @@ content/
 - **2026-11-24 (I2-02):** qadam ichida rasm (`images/` dan, PNG/JPEG/WebP ≤ 500 KB, baytlar bazada — `LectureImage`),
   ```` ```python try ```` kod bloki va ```` ```quiz ```` YAML bloki (`LectureStep.question`). Rasm baytlari `content_hash` ga kiradi.
   Format misoli: `content/README.md`.
+- **2026-11-24 (I2-06):** `topics/<KOD>/quiz.aiken` — Aiken savollar banki (`Question`, kalit — NFC matn xeshi,
+  olib tashlangan savol arxivlanadi, o'chirilmaydi).
