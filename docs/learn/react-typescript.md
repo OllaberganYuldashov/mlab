@@ -81,3 +81,13 @@ To'liq asoslash: `docs/adr/0001-stack.md`.
 - `src/pages/SectionsPage.tsx`, `SectionPage.tsx` — har bo'lim (havola, so'rovlar, a'zolar, sozlamalar) alohida kichik komponent.
 - QR `src/qr.ts` da brauzerda yasaladi (ADR-0005): maxfiy token begona serverga ketmaydi; SVG `<img src="data:...">` orqali, `innerHTML` ishlatilmaydi.
 - Mashq: `src/pages/sections-pages.test.tsx` dagi "ommaviy tasdiqlash" testini o'qing va `mockApi` handler'i so'rov tanasini qanday tekshirishini toping.
+
+## Markdown'ni xavfsiz ko'rsatish (I2-04)
+
+Ma'ruza matni Markdown'da. Uni HTML satriga aylantirib `dangerouslySetInnerHTML` bilan qo'yish oson, lekin matnga
+`<script>` yoki `<img onerror=...>` tushsa, u brauzerda bajariladi (XSS). Biz boshqa yo'ldan bordik: kichik parser matnni
+bloklarga (sarlavha, paragraf, ro'yxat, kod) va qator ichidagi belgilarga (qalin, kursiv, kod, havola, rasm) ajratadi va
+har birini **React elementi** sifatida yasaydi. React matnni doim matn sifatida qo'yadi, shuning uchun HTML teglari
+ekranda oddiy belgilar bo'lib ko'rinadi. Havolada `javascript:` kabi sxemalar rad etiladi, rasm faqat o'z serverimizdan.
+Yangi kutubxona kerak bo'lmadi; jadval kabi murakkab narsalar kerak bo'lsa — ADR bilan `react-markdown` ko'rib chiqiladi.
+

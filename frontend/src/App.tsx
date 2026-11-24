@@ -6,6 +6,8 @@ import LoginPage from "./pages/LoginPage";
 import PolicyPage from "./pages/PolicyPage";
 import RegisterPage from "./pages/RegisterPage";
 import JoinPage from "./pages/JoinPage";
+import LecturePage from "./pages/LecturePage";
+import TopicsPage from "./pages/TopicsPage";
 import SectionPage from "./pages/SectionPage";
 import StudentHome from "./pages/StudentHome";
 import { nextParam } from "./nav";
@@ -32,6 +34,7 @@ function Home({
           <p>{t("app.greeting", { name: me.full_name })}</p>
           {me.role === "student" && <StudentHome />}
           <p className="links">
+            <Link to="/topics">{t("nav.topics")}</Link>
             {me.role === "instructor" && <Link to="/sections">{t("nav.sections")}</Link>}
             <Link to="/change-password">{t("password.title")}</Link>
           </p>
@@ -132,6 +135,8 @@ export default function App() {
   const forcedPath = me?.must_change_password ? "/change-password" : path;
   const joinMatch = /^\/join\/([A-Za-z0-9_-]{1,64})$/.exec(forcedPath);
   if (joinMatch?.[1]) return <JoinPage token={joinMatch[1]} me={me} />;
+  const topicMatch = /^\/topics\/([A-Z][0-9]{2})$/.exec(forcedPath);
+  if (topicMatch?.[1] && me) return <LecturePage code={topicMatch[1]} />;
   const sectionMatch = /^\/sections\/(\d+)$/.exec(forcedPath);
   if (sectionMatch && me?.role === "instructor") {
     return <SectionPage sectionId={Number(sectionMatch[1])} />;
@@ -169,6 +174,9 @@ export default function App() {
           }}
         />
       );
+    case "/topics":
+      if (me) return <TopicsPage />;
+      return <NotFound />;
     case "/sections":
       if (me?.role === "instructor") return <SectionsPage />;
       return <NotFound />;
