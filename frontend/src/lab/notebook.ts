@@ -46,5 +46,8 @@ export function moveCell(nb: Notebook, index: number, delta: -1 | 1): Notebook {
 }
 
 export function setSource(nb: Notebook, id: string, source: string): Notebook {
-  return { ...nb, cells: nb.cells.map((c) => (c.id === id ? { ...c, source } : c)) };
+  return {
+    ...nb,
+    cells: nb.cells.map((c) => (c.id === id ? { ...c, source } : c)),
+  };
 }

@@ -5,6 +5,9 @@ Talaba: `GET/PUT /api/labs/{code}/work` — faqat tasdiqlangan guruhi va o'z ish
 yopiq — 403 `lab_closed`.
 Optimistik qulf: mijoz o'zi ko'rgan `version` ni yuboradi; eskirgan bo'lsa 409 va serverdagi holat.
 Bir xil saqlashni qayta yuborish (javob yo'qolgan) — o'sha natija (idempotent).
+INT-01: `GET work` paste qoidalarini ham beradi (`paste_limit`, `proctored`);
+`POST /api/labs/{code}/events` — har paste qaydi (faqat hajm va katak, matn emas). Rad etilganmi —
+server o'zi hal qiladi (mijozga ishonilmaydi).
 O'qituvchi: `GET /api/sections/{id}/labs/{code}/works/{student_id}` — faqat o'z guruhi
 (begona — 404).
 """
@@ -28,11 +31,14 @@ from rest_framework.views import APIView
 from apps.accounts.models import User
 from apps.accounts.permissions import IsStudent
 from apps.courses.models import Topic
-from apps.labs.models import LabWork
+from apps.labs.models import LabEvent, LabEventKind, LabWork
 from apps.labs.notebook import NotebookError, validate_notebook
 from apps.sections.member_views import STAFF_OR_INSTRUCTOR, _visible_section_id
-from apps.sections.models import Membership, Section
+from apps.sections.models import AccessWindow, Membership, Section
 from apps.sections.policy import SubmissionStatus, submission_policy
+
+# Bufer hajmi juda katta bo'lsa ham son sifatida yoziladi; undan kattasi — yolg'on qiymat.
+MAX_PASTE_SIZE = 10_000_000
 
 
 class LabSaveThrottle(SimpleRateThrottle):
@@ -50,6 +56,16 @@ class LabSaveThrottle(SimpleRateThrottle):
         return self.cache_format % {"scope": self.scope, "ident": str(request.user.pk)}
 
 
+class LabEventThrottle(LabSaveThrottle):
+    scope = "lab-event"
+
+    def get_rate(self) -> str:
+        return str(settings.LAB_EVENT_RATE)
+
+    def allow_request(self, request: Request, view: APIView) -> bool:
+        return SimpleRateThrottle.allow_request(self, request, view)
+
+
 WorkOut = inline_serializer(
     "LabWorkOut",
     {
@@ -57,8 +73,25 @@ WorkOut = inline_serializer(
         "notebook": serializers.JSONField(allow_null=True),
         "saved_at": serializers.DateTimeField(allow_null=True),
         "policy": serializers.ChoiceField(choices=[s.value for s in SubmissionStatus]),
+        "paste_limit": serializers.IntegerField(),
+        "proctored": serializers.BooleanField(),
     },
 )
+EventOut = inline_serializer("LabEventOut", {"blocked": serializers.BooleanField()})
+
+
+class _EventIn(serializers.Serializer[dict[str, Any]]):
+    kind = serializers.ChoiceField(choices=["paste"])
+    size = serializers.IntegerField(min_value=0, max_value=MAX_PASTE_SIZE)
+    cell = serializers.RegexField(r"^[A-Za-z0-9_-]{1,64}\Z")
+
+
+def paste_rules(section: Section, topic: Topic) -> tuple[int, bool]:
+    """INT-01, ACC-09: (chegara, nazorat rejimi). Nazorat rejimida paste umuman taqiq."""
+    window = AccessWindow.objects.filter(section=section, topic=topic).only("proctored").first()
+    return section.course.paste_limit, bool(window and window.proctored)
+
+
 SaveOut = inline_serializer(
     "LabSaveOut",
     {
@@ -76,7 +109,7 @@ SaveIn = inline_serializer(
 def _student_context(user: Any, code: str) -> tuple[User, Section, Topic]:
     assert isinstance(user, User)  # IsStudent kafolatlaydi  # noqa: S101
     membership = (
-        Membership.objects.approved().filter(student=user).select_related("section").first()
+        Membership.objects.approved().filter(student=user).select_related("section__course").first()
     )
     if membership is None:
         raise PermissionDenied("Siz hali tasdiqlangan guruh a'zosi emassiz.")
@@ -86,12 +119,17 @@ def _student_context(user: Any, code: str) -> tuple[User, Section, Topic]:
     return user, membership.section, topic
 
 
-def _work_payload(work: LabWork | None, policy: SubmissionStatus) -> dict[str, Any]:
+def _work_payload(
+    work: LabWork | None, policy: SubmissionStatus, section: Section, topic: Topic
+) -> dict[str, Any]:
+    limit, proctored = paste_rules(section, topic)
     return {
         "version": work.version if work else 0,
         "notebook": work.notebook if work else None,
         "saved_at": work.saved_at if work else None,
         "policy": policy.value,
+        "paste_limit": limit,
+        "proctored": proctored,
     }
 
 
@@ -116,7 +154,8 @@ class MyLabWorkView(APIView):
     def get(self, request: Request, code: str) -> Response:
         student, section, topic = _student_context(request.user, code)
         work = LabWork.objects.filter(student=student, section=section, topic=topic).first()
-        return Response(_work_payload(work, submission_policy(section, topic, timezone.now())))
+        policy = submission_policy(section, topic, timezone.now())
+        return Response(_work_payload(work, policy, section, topic))
 
     @extend_schema(
         request=SaveIn,
@@ -176,11 +215,36 @@ class StudentLabWorkView(APIView):
         _visible_section_id(request.user, section_id)
         work = (
             LabWork.objects.filter(section_id=section_id, topic__code=code, student_id=student_id)
-            .select_related("section", "topic")
+            .select_related("section__course", "topic")
             .first()
         )
         if work is None:
             raise NotFound
-        return Response(
-            _work_payload(work, submission_policy(work.section, work.topic, timezone.now()))
+        policy = submission_policy(work.section, work.topic, timezone.now())
+        return Response(_work_payload(work, policy, work.section, work.topic))
+
+
+class MyLabEventView(APIView):
+    """INT-01: paste qaydi. Rad etish chegarasi serverda qayta hisoblanadi."""
+
+    permission_classes = (IsStudent,)
+    parser_classes = (JSONParser,)
+    throttle_classes = (LabEventThrottle,)
+
+    @extend_schema(request=_EventIn, responses={201: EventOut}, summary="Laboratoriya hodisasi")
+    def post(self, request: Request, code: str) -> Response:
+        student, section, topic = _student_context(request.user, code)
+        data = _EventIn(data=request.data)
+        data.is_valid(raise_exception=True)
+        size = data.validated_data["size"]
+        limit, proctored = paste_rules(section, topic)
+        blocked = proctored or size > limit
+        LabEvent.objects.create(
+            student=student,
+            section=section,
+            topic=topic,
+            kind=LabEventKind.PASTE_BLOCKED if blocked else LabEventKind.PASTE,
+            size=size,
+            cell=data.validated_data["cell"],
         )
+        return Response({"blocked": blocked}, status=status.HTTP_201_CREATED)

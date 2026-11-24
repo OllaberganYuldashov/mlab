@@ -431,6 +431,34 @@ paths:
               schema:
                 $ref: '#/components/schemas/JoinRefused'
           description: ''
+  /api/labs/{code}/events:
+    post:
+      operationId: labs_events_create
+      description: 'INT-01: paste qaydi. Rad etish chegarasi serverda qayta hisoblanadi.'
+      summary: Laboratoriya hodisasi
+      parameters:
+      - in: path
+        name: code
+        schema:
+          type: string
+        required: true
+      tags:
+      - labs
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/_EventInRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LabEventOut'
+          description: ''
   /api/labs/{code}/work:
     get:
       operationId: labs_work_retrieve
@@ -1497,6 +1525,18 @@ components:
       required:
       - join_path
       - token
+    KindEnum:
+      enum:
+      - paste
+      type: string
+      description: '* `paste` - paste'
+    LabEventOut:
+      type: object
+      properties:
+        blocked:
+          type: boolean
+      required:
+      - blocked
     LabSaveInRequest:
       type: object
       properties:
@@ -1551,9 +1591,15 @@ components:
           nullable: true
         policy:
           $ref: '#/components/schemas/PolicyEnum'
+        paste_limit:
+          type: integer
+        proctored:
+          type: boolean
       required:
       - notebook
+      - paste_limit
       - policy
+      - proctored
       - saved_at
       - version
     LectureOut:
@@ -2336,6 +2382,23 @@ components:
           default: false
       required:
       - mode
+    _EventInRequest:
+      type: object
+      properties:
+        kind:
+          $ref: '#/components/schemas/KindEnum'
+        size:
+          type: integer
+          maximum: 10000000
+          minimum: 0
+        cell:
+          type: string
+          minLength: 1
+          pattern: ^[A-Za-z0-9_-]{1,64}$
+      required:
+      - cell
+      - kind
+      - size
   securitySchemes:
     cookieAuth:
       type: apiKey

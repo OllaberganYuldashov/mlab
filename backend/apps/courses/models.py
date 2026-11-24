@@ -31,6 +31,7 @@ MAX_LATE_HOURS = 168  # 7 kun
 MAX_QUIZ_QUESTIONS = 50
 MAX_QUIZ_MINUTES = 180
 MAX_QUIZ_ATTEMPTS = 10
+MAX_PASTE_LIMIT = 10_000
 
 
 class Course(models.Model):
@@ -52,6 +53,8 @@ class Course(models.Model):
     quiz_questions = models.PositiveSmallIntegerField(_("testdagi savollar soni"), default=10)
     quiz_minutes = models.PositiveSmallIntegerField(_("test vaqti (daqiqa)"), default=15)
     quiz_attempts = models.PositiveSmallIntegerField(_("urinishlar soni"), default=3)
+    # INT-01: laboratoriyada bir martada joylashtirish mumkin bo'lgan belgilar soni.
+    paste_limit = models.PositiveSmallIntegerField(_("paste chegarasi (belgi)"), default=200)
 
     class Meta:
         verbose_name = _("kurs")
@@ -78,6 +81,9 @@ class Course(models.Model):
             models.CheckConstraint(
                 condition=Q(quiz_attempts__gte=1, quiz_attempts__lte=MAX_QUIZ_ATTEMPTS),
                 name="courses_course_quiz_attempts",
+            ),
+            models.CheckConstraint(
+                condition=Q(paste_limit__lte=MAX_PASTE_LIMIT), name="courses_course_paste_limit"
             ),
             models.CheckConstraint(
                 condition=Q(content_hash__regex=r"^[0-9a-f]{64}$"), name="courses_course_hash"

@@ -4,7 +4,9 @@
  */
 import type { FromWorker, ToWorker } from "./protocol";
 
-export type RunEvent = { kind: "stdout" | "stderr"; text: string } | { kind: "figure"; png: string };
+export type RunEvent =
+  | { kind: "stdout" | "stderr"; text: string }
+  | { kind: "figure"; png: string };
 export interface RunResult {
   ok: boolean;
   result: string | null;
@@ -25,7 +27,9 @@ interface Pending {
 }
 
 function defaultWorker(): WorkerLike {
-  return new Worker(new URL("./pyodide.worker.ts", import.meta.url), { type: "module" }) as unknown as WorkerLike;
+  return new Worker(new URL("./pyodide.worker.ts", import.meta.url), {
+    type: "module",
+  }) as unknown as WorkerLike;
 }
 
 export class PythonRuntime {
@@ -81,7 +85,10 @@ export class PythonRuntime {
     }
   }
 
-  run(code: string, onEvent: (event: RunEvent) => void = () => undefined): Promise<RunResult> {
+  run(
+    code: string,
+    onEvent: (event: RunEvent) => void = () => undefined,
+  ): Promise<RunResult> {
     const id = this.nextId++;
     const worker = this.ensure();
     return new Promise((resolve) => {
@@ -105,7 +112,12 @@ export class PythonRuntime {
     this.worker?.terminate();
     this.worker = null;
     for (const pending of this.pending.values()) {
-      pending.resolve({ ok: false, result: null, error: null, interrupted: true });
+      pending.resolve({
+        ok: false,
+        result: null,
+        error: null,
+        interrupted: true,
+      });
     }
     this.pending.clear();
     this.setStatus("idle");

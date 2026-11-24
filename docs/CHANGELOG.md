@@ -4,6 +4,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/), versiyalar: [SemVer](ht
 
 ## [Unreleased]
 ### Added
+- Paste cheklovi va qaydi (I3-12; INT-01, ACC-09, RPT-03): CodeMirror'da paste va drop ushlanadi — kurs chegarasidan (`course.yaml` `defaults.paste_limit`, default 200 belgi) katta matn rad etiladi va xabar chiqadi; nazorat rejimidagi oynada har qanday paste taqiq. Har urinish `POST /api/labs/{code}/events` ga qayd qilinadi (faqat hajm va katak, matn emas; rad etish serverda qayta hisoblanadi; talaba bo'yicha `LAB_EVENT_RATE`). `GET /api/labs/{code}/work` ga `paste_limit`, `proctored` qo'shildi. Migratsiyalar `courses 0007`, `labs 0002` (`LabEvent`).
 - Topshiriq formati va importi (I3-02; AGR-07, AGR-05): yangi `apps.grading` — `Assignment` (A##, mavzu, shart {parametr} bilan, challenge, mustaqil), `AssignmentStep` (kalit, ball — jami 100), `Variant` (basic/medium/advanced × kamida 5), `TestFile` (visible/hidden); `content/labs/` importi: fayl:qator xatolari, Python sintaksisi tekshiruvi, har qadamga yashirin test majburiy, shartdagi parametrlar har variantda, `solutions/` o'qilmaydi; `import_content` kurs va topshiriqlarni bitta tranzaksiyada yuklaydi. Migratsiya `grading 0001`.
 
 ### Added
