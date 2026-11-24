@@ -90,3 +90,6 @@ blob-report/
 
 # ---- Holat dashboard'i (docs/status/build.py) ----
 docs/status/__pycache__/
+
+# ADR-0006: build vaqtida yuklanadigan Pyodide fayllari
+frontend/public/pyodide/
