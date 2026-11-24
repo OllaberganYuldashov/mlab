@@ -40,9 +40,14 @@ def user_group(user_id: int) -> str:
     return f"user-{user_id}"
 
 
+def close_user_sockets(user_id: int) -> None:
+    """Foydalanuvchining ochiq ulanishlari yopiladi (mijoz qayta ulanib, ruxsat tekshiriladi)."""
+    transaction.on_commit(lambda: _safe_send(user_group(user_id), {"type": "force.close"}))
+
+
 def membership_changed(student_id: int) -> None:
-    """A'zolik o'zgardi (chiqarish, o'tkazish): ochiq ulanish yopiladi, mijoz qayta ulanadi."""
-    transaction.on_commit(lambda: _safe_send(user_group(student_id), {"type": "force.close"}))
+    """A'zolik o'zgardi (chiqarish, o'tkazish): ochiq ulanish yopiladi."""
+    close_user_sockets(student_id)
 
 
 def window_changed(section_id: int, payload: dict[str, Any]) -> None:
