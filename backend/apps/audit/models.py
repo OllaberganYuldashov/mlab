@@ -44,6 +44,8 @@ class Action(models.TextChoices):
     MEMBERSHIP_REMOVED = "membership_removed", _("Talaba guruhdan chiqarildi")
     SECTION_SETTINGS_CHANGED = "section_settings_changed", _("Guruh sozlamalari o'zgardi")
     DEADLINE_CHANGED = "deadline_changed", _("Topshirish muddati o'zgardi")
+    # I2
+    CONTENT_EDITED = "content_edited", _("Kontent admin'da tuzatildi")
 
 
 class AuditLogQuerySet(models.QuerySet["AuditLog"]):
