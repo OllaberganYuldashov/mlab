@@ -43,3 +43,6 @@ content/
 - Hozircha mavzu fayllardan olib tashlansa, bazadan ham o'chiriladi. Talaba natijalari mavzuga bog'langanda
   (R1) bu `PROTECT` bilan to'xtatiladi va import aniq xato beradi — mavzu "arxivlangan" holatga o'tkaziladi.
 - Rasm va interaktiv qadamlar (CNT-02, CNT-03) va Aiken testlari (CNT-05) keyingi tasklarda shu formatga qo'shiladi.
+- **2026-11-24 (I2-02):** qadam ichida rasm (`images/` dan, PNG/JPEG/WebP ≤ 500 KB, baytlar bazada — `LectureImage`),
+  ```` ```python try ```` kod bloki va ```` ```quiz ```` YAML bloki (`LectureStep.question`). Rasm baytlari `content_hash` ga kiradi.
+  Format misoli: `content/README.md`.

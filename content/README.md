@@ -11,6 +11,24 @@
 `topics/<KOD>-<slug>/lecture.md` — birinchi qator `# Ma'ruza nomi`, keyin har `## Qadam sarlavhasi` — bitta qadam
 (CNT-02: 5–10 qadam). Kod bloki (```) ichidagi `##` qadam hisoblanmaydi.
 
+Qadam ichida (CNT-02, I2-02):
+
+- **Rasm:** `![Alt matn](images/nomi.png)` — fayl `topics/<KOD>-<slug>/images/` da, PNG/JPEG/WebP, ≤ 500 KB,
+  alt matn majburiy (NFR-13). SVG va tashqi havolalar qabul qilinmaydi. Rasm baytlari bazaga yoziladi.
+- **"O'zing sinab ko'r":** ```` ```python try ```` — talaba brauzerda ishga tushiradi (Pyodide, I2-13). `try` faqat `python` bilan.
+- **Tezkor savol** (qadamda bittagacha, baholanmaydi):
+
+  ````text
+  ```quiz
+  question: Savol matni?
+  options:
+    - Birinchi variant
+    - Ikkinchi variant
+  answer: A          # A..F
+  explain: Nega shu javob to'g'ri (ixtiyoriy)
+  ```
+  ````
+
 ## Rejalashtirilgan tuzilma
 
 ```text
