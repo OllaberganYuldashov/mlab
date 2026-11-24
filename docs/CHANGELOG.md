@@ -4,6 +4,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/), versiyalar: [SemVer](ht
 
 ## [Unreleased]
 ### Added
+- ADR-0006 (I2-01; LAB-02, LAB-03, NFR-02): Pyodide 314.0.7 (Python 3.14, pandas 3.0, scikit-learn 1.8), fayllar build vaqtida SHA-256 tekshiruvi bilan olinib o'z serverdan (`/pyodide/<versiya>/`, `immutable` kesh) beriladi, paketlar talab bo'yicha, seaborn — PyPI wheel; to'xtatish `terminate()` bilan; CSP'ga faqat `'wasm-unsafe-eval'`; CodeMirror 6 faqat laboratoriya sahifasida; `docs/learn/pyodide.md`.
 - I1 yakuni (I1-15): uchidan-uchiga Playwright e2e (`e2e/flow.spec.ts` — o'qituvchi va talaba ikki brauzer kontekstida: guruh → havola → tasdiq → "Hozir ochish" → talabada WebSocket orqali "Hozir ochiq"); so'rovlar soni regressiya testlari (`test_i1_query_counts.py`, `/hunt-n-plus-one` — N+1 topilmadi); `docs/iterations/I1.md` (talab → test matritsasi), `docs/learn/sections.md`; qattiqlashtirish takliflari #95.
 
 ### Security
