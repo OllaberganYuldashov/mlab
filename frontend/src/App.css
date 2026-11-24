@@ -215,3 +215,28 @@ pre {
 .output img {
   max-width: 100%;
 }
+
+.app.lab {
+  max-width: none;
+}
+.lab-layout {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1fr;
+}
+/* Monoblok ekranlari (1366x768 va 1920x1080): uch ustun */
+@media (min-width: 1200px) {
+  .lab-layout {
+    grid-template-columns: minmax(14rem, 1fr) minmax(0, 3fr) minmax(12rem, 1fr);
+  }
+}
+.lab-task,
+.lab-tutor {
+  border: 1px solid #d8dee6;
+  border-radius: 0.4rem;
+  padding: 0.75rem;
+  align-self: start;
+}
+.lab-main {
+  min-width: 0;
+}

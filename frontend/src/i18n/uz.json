@@ -234,5 +234,15 @@
   "lab.cell.delete": "{n}-katakni o'chirish",
   "lab.cell.addCode": "+ Kod",
   "lab.cell.addMarkdown": "+ Matn",
-  "lab.truncated": "… (chiqish juda uzun — qisqartirildi)"
+  "lab.truncated": "… (chiqish juda uzun — qisqartirildi)",
+  "lab.closed.upcoming": "Laboratoriya hozir yopiq. Ochiladi: {time}.",
+  "lab.closed.now": "Laboratoriya hozir yopiq. O'qituvchi ochganda shu sahifa ishlaydi.",
+  "lab.task.title": "Topshiriq",
+  "lab.task.placeholder": "Topshiriq sharti va qadamlar shu yerda bo'ladi (avtobaholovchi bilan — keyingi iteratsiyada). Hozircha ma'ruzadagi misollarni notebook'da sinab ko'ring.",
+  "lab.task.lecture": "Ma'ruzani ochish",
+  "lab.policy.late": "Kechikkan topshirish muddati",
+  "lab.policy.practice": "Mashq rejimi (baholanmaydi)",
+  "lab.notebook": "Notebook",
+  "lab.tutor.title": "AI tutor",
+  "lab.tutor.soon": "AI yordamchi keyingi iteratsiyada qo'shiladi."
 }
