@@ -30,6 +30,24 @@ WebSocket serveri (ikkinchi til va auth), Server-Sent Events (faqat bir tomonlam
 6. **Avtorizatsiya WebSocket'da ham.** HTTP'dagi kabi: kim ulanyapti, qaysi guruhga ruxsati bor; vaqtinchalik
    parol bilan kirgan foydalanuvchi (`must_change_password`) WebSocket'ga ham ulana olmaydi (I4 da).
 
+## Amalda: baholash navbati (I3-06)
+
+Birinchi haqiqiy Celery vazifasi — `apps/grading/tasks.py` `grade_submission`. Mantiq `apps/grading/service.py` da
+(Celery'siz testlanadi), vazifa faqat qayta urinish siyosatini qo'shadi.
+
+- **Commit'dan keyin navbatga** (`transaction.on_commit`): aks holda worker hali yozilmagan yozuvni qidiradi.
+  Commit va navbat orasida broker yiqilsa — yozuv `queued` bo'lib qoladi; `requeue_stale()` uni qayta qo'yadi.
+- **`acks_late` + `reject_on_worker_lost`:** xabar vazifa *tugagandan keyin* tasdiqlanadi — worker o'lsa, xabar
+  boshqa worker'ga qaytadi. Narxi: bitta vazifa ikki marta kelishi mumkin. Shuning uchun —
+- **idempotentlik:** yozuv `SELECT … FOR UPDATE` bilan "egallanadi" (`queued → running`, `attempts += 1`);
+  takroriy xabar `running`/`done` ni ko'rib chiqib ketadi. Natija faqat `attempts` mos kelsa yoziladi
+  (`UPDATE … WHERE attempts = N`) — kech qolgan eski worker yangisining natijasini bosib ketmaydi.
+- **Qayta urinish faqat infratuzilma xatosida** (sandbox javob bermadi), 3 martagacha, `5·2ⁿ` s (60 s gacha) +
+  tasodifiy jitter. Talaba kodi xatosi — oddiy natija (0 ball): uni qayta urinish faqat navbatni to'ldiradi.
+- **`prefetch_multiplier=1`, `concurrency=2`:** har worker jarayoni bittadan vazifa oladi — bir vaqtda ko'pi bilan
+  2 ta sandbox konteyneri (AGR-04).
+- Kuzatuv: `grading.queued|done|retry|failed|requeued` log qatorlari (`queued`/`running` soni, davomiylik, urinish).
+
 ## Rasmiy hujjat va yaxshi manbalar
 - https://docs.celeryq.dev/ — "First steps with Celery", "Tasks" (retry, acks_late).
 - https://channels.readthedocs.io/ — Tutorial (chat ilovasi).

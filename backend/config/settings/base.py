@@ -9,6 +9,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from django.core.exceptions import ImproperlyConfigured
+
 from config import env
 
 BASE_DIR = Path(__file__).resolve().parents[2]
@@ -166,6 +168,21 @@ LAB_SAVE_RATE = env.optional("LAB_SAVE_RATE", "60/min")
 LAB_EVENT_RATE = env.optional("LAB_EVENT_RATE", "120/min")
 # AGR-08: variant tanlash HMAC kaliti; bo'sh bo'lsa SECRET_KEY dan hosil qilinadi.
 VARIANT_SECRET = env.optional("VARIANT_SECRET", "")
+
+# Avtobaholovchi (ADR-0007; I3-06). Navbat — Celery + Redis; sandbox faqat launcher orqali.
+CELERY_BROKER_URL = env.optional("CELERY_BROKER_URL", REDIS_URL)
+CELERY_TASK_ACKS_LATE = True
+CELERY_TASK_REJECT_ON_WORKER_LOST = True
+CELERY_WORKER_PREFETCH_MULTIPLIER = 1
+CELERY_WORKER_CONCURRENCY = 2  # AGR-04: bir vaqtda 2 ta konteyner
+CELERY_TASK_TIME_LIMIT = 90  # s: launcher 75 s + zaxira
+CELERY_TASK_SOFT_TIME_LIMIT = 85
+CELERY_TASK_IGNORE_RESULT = True
+CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
+SANDBOX_BACKEND = env.optional("SANDBOX_BACKEND", "launcher")
+if SANDBOX_BACKEND not in ("launcher", "fake"):
+    raise ImproperlyConfigured("SANDBOX_BACKEND: launcher yoki fake")
+SANDBOX_LAUNCHER_URL = env.optional("SANDBOX_LAUNCHER_URL", "")
 # #95: guruh yaratish — o'qituvchi bo'yicha.
 SECTION_CREATE_RATE = env.optional("SECTION_CREATE_RATE", "30/hour")
 # Hamma IP uchun umumiy chegara (taqsimlangan hujum, Argon2 xotira/CPU narxi).

@@ -24,6 +24,9 @@ Chat, repo, log, PR, issue, bulut muhiti o'zgaruvchilari va scheduled task promp
 | SECTION_JOIN_RATE | A'zolik so'rovi, talaba bo'yicha (default 30/hour) | .env.example | Server .env |
 | LAB_SAVE_RATE | Laboratoriya avtosaqlashi, talaba bo'yicha (default 60/min) | .env.example | Server .env |
 | VARIANT_SECRET | Variant tanlash HMAC kaliti (AGR-08); bo'sh bo'lsa SECRET_KEY dan hosil qilinadi. Almashsa yangi talabalar varianti o'zgaradi, berilganlari saqlanadi | Parol menejeri | Server .env |
+| SANDBOX_BACKEND | Sandbox chaqiruvi: `launcher` (prod) yoki `fake` (faqat testlar; prod'da taqiq — ilova ishga tushmaydi) | .env.example | Server .env |
+| SANDBOX_LAUNCHER_URL | `sandbox-launcher` ichki manzili (faqat ichki tarmoq, tashqariga port yo'q; ADR-0007) | .env.example | Server .env |
+| CELERY_BROKER_URL | Celery broker (bo'sh — REDIS_URL). Parol bo'lsa — secret | .env.example (bo'sh) | Server .env |
 | LAB_EVENT_RATE | Laboratoriya hodisalari (paste qaydi), talaba bo'yicha (default 120/min) | .env.example | Server .env |
 | SECTION_CREATE_RATE | Guruh yaratish, o'qituvchi bo'yicha (default 30/hour) | .env.example | Server .env |
 | AUTH_LOGIN_RATE | Login so'rovlari IP bo'yicha (default 120/minute); lockout (5 xato → 15 daqiqa, Hemis ID + IP) kodda qat'iy | .env.example | Server .env |
