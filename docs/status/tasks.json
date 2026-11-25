@@ -814,9 +814,9 @@
    "title": "Frontend: topshiriq paneli, Tekshirish/Topshirish, navbat va natija",
    "req": "AGR-01, AGR-02, AGR-04, AGR-05, LAB-07",
    "size": "M",
-   "status": "ready",
+   "status": "done",
    "outcome": "Laboratoriya sahifasida to'liq baholash oqimi.",
-   "pr": "",
+   "pr": "#185",
    "points": 2
   },
   {
@@ -892,9 +892,9 @@
    "title": "Kontent: A1–A5 topshiriqlari (3 daraja × 5 variant, challenge, mustaqil)",
    "req": "AGR-07, AGR-08",
    "size": "M",
-   "status": "ready",
+   "status": "done",
    "outcome": "A1–A5 amaliy topshiriqlari.",
-   "pr": "",
+   "pr": "#186",
    "points": 2
   },
   {
