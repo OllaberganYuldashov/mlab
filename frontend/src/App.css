@@ -268,3 +268,20 @@ pre {
 .check-tests li.ok {
   color: #1f6f3a;
 }
+
+/* AGR-02: Topshirish paneli */
+.submit-panel {
+  margin-top: 1rem;
+  border-top: 1px solid #d8dee6;
+  padding-top: 0.75rem;
+}
+.result-steps {
+  padding-left: 1.2rem;
+}
+.task-params dl div {
+  display: flex;
+  gap: 0.5rem;
+}
+.task-params dd {
+  margin: 0;
+}
