@@ -2,6 +2,23 @@
 
 > Har run oxirida Claude qo'shadi. Eng yangisi yuqorida.
 
+### 2026-11-26 — tungi run 2/2
+- **Bajarilgan issue'lar va PR:** #157 → PR #185 (laboratoriyada "Topshirish", navbat va natija), #163 → PR #186
+  (A01–A05 topshiriqlari va yechim tekshiruvi). 4 ball.
+- **Nima qilindi (oddiy tilda):** Laboratoriya sahifasida "📤 Topshirish" tugmasi bor: kod serverga ketadi, talaba
+  navbatdagi o'rnini, keyin qadamlar bo'yicha ballni ko'radi; eng yuqori ball va urinishlar tarixi ham shu yerda.
+  Kontentga birinchi 5 ta amaliy topshiriq qo'shildi (Pandas, standartlashtirish, EDA, chiziqli regressiya,
+  Ridge/Lasso) — har biri 3 daraja × 5 variant. Har variantda namuna yechim barcha testlardan o'tishi avtomatik
+  tekshirildi (75/75), testlar "bo'sh" emasligi ham (bo'sh kod bilan yashirin test o'tmaydi).
+- **Ishlatilgan skill'lar va nima uchun:** error-handling-as-design va observability-by-default (holat manbai — server,
+  WebSocket faqat signal, zaxira so'rov), testing-with-discernment va mutation-testing (bo'sh kod tekshiruvi, yechimni
+  ataylab buzib sinash), floating-point (`isclose`), security-discipline (yechimlar Django jarayonida bajarilmaydi).
+- **Yangi texnologiya / tushuncha:** `docs/learn/react-typescript.md` "server holatini kuzatish",
+  `docs/learn/content-format.md` "topshiriq yozish".
+- **Ertalab nimani ko'rish kerak:** lokal demoda M02 laboratoriyasini oching — chap panelda A01 sharti va
+  "✓ Tekshirish" (notebook'ga yechim yozib sinab ko'ring).
+- **Savollar / bloklar:** yo'q. "Topshirish" natijasi uchun Celery worker va sandbox CI job'i — #166 (`needs:owner`).
+
 ### 2026-11-25 — tungi run 1/2 (26-noyabr tuni)
 - **Bajarilgan issue'lar va PR:** #155 → PR #182 ("Topshirish" API va navbat holati), #156 → PR #183 (natija va eng
   yuqori ball). 4 ball.
