@@ -9,6 +9,7 @@ Laboratoriya yopiq bo'lsa — 403 `lab_closed` (variant ham berilmaydi).
 from __future__ import annotations
 
 import string
+from decimal import Decimal
 from typing import Any
 
 from django.conf import settings
@@ -25,10 +26,11 @@ from rest_framework.views import APIView
 
 from apps.accounts.permissions import IsStudent
 from apps.courses.models import Topic
-from apps.grading import service, variants
+from apps.grading import results, service, variants
 from apps.grading.models import (
     Assignment,
     AssignmentStep,
+    StudentAssignment,
     Submission,
     SubmissionPolicy,
     TestFile,
@@ -36,7 +38,8 @@ from apps.grading.models import (
 )
 from apps.grading.models import SubmissionStatus as SubmissionState
 from apps.labs.views import _student_context
-from apps.sections.models import Section
+from apps.sections.member_views import STAFF_OR_INSTRUCTOR, _visible_section_id
+from apps.sections.models import Membership, Section
 from apps.sections.policy import SubmissionStatus, submission_policy
 from apps.sections.settings import effective_settings
 
@@ -190,10 +193,63 @@ _SUBMISSION_FIELDS: dict[str, serializers.Field[Any, Any, Any, Any]] = {
     "finished_at": serializers.DateTimeField(allow_null=True),
 }
 SubmissionOut = inline_serializer("SubmissionOut", _SUBMISSION_FIELDS)
+_TEST_FIELDS: dict[str, serializers.Field[Any, Any, Any, Any]] = {
+    "name": serializers.CharField(),
+    "visible": serializers.BooleanField(),
+    "passed": serializers.BooleanField(),
+    "message": serializers.CharField(),
+}
+_STEP_FIELDS: dict[str, serializers.Field[Any, Any, Any, Any]] = {
+    "key": serializers.CharField(),
+    "title": serializers.CharField(),
+    "points": serializers.IntegerField(),
+    "score": serializers.IntegerField(),
+    "passed": serializers.IntegerField(),
+    "total": serializers.IntegerField(),
+    "tests": inline_serializer("ResultTest", _TEST_FIELDS, many=True),
+}
+ResultOut = inline_serializer(
+    "SubmissionResult",
+    {
+        "code_error": serializers.CharField(allow_null=True),
+        "steps": inline_serializer("ResultStep", _STEP_FIELDS, many=True),
+    },
+    allow_null=True,
+)
+SubmissionDetailOut = inline_serializer(
+    "SubmissionDetailOut", {**_SUBMISSION_FIELDS, "result": ResultOut}
+)
+_BEST = serializers.DecimalField(max_digits=5, decimal_places=2, allow_null=True)
 SubmissionListOut = inline_serializer(
     "SubmissionListOut",
-    {"submissions": inline_serializer("SubmissionItem", _SUBMISSION_FIELDS, many=True)},
+    {
+        "best_final_score": _BEST,
+        "submissions": inline_serializer("SubmissionItem", _SUBMISSION_FIELDS, many=True),
+    },
 )
+StudentSubmissionsOut = inline_serializer(
+    "StudentSubmissionsOut",
+    {
+        "best_final_score": _BEST,
+        "submissions": inline_serializer(
+            "StudentSubmissionItem",
+            {**_SUBMISSION_FIELDS, "code": serializers.CharField(), "result": ResultOut},
+            many=True,
+        ),
+    },
+)
+
+
+def _steps(assignment_id: int) -> list[tuple[str, str, int]]:
+    return list(
+        AssignmentStep.objects.filter(assignment_id=assignment_id)
+        .order_by("order")
+        .values_list("key", "title", "points")
+    )
+
+
+def _decimal(value: Decimal | None) -> str | None:
+    return None if value is None else str(value)
 
 
 def _out(submission: Submission) -> dict[str, Any]:
@@ -215,10 +271,18 @@ class MySubmissionsView(APIView):
         assignment = _topic_assignment(section, topic)
         if assignment is None:
             return _no_assignment()
-        rows = Submission.objects.filter(
-            student_assignment__student=student, student_assignment__assignment=assignment
-        ).order_by("-created_at")[:20]
-        return Response({"submissions": [_out(s) for s in rows]})
+        record = StudentAssignment.objects.filter(student=student, assignment=assignment).first()
+        rows = (
+            Submission.objects.filter(student_assignment=record).order_by("-created_at")[:20]
+            if record
+            else []
+        )
+        return Response(
+            {
+                "best_final_score": _decimal(results.best_score(record)),
+                "submissions": [_out(s) for s in rows],
+            }
+        )
 
     @extend_schema(
         request=_SubmitIn,
@@ -256,11 +320,69 @@ class MySubmissionView(APIView):
 
     permission_classes = (IsStudent,)
 
-    @extend_schema(responses={200: SubmissionOut}, summary="Urinish holati")
+    @extend_schema(
+        responses={200: SubmissionDetailOut}, summary="Urinish holati va natijasi (AGR-05)"
+    )
     def get(self, request: Request, submission_id: int) -> Response:
-        submission = Submission.objects.filter(
-            pk=submission_id, student_assignment__student_id=request.user.pk
-        ).first()
+        submission = (
+            Submission.objects.filter(
+                pk=submission_id, student_assignment__student_id=request.user.pk
+            )
+            .select_related("student_assignment")
+            .first()
+        )
         if submission is None:
             raise NotFound
-        return Response(_out(submission))
+        steps = _steps(submission.student_assignment.assignment_id)
+        return Response({**_out(submission), "result": results.student_result(submission, steps)})
+
+
+class StudentSubmissionsView(APIView):
+    """O'qituvchi: o'z guruhidagi talabaning urinishlari, kodi va natijasi (AGR-06).
+
+    Begona guruh yoki guruhda tasdiqlanmagan talaba — 404. Yashirin testlar bu yerda ham yashirin.
+    """
+
+    permission_classes = STAFF_OR_INSTRUCTOR
+
+    @extend_schema(
+        responses={200: StudentSubmissionsOut}, summary="Talabaning urinishlari (o'qituvchiga)"
+    )
+    def get(self, request: Request, section_id: int, code: str, student_id: int) -> Response:
+        _visible_section_id(request.user, section_id)
+        membership = (
+            Membership.objects.approved()
+            .filter(section_id=section_id, student_id=student_id)
+            .select_related("section")
+            .first()
+        )
+        topic = (
+            Topic.objects.filter(course_id=membership.section.course_id, code=code).first()
+            if membership
+            else None
+        )
+        assignment = _topic_assignment(membership.section, topic) if membership and topic else None
+        if assignment is None:
+            raise NotFound
+        record = StudentAssignment.objects.filter(
+            student_id=student_id, assignment=assignment
+        ).first()
+        steps = _steps(assignment.pk)
+        rows = (
+            Submission.objects.filter(student_assignment=record).order_by("-created_at")[:50]
+            if record
+            else []
+        )
+        return Response(
+            {
+                "best_final_score": _decimal(results.best_score(record)),
+                "submissions": [
+                    {
+                        **_out(s),
+                        "code": s.code,
+                        "result": results.student_result(s, steps),
+                    }
+                    for s in rows
+                ],
+            }
+        )

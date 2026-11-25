@@ -79,7 +79,19 @@ Nega bu xavfsiz? Brauzerdagi natija baho emas: talaba uni xohlagancha "soxtalash
 qiladi. Baho faqat serverda, yashirin testlar bilan (AGR-05) — yashirin testlar `GET .../assignment` javobiga umuman
 kirmaydi (testda tekshirilgan).
 
-## 8. Atamalar
+## 8. Natija talabaga qanday ko'rsatiladi (I3-08)
+
+Runner talaba kodi bilan **bir jarayonda** ishlaydi — demak uning javobiga to'liq ishonib bo'lmaydi (6-bo'limdagi
+cheklov). Shuning uchun serverda (`apps/grading/results.py`) natija qayta "tozalanadi":
+
+- yashirin test nomi har doim "yashirin test N", xabari — "O'tmadi", hatto runner javobida test kodi yoki kutilgan
+  qiymat bo'lsa ham;
+- talabaning `print()` chiqishi umuman ko'rsatilmaydi: u yashirin testlar ishlayotganda ham yig'iladi va talaba kodi
+  test ichidagi qiymatni (masalan, kutilgan javobni) chop etib yuborishi mumkin edi;
+- ball qadamlar bo'yicha butun son (`qadam bali × o'tgan / jami`, pastga yaxlitlash), rasmiy ball — eng yuqori
+  urinish (mashq urinishlari hisobga kirmaydi), kechikish jarimasi bilan — `Decimal`.
+
+## 9. Atamalar
 
 | Atama | Ma'nosi |
 | --- | --- |
