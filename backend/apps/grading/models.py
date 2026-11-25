@@ -200,6 +200,14 @@ class SubmissionStatus(models.TextChoices):
     ERROR = "error", _("xato")
 
 
+class SubmissionPolicy(models.TextChoices):
+    """ACC-06..08: topshirish paytidagi siyosat (`sections.policy.submission_policy`)."""
+
+    ON_TIME = "on_time", _("o'z vaqtida")
+    LATE = "late", _("kechikkan")
+    PRACTICE = "practice", _("mashq (rasmiy emas)")
+
+
 class Submission(models.Model):
     """Topshirilgan kod va uning bahosi (AGR-02, AGR-04, AGR-06; I3-06).
 
@@ -225,6 +233,18 @@ class Submission(models.Model):
     result = models.JSONField(_("natija"), null=True, blank=True)
     error = models.CharField(_("infratuzilma xatosi"), max_length=32, blank=True)
     attempts = models.PositiveSmallIntegerField(_("urinishlar"), default=0)
+    policy = models.CharField(
+        _("siyosat"),
+        max_length=8,
+        choices=SubmissionPolicy.choices,
+        default=SubmissionPolicy.ON_TIME,
+    )
+    # Topshirish paytidagi jarima foizi (keyin kurs sozlamasi o'zgarsa ham ball o'zgarmaydi).
+    penalty_percent = models.PositiveSmallIntegerField(_("kechikish jarimasi, %"), default=0)
+    # ACC-07: jarimadan keyingi ball, Decimal(5,2) (float yo'q). Rasmiy — faqat policy != practice.
+    final_score = models.DecimalField(
+        _("yakuniy ball"), max_digits=5, decimal_places=2, null=True, blank=True
+    )
     created_at = models.DateTimeField(_("topshirilgan"), default=timezone.now)
     started_at = models.DateTimeField(_("boshlangan"), null=True, blank=True)
     finished_at = models.DateTimeField(_("tugagan"), null=True, blank=True)
@@ -263,6 +283,26 @@ class Submission(models.Model):
             models.CheckConstraint(
                 condition=~Q(status="running") | Q(started_at__isnull=False),
                 name="grading_submission_running_started",
+            ),
+            models.CheckConstraint(
+                condition=Q(policy__in=SubmissionPolicy.values), name="grading_submission_policy"
+            ),
+            models.CheckConstraint(
+                condition=Q(penalty_percent__lte=100), name="grading_submission_penalty"
+            ),
+            models.CheckConstraint(
+                condition=Q(final_score__isnull=True) | Q(final_score__gte=0, final_score__lte=100),
+                name="grading_submission_final_score",
+            ),
+            models.CheckConstraint(
+                condition=~Q(status="done") | Q(final_score__isnull=False),
+                name="grading_submission_done_final",
+            ),
+            # AGR-02: bir topshiriqda bir vaqtda bitta ochiq urinish (ikki tab, ikki marta bosish).
+            models.UniqueConstraint(
+                fields=["student_assignment"],
+                condition=Q(status__in=["queued", "running"]),
+                name="grading_submission_one_open",
             ),
         ]
 

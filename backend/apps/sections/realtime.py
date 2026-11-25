@@ -54,3 +54,8 @@ def window_changed(section_id: int, payload: dict[str, Any]) -> None:
     """Guruh kanaliga oyna o'zgarishi; tranzaksiya qaytarilsa xabar ketmaydi."""
     message = {"type": "window.changed", **payload}
     transaction.on_commit(lambda: _safe_send(section_group(section_id), message))
+
+
+def user_event(user_id: int, message: dict[str, Any]) -> None:
+    """Foydalanuvchining o'z kanaliga (masalan, AGR-04 navbat holati); commit'dan keyin."""
+    transaction.on_commit(lambda: _safe_send(user_group(user_id), message))

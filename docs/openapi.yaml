@@ -480,6 +480,49 @@ paths:
               schema:
                 $ref: '#/components/schemas/LabEventOut'
           description: ''
+  /api/labs/{code}/submissions:
+    get:
+      operationId: labs_submissions_retrieve
+      summary: Mening urinishlarim (oxirgi 20)
+      parameters:
+      - in: path
+        name: code
+        schema:
+          type: string
+        required: true
+      tags:
+      - labs
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          description: No response body
+    post:
+      operationId: labs_submissions_create
+      summary: 'Topshirish: kod navbatga qo''yiladi (yashirin testlar sandbox''da)'
+      parameters:
+      - in: path
+        name: code
+        schema:
+          type: string
+        required: true
+      tags:
+      - labs
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/_SubmitInRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubmissionOut'
+          description: ''
   /api/labs/{code}/work:
     get:
       operationId: labs_work_retrieve
@@ -1190,6 +1233,29 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/WindowPlan'
+          description: ''
+  /api/submissions/{submission_id}:
+    get:
+      operationId: submissions_retrieve
+      description: Qayta ulanishda holat (AGR-04). Begona urinish — 404 (mavjudligi
+        ham oshkor emas).
+      summary: Urinish holati
+      parameters:
+      - in: path
+        name: submission_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - submissions
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubmissionOut'
           description: ''
   /api/users/{user_id}/reset-password:
     post:
@@ -2356,6 +2422,63 @@ components:
       - full_name
       - hemis_id
       - id
+    SubmissionOut:
+      type: object
+      properties:
+        id:
+          type: integer
+        status:
+          $ref: '#/components/schemas/SubmissionOutStatusEnum'
+        position:
+          type: integer
+        policy:
+          $ref: '#/components/schemas/SubmissionPolicyEnum'
+        score:
+          type: integer
+          nullable: true
+        final_score:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,2})?$
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        finished_at:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+      - created_at
+      - final_score
+      - finished_at
+      - id
+      - policy
+      - position
+      - score
+      - status
+    SubmissionOutStatusEnum:
+      enum:
+      - queued
+      - running
+      - done
+      - error
+      type: string
+      description: |-
+        * `queued` - queued
+        * `running` - running
+        * `done` - done
+        * `error` - error
+    SubmissionPolicyEnum:
+      enum:
+      - on_time
+      - late
+      - practice
+      type: string
+      description: |-
+        * `on_time` - on_time
+        * `late` - late
+        * `practice` - practice
     TemporaryPassword:
       type: object
       properties:
@@ -2460,6 +2583,15 @@ components:
       - cell
       - kind
       - size
+    _SubmitInRequest:
+      type: object
+      properties:
+        code:
+          type: string
+          minLength: 1
+          maxLength: 200000
+      required:
+      - code
   securitySchemes:
     cookieAuth:
       type: apiKey

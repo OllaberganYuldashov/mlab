@@ -20,7 +20,7 @@ from collections.abc import Callable
 from datetime import timedelta
 from typing import Any
 
-from django.db import transaction
+from django.db import IntegrityError, transaction
 from django.db.models import Count, Q
 from django.utils import timezone
 
@@ -28,15 +28,19 @@ from apps.grading.models import (
     AssignmentStep,
     StudentAssignment,
     Submission,
+    SubmissionPolicy,
     SubmissionStatus,
     TestFile,
     TestKind,
 )
 from apps.grading.sandbox import SandboxUnavailable, get_sandbox
+from apps.sections.policy import apply_late_penalty
+from apps.sections.realtime import user_event
 
 logger = logging.getLogger("mlab.grading")
 
 MAX_ATTEMPTS = 3
+POSITIONS_BROADCAST_LIMIT = 200  # navbat bundan uzun bo'lsa, qolganlar o'rnini API'dan oladi
 TIME_LIMIT = 10  # s: talaba kodi va har test uchun (runner ichida)
 # Celery `task_time_limit` (90 s) dan uzoq "running" — worker o'lgan; qayta egallash mumkin.
 STALE_RUNNING = timedelta(seconds=180)
@@ -54,14 +58,34 @@ def _dispatch(submission_id: int) -> None:
     grade_submission.delay(submission_id)
 
 
+class SubmissionPending(Exception):
+    """Shu topshiriqda navbatda yoki tekshirilayotgan urinish bor (bir vaqtda bittasi)."""
+
+
 def enqueue(
     record: StudentAssignment,
     code: str,
-    dispatch: Callable[[int], None] = _dispatch,
+    policy: str = SubmissionPolicy.ON_TIME,
+    penalty_percent: int = 0,
+    dispatch: Callable[[int], None] | None = None,
 ) -> Submission:
-    """Yangi urinish (AGR-06: har biri alohida yozuv). Vazifa faqat commit'dan keyin qo'yiladi."""
-    submission = Submission.objects.create(student_assignment=record, code=code)
-    transaction.on_commit(lambda: dispatch(submission.pk))
+    """Yangi urinish (AGR-06: har biri alohida yozuv). Vazifa faqat commit'dan keyin qo'yiladi.
+
+    Ochiq urinish bo'lsa — `SubmissionPending` (qisman unique indeks; poyga ham to'xtaydi).
+    """
+    try:
+        with transaction.atomic():
+            submission = Submission.objects.create(
+                student_assignment=record,
+                code=code,
+                policy=policy,
+                penalty_percent=penalty_percent if policy == SubmissionPolicy.LATE else 0,
+            )
+    except IntegrityError as exc:
+        raise SubmissionPending from exc
+    send = dispatch or _dispatch
+    transaction.on_commit(lambda: send(submission.pk))
+    notify(submission, record.student_id)
     logger.info(
         "grading.queued",
         extra={"event": "grading.queued", "submission_id": submission.pk, **queue_depth()},
@@ -78,6 +102,51 @@ def queue_depth() -> dict[str, int]:
         running=Count("pk", filter=Q(status=SubmissionStatus.RUNNING)),
     )
     return {"queued": counts["queued"], "running": counts["running"]}
+
+
+def position(submission: Submission) -> int:
+    """Navbatdagi o'rin: 1 — keyingisi; 0 — tekshirilmoqda yoki tugagan (FIFO, created_at)."""
+    if submission.status != SubmissionStatus.QUEUED:
+        return 0
+    ahead = Submission.objects.filter(
+        status=SubmissionStatus.QUEUED, created_at__lt=submission.created_at
+    ).count()
+    return ahead + 1
+
+
+def status_payload(submission: Submission, place: int | None = None) -> dict[str, Any]:
+    """WebSocket va API uchun umumiy shakl (yashirin test natijasi bu yerda yo'q)."""
+    return {
+        "id": submission.pk,
+        "status": submission.status,
+        "position": position(submission) if place is None else place,
+        "policy": submission.policy,
+        "score": submission.score,
+        "final_score": (None if submission.final_score is None else str(submission.final_score)),
+    }
+
+
+def notify(submission: Submission, student_id: int) -> None:
+    user_event(student_id, {"type": "submission.status", **status_payload(submission)})
+
+
+def _notify_by_id(submission_id: int) -> None:
+    submission = (
+        Submission.objects.select_related("student_assignment").filter(pk=submission_id).first()
+    )
+    if submission is not None:
+        notify(submission, submission.student_assignment.student_id)
+
+
+def broadcast_positions() -> None:
+    """Navbat siljidi: navbatdagilarga yangi o'rin (bitta so'rov, ko'pi bilan LIMIT ta xabar)."""
+    queued = Submission.objects.filter(status=SubmissionStatus.QUEUED).order_by("created_at")
+    rows = queued.select_related("student_assignment")[:POSITIONS_BROADCAST_LIMIT]
+    for place, submission in enumerate(rows, start=1):
+        user_event(
+            submission.student_assignment.student_id,
+            {"type": "submission.status", **status_payload(submission, place)},
+        )
 
 
 def _claim(submission_id: int) -> Submission | None:
@@ -176,6 +245,9 @@ def _log(event: str, submission: Submission, started: float, **fields: Any) -> N
 def grade(submission_id: int) -> str:
     """Bitta urinishni baholaydi. Natija: done | error | skipped. `RetryLater` — keyinroq."""
     submission = _claim(submission_id)
+    if submission is not None:
+        _notify_by_id(submission.pk)
+        broadcast_positions()
     if submission is None:
         logger.info(
             "grading.skipped",
@@ -189,6 +261,7 @@ def grade(submission_id: int) -> str:
     except SandboxUnavailable as exc:
         if submission.attempts >= MAX_ATTEMPTS:
             _finish(submission, status=SubmissionStatus.ERROR, error="sandbox_unavailable")
+            _notify_by_id(submission.pk)
             logger.error(
                 "grading.failed",
                 extra={
@@ -202,11 +275,13 @@ def grade(submission_id: int) -> str:
         Submission.objects.filter(
             pk=submission.pk, status=SubmissionStatus.RUNNING, attempts=submission.attempts
         ).update(status=SubmissionStatus.QUEUED)
+        _notify_by_id(submission.pk)
         _log("grading.retry", submission, started, reason=str(exc))
         raise RetryLater(str(exc)) from exc
     if not _valid_result(result):
         # Runner `bad_input` yoki tushunarsiz javob — bizning xato; qayta urinish yordam bermaydi.
         _finish(submission, status=SubmissionStatus.ERROR, error="bad_result")
+        _notify_by_id(submission.pk)
         logger.error(
             "grading.bad_result",
             extra={
@@ -222,7 +297,11 @@ def grade(submission_id: int) -> str:
         .values_list("key", "points")
     )
     score = compute_score(result, steps)
-    if _finish(submission, status=SubmissionStatus.DONE, score=score, result=result):
+    # ACC-07: kechikkan bo'lsa jarima (topshirish paytidagi foiz); mashq — ball bor, rasmiy emas.
+    final = apply_late_penalty(score, submission.penalty_percent)
+    done = {"status": SubmissionStatus.DONE, "score": score, "final_score": final, "result": result}
+    if _finish(submission, **done):
+        _notify_by_id(submission.pk)
         _log("grading.done", submission, started, score=score, runner_status=result["status"])
     return "done"
 
