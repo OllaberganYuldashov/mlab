@@ -1,0 +1,1 @@
+params: {"dataset": "breast_cancer", "features": ["mean_perimeter", "mean_smoothness", "mean_compactness"], "target": "mean_area", "test_size": 0.2, "seed": 7}

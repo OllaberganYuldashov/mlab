@@ -1,0 +1,1 @@
+params: {"dataset": "wine", "column": "nonflavanoid_phenols", "category": "cultivar", "bins": 10}

@@ -1,0 +1,1 @@
+params: {"dataset": "breast_cancer", "features": ["error_texture", "error_perimeter", "error_area"], "target": "mean_area", "test_size": 0.25, "seed": 99}

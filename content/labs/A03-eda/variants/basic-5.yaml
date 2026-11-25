@@ -1,0 +1,1 @@
+params: {"dataset": "iris", "column": "petal_width", "category": "species", "bins": 30}

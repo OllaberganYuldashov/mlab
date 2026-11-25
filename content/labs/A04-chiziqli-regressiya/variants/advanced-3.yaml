@@ -1,0 +1,1 @@
+params: {"dataset": "breast_cancer", "features": ["mean_concave_points", "mean_symmetry", "mean_fractal_dimension"], "target": "mean_area", "test_size": 0.3, "seed": 21}

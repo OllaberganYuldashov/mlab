@@ -1,0 +1,1 @@
+params: {"dataset": "wine", "features": ["color_intensity", "hue"], "target": "alcohol", "test_size": 0.2, "seed": 42}

@@ -1,0 +1,1 @@
+params: {"dataset": "wine", "column": "proline", "category": "cultivar", "bins": 15}

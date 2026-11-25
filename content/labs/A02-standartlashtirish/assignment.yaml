@@ -1,0 +1,25 @@
+code: A02
+title: "Standartlashtirish va kategorial kodlash"
+topic: M02
+statement: |
+  **Dataset:** `{dataset}` (`df = mlab.load("{dataset}")`), **ustun:** `{column}`, **kategoriya:** `{category}`.
+
+  1. **Z-score.** `{column}` ni standartlashtiring: `(x − o'rtacha) / standart og'ish`, standart og'ish `std(ddof=0)`
+     bilan. Natija — `z` (pandas Series, uzunligi `df` bilan bir xil).
+  2. **Min-max.** `{column}` ni [0, 1] oralig'iga keltiring: `(x − min) / (max − min)`. Natija — `scaled` (Series).
+  3. **One-hot.** `{category}` ustunini kodlang: `encoded = pd.get_dummies(df["{category}"], prefix="{category}")`.
+     Har qatorda aynan bitta ustun 1 (True) bo'ladi.
+steps:
+  - key: zscore
+    title: "Z-score standartlashtirish"
+    points: 40
+  - key: minmax
+    title: "Min-max masshtablash"
+    points: 30
+  - key: onehot
+    title: "One-hot kodlash"
+    points: 30
+challenge: |
+  `sklearn.preprocessing.StandardScaler` bilan barcha raqamli ustunlarni standartlashtiring va natija qo'lda hisoblangan z-score bilan bir xil ekanini `np.allclose` bilan tekshiring.
+independent: |
+  Pipeline yozing: `ColumnTransformer` — raqamli ustunlarga `StandardScaler`, kategoriyaga `OneHotEncoder`; natija matritsasining shaklini tushuntiring.

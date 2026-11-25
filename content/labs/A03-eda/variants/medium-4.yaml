@@ -1,0 +1,1 @@
+params: {"dataset": "wine", "column": "color_intensity", "category": "cultivar", "bins": 25}

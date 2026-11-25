@@ -1,0 +1,1 @@
+params: {"dataset": "iris", "column": "sepal_length", "category": "species", "bins": 15}
