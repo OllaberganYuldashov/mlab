@@ -50,6 +50,11 @@ def record(content: Path) -> StudentAssignment:  # noqa: F811
     return assign(membership.student, Assignment.objects.get())
 
 
+def _other(record: StudentAssignment) -> StudentAssignment:
+    """Boshqa talabaning shu topshiriqdagi yozuvi (bir talabada bir vaqtda bitta ochiq urinish)."""
+    return assign(_approved().student, record.assignment)
+
+
 def _submit(record: StudentAssignment, code: str = "df = 1") -> Submission:
     dispatched: list[int] = []
     submission = service.enqueue(record, code, dispatch=dispatched.append)
@@ -74,13 +79,18 @@ def test_agr_06_each_attempt_is_a_record_and_dispatch_waits_for_commit(
     dispatched: list[int] = []
     with django_capture_on_commit_callbacks(execute=False) as callbacks:
         first = service.enqueue(record, "a = 1", dispatch=dispatched.append)
-        second = service.enqueue(record, "a = 2", dispatch=dispatched.append)
+        # AGR-02: bir vaqtda bitta ochiq urinish.
+        with pytest.raises(service.SubmissionPending):
+            service.enqueue(record, "a = 2", dispatch=dispatched.append)
         assert dispatched == []  # commit'dan oldin navbatga qo'yilmaydi
     for callback in callbacks:
         callback()
-    assert dispatched == [first.pk, second.pk]
-    assert [s.status for s in Submission.objects.order_by("pk")] == ["queued", "queued"]
-    assert service.queue_depth() == {"queued": 2, "running": 0}
+    assert dispatched == [first.pk]
+    assert service.queue_depth() == {"queued": 1, "running": 0}
+    service.grade(first.pk)
+    second = service.enqueue(record, "a = 2", dispatch=dispatched.append)
+    assert [s.status for s in Submission.objects.order_by("pk")] == ["done", "queued"]
+    assert second.pk != first.pk
 
 
 def test_agr_02_grade_sends_all_tests_and_params_and_stores_score(
@@ -222,16 +232,16 @@ def test_agr_04_late_finish_of_reclaimed_attempt_is_ignored(record: StudentAssig
 
 def test_agr_04_requeue_stale_dispatches_only_stuck(record: StudentAssignment) -> None:
     old = timezone.now() - timedelta(minutes=10)
-    stuck_queued = _submit(record)
-    Submission.objects.filter(pk=stuck_queued.pk).update(created_at=old)
-    fresh = _submit(record)
-    stuck_running = _submit(record)
-    Submission.objects.filter(pk=stuck_running.pk).update(
-        status=SubmissionStatus.RUNNING, started_at=old, attempts=1
-    )
     done = _submit(record)
     Submission.objects.filter(pk=done.pk).update(created_at=old)
     service.grade(done.pk)
+    stuck_queued = _submit(_other(record))
+    Submission.objects.filter(pk=stuck_queued.pk).update(created_at=old)
+    fresh = _submit(_other(record))
+    stuck_running = _submit(_other(record))
+    Submission.objects.filter(pk=stuck_running.pk).update(
+        status=SubmissionStatus.RUNNING, started_at=old, attempts=1
+    )
     dispatched: list[int] = []
     assert service.requeue_stale(dispatch=dispatched.append) == 2
     assert sorted(dispatched) == sorted([stuck_queued.pk, stuck_running.pk])

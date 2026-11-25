@@ -109,5 +109,9 @@ class StudentConsumer(AsyncJsonWebsocketConsumer):  # type: ignore[misc]
     async def window_changed(self, event: dict[str, Any]) -> None:
         await self.send_json(event)
 
+    async def submission_status(self, event: dict[str, Any]) -> None:
+        """AGR-04: o'z urinishi holati va navbatdagi o'rni (faqat `user-<id>` guruhiga)."""
+        await self.send_json(event)
+
     async def force_close(self, event: dict[str, Any]) -> None:
         await self.close(code=CLOSE_RECONNECT)

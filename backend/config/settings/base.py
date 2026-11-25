@@ -152,6 +152,13 @@ SPECTACULAR_SETTINGS = {
     "SERVE_INCLUDE_SCHEMA": False,
     "SERVE_PERMISSIONS": ["config.api.IsStaffRole"],
     "COMPONENT_SPLIT_REQUEST": True,
+    # Bir nomli turli tanlovlar (laboratoriya holati va urinish siyosati) — barqaror nomlar.
+    "ENUM_NAME_OVERRIDES": {
+        "PolicyEnum": ["on_time", "late", "practice", "closed"],
+        "SubmissionPolicyEnum": ["on_time", "late", "practice"],
+        "StatusEnum": "apps.sections.models.MembershipStatus",
+        "SubmissionStatusEnum": "apps.grading.models.SubmissionStatus",
+    },
 }
 
 # SRS 7-bo'lim: joriy siyosat versiyasi (matn o'zgarsa — yangi versiya, qayta rozilik).
@@ -166,6 +173,8 @@ SECTION_JOIN_RATE = env.optional("SECTION_JOIN_RATE", "30/hour")
 # LAB-05: avtosaqlash — talaba bo'yicha (har 10 s + har ishga tushirish; bir nechta tab).
 LAB_SAVE_RATE = env.optional("LAB_SAVE_RATE", "60/min")
 LAB_EVENT_RATE = env.optional("LAB_EVENT_RATE", "120/min")
+# AGR-02: topshirish, talaba bo'yicha (bir vaqtda bitta ochiq urinish — model cheklovi)
+LAB_SUBMIT_RATE = env.optional("LAB_SUBMIT_RATE", "10/min")
 # AGR-08: variant tanlash HMAC kaliti; bo'sh bo'lsa SECRET_KEY dan hosil qilinadi.
 VARIANT_SECRET = env.optional("VARIANT_SECRET", "")
 
