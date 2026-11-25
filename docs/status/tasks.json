@@ -788,9 +788,9 @@
    "title": "\"Topshirish\" API va real vaqtda navbat holati",
    "req": "AGR-02, AGR-04, ACC-06, ACC-07",
    "size": "M",
-   "status": "ready",
+   "status": "done",
    "outcome": "Talaba \"Topshirish\" bosadi va navbatdagi o'rnini real vaqtda ko'radi.",
-   "pr": "",
+   "pr": "#182",
    "points": 2
   },
   {
@@ -801,9 +801,9 @@
    "title": "Natija: qadamlar bo'yicha ball, eng yuqori ball, yashirin testlar oshkor emas",
    "req": "AGR-05, AGR-06",
    "size": "M",
-   "status": "ready",
+   "status": "done",
    "outcome": "Talaba natijani tushunarli ko'radi; rasmiy ball — eng yuqorisi.",
-   "pr": "",
+   "pr": "#183",
    "points": 2
   },
   {

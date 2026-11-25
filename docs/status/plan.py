@@ -4,12 +4,12 @@ Issue raqami bor task — GitHub issue; `E-...` — hali issue'larga bo'linmagan
 """
 
 META = {
-    "as_of": "2026-11-25",
+    "as_of": "2026-11-26",
     "velocity_per_day": 9,  # ball/kun: kuniga 2 tungi run x ~4-5 ball (haftalik review aniqlaydi)
     "velocity_note": "Kuniga 2 tungi run, har biri ~4-5 ball (M=2, S=1). Yakshanba — 1 run + review.",
     "current_release": "R1",
     "current_iteration": "I3",
-    "next_task": "#155 Topshirish API va navbat holati, #156 natija va eng yuqori ball, #157 frontend topshirish",
+    "next_task": "#157 frontend: Topshirish va natija, #163 kontent A1–A5, #158 moslashuvchan daraja",
 }
 
 RELEASES = [
@@ -126,8 +126,8 @@ TASKS = [
     _t("I3", "I3-04", "#152", "\"Tekshirish\": ko'rinadigan testlar brauzerda (Pyodide)", "AGR-01, LAB-07", "M", "done", "Talaba \"Tekshirish\" bossa, ko'rinadigan testlar darhol brauzerda ishlaydi.", "#179"),
     _t("I3", "I3-05", "#153", "Sandbox image va runner (sandbox/)", "AGR-03, AGR-05", "M", "done", "Talaba kodi va yashirin testlarni izolyatsiyada bajaradigan konteyner.", "#177"),
     _t("I3", "I3-06", "#154", "Celery va baholash vazifasi: Submission, navbat (2 parallel), qayta urinish", "AGR-02, AGR-04, AGR-06", "M", "done", "Topshirilgan kod navbat orqali sandbox'da baholanadi.", "#180"),
-    _t("I3", "I3-07", "#155", "\"Topshirish\" API va real vaqtda navbat holati", "AGR-02, AGR-04, ACC-06, ACC-07", "M", "ready", "Talaba \"Topshirish\" bosadi va navbatdagi o'rnini real vaqtda ko'radi."),
-    _t("I3", "I3-08", "#156", "Natija: qadamlar bo'yicha ball, eng yuqori ball, yashirin testlar oshkor emas", "AGR-05, AGR-06", "M", "ready", "Talaba natijani tushunarli ko'radi; rasmiy ball — eng yuqorisi."),
+    _t("I3", "I3-07", "#155", "\"Topshirish\" API va real vaqtda navbat holati", "AGR-02, AGR-04, ACC-06, ACC-07", "M", "done", "Talaba \"Topshirish\" bosadi va navbatdagi o'rnini real vaqtda ko'radi.", "#182"),
+    _t("I3", "I3-08", "#156", "Natija: qadamlar bo'yicha ball, eng yuqori ball, yashirin testlar oshkor emas", "AGR-05, AGR-06", "M", "done", "Talaba natijani tushunarli ko'radi; rasmiy ball — eng yuqorisi.", "#183"),
     _t("I3", "I3-09", "#157", "Frontend: topshiriq paneli, Tekshirish/Topshirish, navbat va natija", "AGR-01, AGR-02, AGR-04, AGR-05, LAB-07", "M", "ready", "Laboratoriya sahifasida to'liq baholash oqimi."),
     _t("I3", "I3-10", "#158", "Moslashuvchan daraja: qoida bo'yicha tanlash va o'qituvchi o'zgartirishi", "ADP-01, ADP-02", "M", "ready", "Har talabaga mos daraja (asosiy, o'rta, ilg'or)."),
     _t("I3", "I3-11", "#159", "Tez tugatganga challenge taklifi", "ADP-03", "S", "ready", "Topshiriqni tez va to'liq bajargan talabaga qo'shimcha challenge."),

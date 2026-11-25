@@ -2,6 +2,26 @@
 
 > Har run oxirida Claude qo'shadi. Eng yangisi yuqorida.
 
+### 2026-11-25 — tungi run 1/2 (26-noyabr tuni)
+- **Bajarilgan issue'lar va PR:** #155 → PR #182 ("Topshirish" API va navbat holati), #156 → PR #183 (natija va eng
+  yuqori ball). 4 ball.
+- **Nima qilindi (oddiy tilda):** Server tomonda topshirish tayyor: talaba kodini yuboradi, navbatdagi o'rnini oladi
+  va holat o'zgarganda (navbatda → tekshirilmoqda → baholandi) xabar o'z kanaliga real vaqtda keladi. Bir topshiriqda
+  bir vaqtda bitta ochiq urinish; kechikkan topshirishda jarima topshirish paytidagi foiz bilan hisoblanadi, mashq
+  urinishi rasmiy baho emas. Natija qadamlar bo'yicha: har qadam bali, nechta test o'tgani, ko'rinadigan testlar xabari;
+  yashirin testlar faqat "yashirin test N — O'tmadi" ko'rinishida. Rasmiy ball — eng yuqori urinish. O'qituvchi o'z
+  guruhidagi talabaning urinishlari va kodini ko'radi.
+- **Ishlatilgan skill'lar va nima uchun:** auth-and-authorization va security-discipline (IDOR testlari, yashirin
+  ma'lumotni serverda qayta yashirish, `stdout` ni ko'rsatmaslik), idempotency-and-side-effects (qisman unique indeks —
+  ikki tab bir vaqtda bossa ham bitta urinish), floating-point (ball butun son, yakuniy — `Decimal`), hyrums-law
+  (OpenAPI'dagi mavjud enum nomlari qotirildi), migration-safety.
+- **Yangi texnologiya / tushuncha:** `docs/learn/celery-channels.md` "Navbat holati real vaqtda",
+  `docs/learn/sandbox.md` 8-bo'lim.
+- **Ertalab nimani ko'rish kerak:** sandbox.md 8-bo'lim — nega talabaning `print()` chiqishi server natijasida yo'q.
+- **Xato va tuzatish:** #182 da lokal Redis snapshot'i (`dump.rdb`, ichida bitta throttle kaliti) tasodifan commit
+  bo'lgan edi — #183 da olib tashlandi, `*.rdb` endi `.gitignore` da; lokal Redis endi `/tmp` ga yozadi.
+- **Savollar / bloklar:** yo'q.
+
 ### 2026-11-25 — tungi run 2/2
 - **Bajarilgan issue'lar va PR:** #152 → PR #179 ("Tekshirish" — brauzerda ko'rinadigan testlar), #154 → PR #180
   (Celery baholash navbati). 4 ball.
