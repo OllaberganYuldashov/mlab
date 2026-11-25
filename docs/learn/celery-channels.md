@@ -46,6 +46,10 @@ Birinchi haqiqiy Celery vazifasi — `apps/grading/tasks.py` `grade_submission`.
   tasodifiy jitter. Talaba kodi xatosi — oddiy natija (0 ball): uni qayta urinish faqat navbatni to'ldiradi.
 - **`prefetch_multiplier=1`, `concurrency=2`:** har worker jarayoni bittadan vazifa oladi — bir vaqtda ko'pi bilan
   2 ta sandbox konteyneri (AGR-04).
+- **Navbat holati real vaqtda (I3-07):** worker holatni o'zgartirgach `submission.status` xabarini talabaning
+  `user-<id>` guruhiga yuboradi (Channels + Redis — worker va veb-server bir xil kanal qatlamini ishlatadi). Xabar
+  yo'qolishi mumkin (Redis qisqa uzilishi) — shuning uchun manba baza: qayta ulangan sahifa `GET /api/submissions/{id}`
+  bilan holatni oladi. Xabar commit'dan keyin ketadi (`on_commit`): bekor qilingan tranzaksiya haqida xabar bo'lmaydi.
 - Kuzatuv: `grading.queued|done|retry|failed|requeued` log qatorlari (`queued`/`running` soni, davomiylik, urinish).
 
 ## Rasmiy hujjat va yaxshi manbalar
