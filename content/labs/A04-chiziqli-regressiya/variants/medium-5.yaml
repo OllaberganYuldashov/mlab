@@ -1,0 +1,1 @@
+params: {"dataset": "wine", "features": ["od280_od315", "proline"], "target": "alcohol", "test_size": 0.25, "seed": 99}

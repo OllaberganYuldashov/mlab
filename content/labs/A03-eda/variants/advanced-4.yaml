@@ -1,0 +1,1 @@
+params: {"dataset": "breast_cancer", "column": "worst_perimeter", "category": "diagnosis", "bins": 25}

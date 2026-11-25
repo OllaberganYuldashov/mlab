@@ -24,6 +24,20 @@ panel (versiya va ko'rib chiqish yo'q). Kutubxona: **PyYAML** — Python'dagi en
 4. **`safe_load`.** YAML fayl ichida Python kodi ishga tushirib bo'lmaydi (`!!python/...` teglari rad etiladi).
 5. **Maxfiy papkalar.** `tests/hidden/` va `solutions/` hech qachon ma'ruza importiga tushmaydi va API'ga chiqmaydi.
 
+## Amalda: topshiriq yozish (I3-15)
+
+A01–A05 namunasi (`content/labs/`): har topshiriq 3 qadam (jami 100 ball), har darajada 5 variant (`params` — dataset,
+ustun, chegaralar, `seed`), har qadamga ko'rinadigan va yashirin test, `solutions/solution.py` shablon.
+
+- **Ko'rinadigan test** talabaga yo'l ko'rsatadi: o'zgaruvchi bormi, turi to'g'rimi; xabari o'zbekcha va aniq
+  ("`clean` DataFrame bo'lishi kerak"). **Yashirin test** natijani mustaqil hisoblangan javob bilan solishtiradi
+  (`mlab.load` + o'sha usul) — javob testda yozib qo'yilmaydi, shuning uchun variantlar uchun bitta test yetadi.
+- Son solishtirish — `math.isclose` / `np.allclose` (float aniq teng bo'lmaydi).
+- Yechim shabloni shartdagi kabi `{parametr}` bilan; `check_lab_solutions` har variantni sandbox runner'da
+  ishlatadi va bo'sh kod bilan birorta yashirin test o'tsa — xato (test hech narsani tekshirmayapti degani).
+- Brauzer va server bir xil natija berishi uchun faqat sandbox'da bor paketlar (numpy, pandas, scikit-learn, scipy,
+  matplotlib) ishlatiladi; e2e `labs-content.spec.ts` ko'rinadigan testlarni haqiqiy Pyodide'da ham o'tkazadi.
+
 ## Rasmiy hujjat va yaxshi manbalar
 - PyYAML hujjati: `yaml.safe_load`.
 - CommonMark (Markdown standarti): https://commonmark.org/help/

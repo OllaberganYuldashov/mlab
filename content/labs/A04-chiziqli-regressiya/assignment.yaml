@@ -1,0 +1,26 @@
+code: A04
+title: "Chiziqli regressiya"
+topic: M04
+statement: |
+  **Dataset:** `{dataset}` (`df = mlab.load("{dataset}")`), **belgilar:** `{features}`, **maqsad:** `{target}`.
+
+  1. **Bo'lish.** `X = df[{features}]`, `y = df["{target}"]`;
+     `X_train, X_test, y_train, y_test = train_test_split(X, y, test_size={test_size}, random_state={seed})`
+     (`from sklearn.model_selection import train_test_split`).
+  2. **O'qitish.** `model = LinearRegression().fit(X_train, y_train)` (`from sklearn.linear_model import LinearRegression`).
+  3. **Baholash.** Test qismida bashorat qiling va `r2` (`r2_score`) hamda `mse` (`mean_squared_error`) ni hisoblang
+     (`from sklearn.metrics import r2_score, mean_squared_error`).
+steps:
+  - key: split
+    title: "Train/test bo'lish"
+    points: 20
+  - key: fit
+    title: "Modelni o'qitish"
+    points: 40
+  - key: evaluate
+    title: "R² va MSE"
+    points: 40
+challenge: |
+  `PolynomialFeatures(degree=2)` qo'shib, test R² qanchaga o'zgarganini `r2_poly` ga yozing; overfitting belgisi bormi?
+independent: |
+  Polinomial regressiyani 1–5 darajalar uchun o'qiting va train/test R² grafigini chizing; qaysi daraja eng yaxshi?

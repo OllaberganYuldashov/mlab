@@ -1,0 +1,28 @@
+code: A01
+title: "Pandas va NumPy: yuklash va tozalash"
+topic: M02
+statement: |
+  **Dataset:** `{dataset}`, **ustun:** `{column}`.
+
+  1. **Yuklash.** `import mlab` va `df = mlab.load("{dataset}")`. Qatorlar sonini `n_rows` ga yozing.
+  2. **Statistika.** `{column}` ustunining o'rtacha qiymatini `mean_value` ga, medianasini `median_value` ga yozing
+     (oddiy son: `float(...)`).
+  3. **Tozalash.** `{column}` qiymati `{low}` dan kichik yoki `{high}` dan katta bo'lgan qatorlarni olib tashlang
+     (chegaralar ichida qoladi). Natijani `clean` ga yozing va indeksni `reset_index(drop=True)` bilan qayta tiklang.
+     Olib tashlangan qatorlar sonini `removed` ga yozing.
+
+  Maslahat: `df[(df["{column}"] >= {low}) & (df["{column}"] <= {high})]`.
+steps:
+  - key: load
+    title: "Datasetni yuklash"
+    points: 20
+  - key: stats
+    title: "O'rtacha va mediana"
+    points: 30
+  - key: clean
+    title: "Chegaradan tashqarini olib tashlash"
+    points: 50
+challenge: |
+  IQR qoidasi bilan (Q1 − 1.5·IQR, Q3 + 1.5·IQR) barcha raqamli ustunlardagi outlier'larni toping va har ustunda nechta ekanini `outliers` lug'atiga yozing.
+independent: |
+  Boshqa datasetni oling, unga ataylab 10% yetishmayotgan qiymat (NaN) qo'shing va ularni mediana bilan to'ldiring; to'ldirishdan oldingi va keyingi o'rtachani solishtiring.

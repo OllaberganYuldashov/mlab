@@ -1,0 +1,1 @@
+params: {"dataset": "wine", "column": "malic_acid", "category": "cultivar", "bins": 30}

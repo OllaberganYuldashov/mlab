@@ -1,0 +1,1 @@
+params: {"dataset": "wine", "features": ["nonflavanoid_phenols", "proanthocyanins"], "target": "alcohol", "test_size": 0.3, "seed": 21}

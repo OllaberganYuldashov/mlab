@@ -1,0 +1,28 @@
+code: A05
+title: "Overfitting va L1/L2 regulyarizatsiya"
+topic: M05
+statement: |
+  **Dataset:** `{dataset}` (`df = mlab.load("{dataset}")`), **maqsad:** `{target}`, **alpha:** `{alpha}`.
+
+  Tayyorlash: `X = df.drop(columns=["{target}"]).select_dtypes("number")`, `y = df["{target}"]`;
+  `train_test_split(X, y, test_size=0.3, random_state={seed})`; `StandardScaler` ni **faqat train'da** o'qiting
+  (`scaler.fit(X_train)`), so'ng `X_train_s = scaler.transform(X_train)`, `X_test_s = scaler.transform(X_test)`.
+
+  1. **Ridge (L2).** `ridge = Ridge(alpha={alpha}).fit(X_train_s, y_train)`; test R² — `ridge_r2`.
+  2. **Lasso (L1).** `lasso = Lasso(alpha={alpha}, max_iter=10000).fit(X_train_s, y_train)`; test R² — `lasso_r2`;
+     nolga teng koeffitsientlar soni — `zero_coefs` (butun son).
+  3. **Taqqoslash.** `best = "ridge"` yoki `"lasso"` — test R² kattasi (teng bo'lsa `"ridge"`).
+steps:
+  - key: ridge
+    title: "Ridge (L2)"
+    points: 35
+  - key: lasso
+    title: "Lasso (L1) va nol koeffitsientlar"
+    points: 35
+  - key: compare
+    title: "Taqqoslash"
+    points: 30
+challenge: |
+  `alpha` ni 10 ta qiymatda (`np.logspace(-3, 1, 10)`) sinab, Lasso'da nol koeffitsientlar soni qanday o'zgarishini `zeros_by_alpha` lug'atiga yozing.
+independent: |
+  alpha'ning ta'siri grafigi: Ridge va Lasso uchun alpha (log o'q) bo'yicha test R² chizig'i; xulosani yozing.

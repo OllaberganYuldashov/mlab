@@ -1,0 +1,1 @@
+params: {"dataset": "breast_cancer", "column": "worst_concave_points", "category": "diagnosis", "bins": 30}

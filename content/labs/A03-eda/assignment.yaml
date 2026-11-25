@@ -1,0 +1,28 @@
+code: A03
+title: "EDA: guruhlash, korrelyatsiya va grafik"
+topic: M03
+statement: |
+  **Dataset:** `{dataset}` (`df = mlab.load("{dataset}")`), **ustun:** `{column}`, **kategoriya:** `{category}`.
+
+  1. **Guruhlash.** Har `{category}` uchun `{column}` ning o'rtachasi:
+     `group_means = df.groupby("{category}")["{column}"].mean()`.
+  2. **Korrelyatsiya.** Raqamli ustunlar orasidan `{column}` bilan eng kuchli korrelyatsiyaga (Pearson, **mutlaq qiymat**
+     bo'yicha) ega **boshqa** ustun nomini `best_pair` ga (satr) yozing.
+  3. **Grafik.** `import matplotlib.pyplot as plt`, `fig, ax = plt.subplots()` va `ax.hist(df["{column}"], bins={bins})`.
+     O'q nomlarini qo'ying (`ax.set_xlabel`, `ax.set_ylabel`). `ax` o'zgaruvchisi qolsin.
+
+  Eslatma: serverda tekshirishda faqat matplotlib bor (seaborn — faqat brauzerda).
+steps:
+  - key: group
+    title: "Guruh bo'yicha o'rtacha"
+    points: 35
+  - key: corr
+    title: "Eng kuchli korrelyatsiya"
+    points: 35
+  - key: plot
+    title: "Histogramma"
+    points: 30
+challenge: |
+  Korrelyatsiya matritsasini `ax.imshow` bilan issiqlik xaritasi qilib chizing va eng kuchli 3 juftlikni `top_pairs` ro'yxatiga yozing.
+independent: |
+  "Datadan 5 ta xulosa": tanlagan datasetingiz bo'yicha 5 ta grafik va har biriga bir gapli xulosa (Markdown katakda).

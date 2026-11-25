@@ -115,8 +115,17 @@ labs/A01-pandas-numpy/
   variants/basic-1.yaml      # params: {dataset: iris, column: ...}; har daraja (basic, medium, advanced) kamida 5 ta
   tests/visible/<qadam>.py   # "Tekshirish" — brauzerda (ixtiyoriy)
   tests/hidden/<qadam>.py    # "Topshirish" — faqat sandbox'da, har qadamga majburiy; talabaga hech qachon ko'rinmaydi
-  solutions/<daraja>.py      # import qilinmaydi; CI yechim yashirin testlardan o'tishini tekshiradi
+  solutions/<daraja>.py      # yoki umumiy solution.py; {parametr} li shablon; import qilinmaydi
 ```
+
+Yechim tekshiruvi (har variant, ko'rinadigan va yashirin testlar; bo'sh kod bilan yashirin test o'tmasligi ham):
+
+```bash
+cd backend && uv run python manage.py check_lab_solutions ../content --python <sandbox paketlari o'rnatilgan python>
+# yoki sandbox image bilan: --docker mlab-sandbox:dev   (CI job — I3-18)
+```
+
+Tayyor: **A1–A5** (I3-15). Server sandbox'ida seaborn yo'q — topshiriqlardagi grafiklar matplotlib bilan.
 
 Test funksiyasi: `def test_<nom>(ns, params):` — `ns` talaba kodi bajarilgandan keyingi global nomlar, `params` — variant
 parametrlari. Shartdagi har `{parametr}` har variantda bo'lishi shart (import tekshiradi).
