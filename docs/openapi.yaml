@@ -496,7 +496,11 @@ paths:
       - cookieAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubmissionListOut'
+          description: ''
     post:
       operationId: labs_submissions_create
       summary: 'Topshirish: kod navbatga qo''yiladi (yashirin testlar sandbox''da)'
@@ -886,6 +890,41 @@ paths:
       responses:
         '204':
           description: No response body
+  /api/sections/{section_id}/labs/{code}/students/{student_id}/submissions:
+    get:
+      operationId: sections_labs_students_submissions_retrieve
+      description: |-
+        O'qituvchi: o'z guruhidagi talabaning urinishlari, kodi va natijasi (AGR-06).
+
+        Begona guruh yoki guruhda tasdiqlanmagan talaba — 404. Yashirin testlar bu yerda ham yashirin.
+      summary: Talabaning urinishlari (o'qituvchiga)
+      parameters:
+      - in: path
+        name: code
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: section_id
+        schema:
+          type: integer
+        required: true
+      - in: path
+        name: student_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - sections
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentSubmissionsOut'
+          description: ''
   /api/sections/{section_id}/labs/{code}/works/{student_id}:
     get:
       operationId: sections_labs_works_retrieve
@@ -1239,7 +1278,7 @@ paths:
       operationId: submissions_retrieve
       description: Qayta ulanishda holat (AGR-04). Begona urinish — 404 (mavjudligi
         ham oshkor emas).
-      summary: Urinish holati
+      summary: Urinish holati va natijasi (AGR-05)
       parameters:
       - in: path
         name: submission_id
@@ -1255,7 +1294,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SubmissionOut'
+                $ref: '#/components/schemas/SubmissionDetailOut'
           description: ''
   /api/users/{user_id}/reset-password:
     post:
@@ -2239,6 +2278,49 @@ components:
       - hemis_id
       - password
       - policy_version
+    ResultStep:
+      type: object
+      properties:
+        key:
+          type: string
+        title:
+          type: string
+        points:
+          type: integer
+        score:
+          type: integer
+        passed:
+          type: integer
+        total:
+          type: integer
+        tests:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResultTest'
+      required:
+      - key
+      - passed
+      - points
+      - score
+      - tests
+      - title
+      - total
+    ResultTest:
+      type: object
+      properties:
+        name:
+          type: string
+        visible:
+          type: boolean
+        passed:
+          type: boolean
+        message:
+          type: string
+      required:
+      - message
+      - name
+      - passed
+      - visible
     RoleEnum:
       enum:
       - super_admin
@@ -2422,6 +2504,52 @@ components:
       - full_name
       - hemis_id
       - id
+    StudentSubmissionItem:
+      type: object
+      properties:
+        result:
+          allOf:
+          - $ref: '#/components/schemas/SubmissionResult'
+          nullable: true
+        code:
+          type: string
+      required:
+      - code
+      - result
+    StudentSubmissionsOut:
+      type: object
+      properties:
+        best_final_score:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,2})?$
+          nullable: true
+        submissions:
+          type: array
+          items:
+            $ref: '#/components/schemas/StudentSubmissionItem'
+      required:
+      - best_final_score
+      - submissions
+    SubmissionDetailOut:
+      type: object
+      properties:
+        result:
+          allOf:
+          - $ref: '#/components/schemas/SubmissionResult'
+          nullable: true
+      required:
+      - result
+    SubmissionListOut:
+      type: object
+      properties:
+        best_final_score:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,2})?$
+          nullable: true
+      required:
+      - best_final_score
     SubmissionOut:
       type: object
       properties:
@@ -2479,6 +2607,19 @@ components:
         * `on_time` - on_time
         * `late` - late
         * `practice` - practice
+    SubmissionResult:
+      type: object
+      properties:
+        code_error:
+          type: string
+          nullable: true
+        steps:
+          type: array
+          items:
+            $ref: '#/components/schemas/ResultStep'
+      required:
+      - code_error
+      - steps
     TemporaryPassword:
       type: object
       properties:

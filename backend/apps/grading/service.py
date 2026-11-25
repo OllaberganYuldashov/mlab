@@ -33,6 +33,7 @@ from apps.grading.models import (
     TestFile,
     TestKind,
 )
+from apps.grading.results import step_breakdown
 from apps.grading.sandbox import SandboxUnavailable, get_sandbox
 from apps.sections.policy import apply_late_penalty
 from apps.sections.realtime import user_event
@@ -197,12 +198,10 @@ def compute_score(result: dict[str, Any], steps: list[tuple[str, int]]) -> int:
     """Qadam bali * o'tgan testlar ulushi (butun son, pastga yaxlitlash — float yo'q).
 
     Qadamda test natijasi bo'lmasa (test fayli xato) — 0. Jami 100 dan oshmaydi.
+    Hisob `results.step_breakdown` bilan bir xil (talaba ko'rgan qadamlar yig'indisi = ball).
     """
-    total = 0
-    for key, points in steps:
-        own = [t for t in result["tests"] if t.get("step") == key]
-        if own:
-            total += points * sum(1 for t in own if t.get("passed") is True) // len(own)
+    rows = step_breakdown(result, [(key, "", points) for key, points in steps])
+    total: int = sum(row["score"] for row in rows)
     return min(total, 100)
 
 
