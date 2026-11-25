@@ -93,3 +93,6 @@ docs/status/__pycache__/
 
 # ADR-0006: build vaqtida yuklanadigan Pyodide fayllari
 frontend/public/pyodide/
+
+# Lokal Redis snapshot (redis-server repo ildizida ishga tushirilsa)
+*.rdb
