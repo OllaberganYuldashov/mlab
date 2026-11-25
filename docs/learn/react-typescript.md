@@ -91,3 +91,15 @@ har birini **React elementi** sifatida yasaydi. React matnni doim matn sifatida 
 ekranda oddiy belgilar bo'lib ko'rinadi. Havolada `javascript:` kabi sxemalar rad etiladi, rasm faqat o'z serverimizdan.
 Yangi kutubxona kerak bo'lmadi; jadval kabi murakkab narsalar kerak bo'lsa — ADR bilan `react-markdown` ko'rib chiqiladi.
 
+
+## Amalda: server holatini kuzatish (I3-09)
+
+`frontend/src/lab/submissions.ts` `watchSubmission()` — real vaqt UI'ning ishonchli shakli:
+
+- **Manba — server.** WebSocket xabari ma'lumot emas, "qayta so'ra" signali; javob `GET /api/submissions/{id}` dan
+  olinadi. Xabar yo'qolsa ham (tarmoq, Redis) har 5 soniyada zaxira so'rov holatni baribir yangilaydi.
+- **Bir vaqtda bitta so'rov:** ketma-ket kelgan xabarlar bitta navbatdagi so'rovga birlashadi (so'rov yog'dirmaydi).
+- **Tozalash:** urinish tugagach (yoki komponent yopilganda) taymer va ulanish yopiladi — `useEffect` qaytargan
+  funksiya `stop()` ni chaqiradi.
+- Komponentda effekt ichida to'g'ridan-to'g'ri `setState` chaqirilmaydi (eslint `react-hooks/set-state-in-effect`):
+  holat faqat so'rov javobi kelganda yangilanadi.
