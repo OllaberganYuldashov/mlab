@@ -15,6 +15,7 @@ import {
 } from "./checker";
 import type { Notebook } from "./notebook";
 import { getRuntime } from "./runtime";
+import SubmitPanel from "./SubmitPanel";
 
 type Level = "basic" | "medium" | "advanced";
 
@@ -145,6 +146,23 @@ export default function AssignmentPanel({
         {t("lab.task.level", { level: t(`lab.level.${assignment.level}`) })}
       </p>
       <Markdown text={assignment.statement} />
+      {Object.keys(assignment.params).length > 0 && (
+        <details className="task-params">
+          <summary>{t("lab.task.params")}</summary>
+          <dl>
+            {Object.entries(assignment.params).map(([name, value]) => (
+              <div key={name}>
+                <dt>
+                  <code>{name}</code>
+                </dt>
+                <dd>
+                  {typeof value === "string" ? value : JSON.stringify(value)}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </details>
+      )}
       <ol className="task-steps">
         {assignment.steps.map((s) => (
           <li key={s.key}>
@@ -168,6 +186,7 @@ export default function AssignmentPanel({
           {result && <CheckOutput result={result} />}
         </>
       )}
+      <SubmitPanel code={code} getCode={() => notebookCode(getNotebook())} />
     </>
   );
 }

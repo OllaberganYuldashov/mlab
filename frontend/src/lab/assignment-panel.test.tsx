@@ -73,7 +73,8 @@ describe("AssignmentPanel (AGR-01, LAB-07)", () => {
     ).toBeInTheDocument();
     expect(screen.getByText("Daraja: asosiy")).toBeInTheDocument();
     expect(screen.getByText("Yuklash — 40 ball")).toBeInTheDocument();
-    expect(screen.getByText("c3")).toBeInTheDocument();
+    expect(screen.getAllByText("c3")).toHaveLength(2); // shartda va variant parametrlarida
+    expect(screen.getByText(messages["lab.task.params"])).toBeInTheDocument();
     await userEvent.click(
       screen.getByRole("button", { name: messages["lab.check.button"] }),
     );
@@ -128,7 +129,13 @@ describe("AssignmentPanel (AGR-01, LAB-07)", () => {
     expect(
       await screen.findByText(messages["lab.check.none"]),
     ).toBeInTheDocument();
-    expect(screen.queryByRole("button")).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: messages["lab.check.button"] }),
+    ).not.toBeInTheDocument();
+    // Topshirish baribir mumkin (yashirin testlar serverda).
+    expect(
+      screen.getByRole("button", { name: messages["lab.submit.button"] }),
+    ).toBeInTheDocument();
   });
 
   it("topshiriq yo'q (404) va xato", async () => {
