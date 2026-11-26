@@ -14,3 +14,7 @@ defaults:
   quiz_minutes: 15            # CNT-06: test vaqti, daqiqa (1..180)
   quiz_attempts: 3            # CNT-06: urinishlar soni (1..10)
   paste_limit: 200            # INT-01: laboratoriyada bir martada joylashtirish chegarasi, belgi (0..10000)
+  # ADP-01: moslashuvchan daraja — ko'rsatkich (mavzu testi va oldingi topshiriqlar o'rtachasi, 0..100) shundan
+  # kam bo'lsa asosiy, `level_medium_from` dan — o'rta, `level_advanced_from` dan — ilg'or. Ma'lumot yo'q — asosiy.
+  level_medium_from: 60
+  level_advanced_from: 85

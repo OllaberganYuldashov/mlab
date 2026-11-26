@@ -46,6 +46,7 @@ class Action(models.TextChoices):
     DEADLINE_CHANGED = "deadline_changed", _("Topshirish muddati o'zgardi")
     # I2
     CONTENT_EDITED = "content_edited", _("Kontent admin'da tuzatildi")
+    LEVEL_CHANGED = "level_changed", _("Topshiriq darajasi o'zgardi")
 
 
 class AuditLogQuerySet(models.QuerySet["AuditLog"]):

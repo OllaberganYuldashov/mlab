@@ -141,6 +141,11 @@ class StudentAssignmentStatus(models.TextChoices):
     SUBMITTED = "submitted", _("topshirilgan")
 
 
+class LevelSource(models.TextChoices):
+    RULE = "rule", _("qoida bo'yicha")
+    INSTRUCTOR = "instructor", _("o'qituvchi tanlagan")
+
+
 class StudentAssignment(models.Model):
     """Talaba x topshiriq (AGR-08, INT-03): daraja va variant bir marta tanlanadi va saqlanadi.
 
@@ -163,6 +168,10 @@ class StudentAssignment(models.Model):
         Variant, on_delete=models.PROTECT, related_name="student_assignments"
     )
     level = models.CharField(_("daraja"), max_length=8, choices=Level.choices)
+    # ADP-01/02: daraja qoida bo'yicha (birinchi ochilishda) yoki o'qituvchi qo'lda o'zgartirgan.
+    level_source = models.CharField(
+        _("daraja manbai"), max_length=10, choices=LevelSource.choices, default=LevelSource.RULE
+    )
     seed = models.PositiveIntegerField(_("dataset seed"))
     status = models.CharField(
         _("holat"),
@@ -186,6 +195,10 @@ class StudentAssignment(models.Model):
             models.CheckConstraint(
                 condition=Q(status__in=StudentAssignmentStatus.values),
                 name="grading_student_assignment_status",
+            ),
+            models.CheckConstraint(
+                condition=Q(level_source__in=LevelSource.values),
+                name="grading_student_assignment_level_source",
             ),
         ]
 

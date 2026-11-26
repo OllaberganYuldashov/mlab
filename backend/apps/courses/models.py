@@ -55,6 +55,9 @@ class Course(models.Model):
     quiz_attempts = models.PositiveSmallIntegerField(_("urinishlar soni"), default=3)
     # INT-01: laboratoriyada bir martada joylashtirish mumkin bo'lgan belgilar soni.
     paste_limit = models.PositiveSmallIntegerField(_("paste chegarasi (belgi)"), default=200)
+    # ADP-01: moslashuvchan daraja chegaralari (ko'rsatkich 0..100: test va oldingi topshiriqlar).
+    level_medium_from = models.PositiveSmallIntegerField(_("o'rta daraja chegarasi"), default=60)
+    level_advanced_from = models.PositiveSmallIntegerField(_("ilg'or daraja chegarasi"), default=85)
 
     class Meta:
         verbose_name = _("kurs")
@@ -84,6 +87,11 @@ class Course(models.Model):
             ),
             models.CheckConstraint(
                 condition=Q(paste_limit__lte=MAX_PASTE_LIMIT), name="courses_course_paste_limit"
+            ),
+            models.CheckConstraint(
+                condition=Q(level_medium_from__lte=models.F("level_advanced_from"))
+                & Q(level_advanced_from__lte=100),
+                name="courses_course_level_thresholds",
             ),
             models.CheckConstraint(
                 condition=Q(content_hash__regex=r"^[0-9a-f]{64}$"), name="courses_course_hash"
