@@ -1,12 +1,12 @@
 {
  "rows": [
   {
-   "as_of": "2026-11-26",
+   "as_of": "2026-11-27",
    "velocity_per_day": 9,
    "velocity_note": "Kuniga 2 tungi run, har biri ~4-5 ball (M=2, S=1). Yakshanba — 1 run + review.",
    "current_release": "R1",
    "current_iteration": "I3",
-   "next_task": "#158 moslashuvchan daraja, #164 kontent A6–A10, #161 tushunish savollari"
+   "next_task": "#191 GitHub Actions (egasi), so'ng #190 merge, #164 kontent A6–A10, #162 shubhali holatlar"
   }
  ]
 }

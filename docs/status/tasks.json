@@ -827,9 +827,9 @@
    "title": "Moslashuvchan daraja: qoida bo'yicha tanlash va o'qituvchi o'zgartirishi",
    "req": "ADP-01, ADP-02",
    "size": "M",
-   "status": "ready",
+   "status": "done",
    "outcome": "Har talabaga mos daraja (asosiy, o'rta, ilg'or).",
-   "pr": "",
+   "pr": "#188",
    "points": 2
   },
   {
@@ -840,9 +840,9 @@
    "title": "Tez tugatganga challenge taklifi",
    "req": "ADP-03",
    "size": "S",
-   "status": "ready",
+   "status": "done",
    "outcome": "Topshiriqni tez va to'liq bajargan talabaga qo'shimcha challenge.",
-   "pr": "",
+   "pr": "#189",
    "points": 1
   },
   {
@@ -866,9 +866,9 @@
    "title": "Tushunish savollari: topshirgandan keyin 2 ta, noto'g'ri bo'lsa ball 50% bilan cheklanadi",
    "req": "INT-02",
    "size": "M",
-   "status": "ready",
+   "status": "in_progress",
    "outcome": "Talaba o'z kodini tushunganini tekshirish.",
-   "pr": "",
+   "pr": "#190",
    "points": 2
   },
   {
