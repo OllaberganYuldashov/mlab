@@ -63,8 +63,10 @@ def test_agr_01_student_gets_statement_steps_and_visible_tests_only(
     assert "test_shape" not in text
     assert "test_no_nan" not in text
     assert "hidden" not in text
-    # Challenge (ADP-03) va mustaqil topshiriq bu javobda yo'q — ular keyinroq taklif qilinadi.
-    assert "challenge" not in body
+    # Challenge (ADP-03) to'liq ball olinmaguncha yopiq; mustaqil topshiriq bu javobda yo'q.
+    assert (body["has_challenge"], body["challenge"]) == (True, None)
+    assert "Outlier" not in text
+    assert "independent" not in body
 
 
 def test_agr_01_variant_assigned_once_and_stable(membership: Membership) -> None:

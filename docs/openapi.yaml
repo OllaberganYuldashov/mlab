@@ -1968,8 +1968,15 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/AssignmentStepOut'
+        has_challenge:
+          type: boolean
+        challenge:
+          type: string
+          nullable: true
       required:
+      - challenge
       - code
+      - has_challenge
       - level
       - params
       - statement

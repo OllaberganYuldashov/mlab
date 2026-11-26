@@ -63,6 +63,8 @@ AssignmentOut = inline_serializer(
         "statement": serializers.CharField(),
         "params": serializers.JSONField(),
         "steps": AssignmentStepOut(many=True),
+        "has_challenge": serializers.BooleanField(),
+        "challenge": serializers.CharField(allow_null=True),
     },
 )
 
@@ -144,8 +146,28 @@ class MyAssignmentView(APIView):
                     }
                     for s in steps
                 ],
+                # ADP-03: challenge faqat to'liq ball (o'z vaqtida) olingandan keyin ochiladi.
+                "has_challenge": bool(assignment.challenge),
+                "challenge": assignment.challenge
+                if challenge_unlocked(record, assignment)
+                else None,
             }
         )
+
+
+def challenge_unlocked(record: StudentAssignment, assignment: Assignment) -> bool:
+    """ADP-03: oyna ichida (o'z vaqtida, rasmiy) 100 ball olingan urinish bor; keyin ochiq qoladi.
+
+    Challenge bali asosiy ballga ta'sir qilmaydi (GRD-01): u alohida, R1 da o'qituvchi ko'radi.
+    """
+    if not assignment.challenge:
+        return False
+    return Submission.objects.filter(
+        student_assignment=record,
+        status=SubmissionState.DONE,
+        policy=SubmissionPolicy.ON_TIME,
+        final_score__gte=100,
+    ).exists()
 
 
 # --- Topshirish (I3-07; AGR-02, AGR-04, ACC-06, ACC-07) ---

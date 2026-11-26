@@ -31,6 +31,9 @@ export interface Assignment {
     points: number;
     visible_test: string | null;
   }[];
+  /** ADP-03: challenge bormi va (to'liq ball olingach) uning matni. */
+  has_challenge: boolean;
+  challenge: string | null;
 }
 
 type State =
@@ -92,6 +95,8 @@ export default function AssignmentPanel({
   const [state, setState] = useState<State>({ kind: "loading" });
   const [checking, setChecking] = useState(false);
   const [result, setResult] = useState<CheckResult | null>(null);
+  // Urinish baholangach topshiriq qayta so'raladi: challenge ochilgan bo'lishi mumkin (ADP-03).
+  const [version, setVersion] = useState(0);
 
   useEffect(() => {
     let active = true;
@@ -103,7 +108,7 @@ export default function AssignmentPanel({
     return () => {
       active = false;
     };
-  }, [code]);
+  }, [code, version]);
 
   if (state.kind === "loading")
     return <p role="status">{t("common.loading")}</p>;
@@ -186,7 +191,22 @@ export default function AssignmentPanel({
           {result && <CheckOutput result={result} />}
         </>
       )}
-      <SubmitPanel code={code} getCode={() => notebookCode(getNotebook())} />
+      <SubmitPanel
+        code={code}
+        getCode={() => notebookCode(getNotebook())}
+        onGraded={() => setVersion((v) => v + 1)}
+      />
+      {assignment.challenge ? (
+        <section className="challenge" aria-label={t("lab.challenge.title")}>
+          <h3>{t("lab.challenge.title")}</h3>
+          <Markdown text={assignment.challenge} />
+          <p className="muted">{t("lab.challenge.note")}</p>
+        </section>
+      ) : (
+        assignment.has_challenge && (
+          <p className="muted">{t("lab.challenge.locked")}</p>
+        )
+      )}
     </>
   );
 }
