@@ -890,6 +890,47 @@ paths:
       responses:
         '204':
           description: No response body
+  /api/sections/{section_id}/labs/{code}/students/{student_id}/level:
+    put:
+      operationId: sections_labs_students_level_update
+      description: |-
+        ADP-02: o'qituvchi o'z guruhidagi talabaning topshiriq darajasini o'zgartiradi (audit bilan).
+
+        Yangi daraja — yangi variant. Ochiq urinish bo'lsa 409 `submission_pending`.
+      summary: Talaba darajasini o'zgartirish
+      parameters:
+      - in: path
+        name: code
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: section_id
+        schema:
+          type: integer
+        required: true
+      - in: path
+        name: student_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - sections
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/_LevelInRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentLevelOut'
+          description: ''
   /api/sections/{section_id}/labs/{code}/students/{student_id}/submissions:
     get:
       operationId: sections_labs_students_submissions_retrieve
@@ -1784,6 +1825,24 @@ components:
       - order
       - question
       - title
+    LevelEnum:
+      enum:
+      - basic
+      - medium
+      - advanced
+      type: string
+      description: |-
+        * `basic` - basic
+        * `medium` - medium
+        * `advanced` - advanced
+    LevelSourceEnum:
+      enum:
+      - rule
+      - instructor
+      type: string
+      description: |-
+        * `rule` - rule
+        * `instructor` - instructor
     LoginFailed:
       type: object
       properties:
@@ -2504,6 +2563,19 @@ components:
       - full_name
       - hemis_id
       - id
+    StudentLevelOut:
+      type: object
+      properties:
+        level:
+          $ref: '#/components/schemas/LevelEnum'
+        level_source:
+          $ref: '#/components/schemas/LevelSourceEnum'
+        changed:
+          type: boolean
+      required:
+      - changed
+      - level
+      - level_source
     StudentSubmissionItem:
       type: object
       properties:
@@ -2724,6 +2796,13 @@ components:
       - cell
       - kind
       - size
+    _LevelInRequest:
+      type: object
+      properties:
+        level:
+          $ref: '#/components/schemas/LevelEnum'
+      required:
+      - level
     _SubmitInRequest:
       type: object
       properties:

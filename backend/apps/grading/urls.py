@@ -11,4 +11,9 @@ urlpatterns: list[URLPattern] = [
         views.StudentSubmissionsView.as_view(),
         name="section-student-submissions",
     ),
+    path(
+        "sections/<int:section_id>/labs/<str:code>/students/<int:student_id>/level",
+        views.StudentLevelView.as_view(),
+        name="section-student-level",
+    ),
 ]

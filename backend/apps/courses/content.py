@@ -545,6 +545,9 @@ _DEFAULTS: dict[str, tuple[type, Any, str]] = {
     "quiz_attempts": (int, lambda v: 1 <= v <= MAX_QUIZ_ATTEMPTS, f"1..{MAX_QUIZ_ATTEMPTS}"),
     # INT-01: paste chegarasi (faqat kurs darajasida)
     "paste_limit": (int, lambda v: 0 <= v <= MAX_PASTE_LIMIT, f"0..{MAX_PASTE_LIMIT} belgi"),
+    # ADP-01: moslashuvchan daraja chegaralari (ko'rsatkich 0..100)
+    "level_medium_from": (int, lambda v: 0 <= v <= 100, "0..100"),
+    "level_advanced_from": (int, lambda v: 0 <= v <= 100, "0..100"),
 }
 
 
@@ -564,6 +567,12 @@ def _parse_defaults(raw: Any, line: int | None) -> dict[str, Any]:
         if type(value) is not expected or not valid(value):
             raise ContentError("course.yaml", line, f"defaults.{key}: {hint}")
         result[key] = value
+    medium = result.get("level_medium_from", 60)
+    advanced = result.get("level_advanced_from", 85)
+    if medium > advanced:
+        raise ContentError(
+            "course.yaml", line, "defaults: level_medium_from <= level_advanced_from bo'lishi kerak"
+        )
     return result
 
 

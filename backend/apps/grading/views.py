@@ -24,12 +24,15 @@ from rest_framework.response import Response
 from rest_framework.throttling import SimpleRateThrottle
 from rest_framework.views import APIView
 
+from apps.accounts.models import User
 from apps.accounts.permissions import IsStudent
 from apps.courses.models import Topic
 from apps.grading import results, service, variants
 from apps.grading.models import (
     Assignment,
     AssignmentStep,
+    Level,
+    LevelSource,
     StudentAssignment,
     Submission,
     SubmissionPolicy,
@@ -337,6 +340,28 @@ class MySubmissionView(APIView):
         return Response({**_out(submission), "result": results.student_result(submission, steps)})
 
 
+def _section_student(
+    user: Any, section_id: int, code: str, student_id: int
+) -> tuple[Membership, Assignment]:
+    """O'qituvchining o'z guruhidagi tasdiqlangan talaba va mavzu topshirig'i; aks holda 404."""
+    _visible_section_id(user, section_id)
+    membership = (
+        Membership.objects.approved()
+        .filter(section_id=section_id, student_id=student_id)
+        .select_related("section", "student")
+        .first()
+    )
+    topic = (
+        Topic.objects.filter(course_id=membership.section.course_id, code=code).first()
+        if membership
+        else None
+    )
+    assignment = _topic_assignment(membership.section, topic) if membership and topic else None
+    if membership is None or assignment is None:
+        raise NotFound
+    return membership, assignment
+
+
 class StudentSubmissionsView(APIView):
     """O'qituvchi: o'z guruhidagi talabaning urinishlari, kodi va natijasi (AGR-06).
 
@@ -349,21 +374,7 @@ class StudentSubmissionsView(APIView):
         responses={200: StudentSubmissionsOut}, summary="Talabaning urinishlari (o'qituvchiga)"
     )
     def get(self, request: Request, section_id: int, code: str, student_id: int) -> Response:
-        _visible_section_id(request.user, section_id)
-        membership = (
-            Membership.objects.approved()
-            .filter(section_id=section_id, student_id=student_id)
-            .select_related("section")
-            .first()
-        )
-        topic = (
-            Topic.objects.filter(course_id=membership.section.course_id, code=code).first()
-            if membership
-            else None
-        )
-        assignment = _topic_assignment(membership.section, topic) if membership and topic else None
-        if assignment is None:
-            raise NotFound
+        _, assignment = _section_student(request.user, section_id, code, student_id)
         record = StudentAssignment.objects.filter(
             student_id=student_id, assignment=assignment
         ).first()
@@ -385,4 +396,52 @@ class StudentSubmissionsView(APIView):
                     for s in rows
                 ],
             }
+        )
+
+
+class _LevelIn(serializers.Serializer[dict[str, Any]]):
+    level = serializers.ChoiceField(choices=Level.values)
+
+
+LevelOut = inline_serializer(
+    "StudentLevelOut",
+    {
+        "level": serializers.ChoiceField(choices=Level.values),
+        "level_source": serializers.ChoiceField(choices=LevelSource.values),
+        "changed": serializers.BooleanField(),
+    },
+)
+
+
+class StudentLevelView(APIView):
+    """ADP-02: o'qituvchi o'z guruhidagi talabaning topshiriq darajasini o'zgartiradi (audit bilan).
+
+    Yangi daraja — yangi variant. Ochiq urinish bo'lsa 409 `submission_pending`.
+    """
+
+    permission_classes = STAFF_OR_INSTRUCTOR
+    parser_classes = (JSONParser,)
+
+    @extend_schema(
+        request=_LevelIn, responses={200: LevelOut}, summary="Talaba darajasini o'zgartirish"
+    )
+    def put(self, request: Request, section_id: int, code: str, student_id: int) -> Response:
+        membership, assignment = _section_student(request.user, section_id, code, student_id)
+        data = _LevelIn(data=request.data)
+        data.is_valid(raise_exception=True)
+        assert isinstance(request.user, User)  # STAFF_OR_INSTRUCTOR kafolatlaydi  # noqa: S101
+        try:
+            record, changed = variants.set_level(
+                membership.student, assignment, data.validated_data["level"], request.user
+            )
+        except variants.LevelLocked:
+            return Response(
+                {
+                    "code": "submission_pending",
+                    "detail": "Talabaning urinishi tekshirilmoqda — keyinroq o'zgartiring.",
+                },
+                status=status.HTTP_409_CONFLICT,
+            )
+        return Response(
+            {"level": record.level, "level_source": record.level_source, "changed": changed}
         )

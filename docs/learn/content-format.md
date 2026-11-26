@@ -38,6 +38,14 @@ ustun, chegaralar, `seed`), har qadamga ko'rinadigan va yashirin test, `solution
 - Brauzer va server bir xil natija berishi uchun faqat sandbox'da bor paketlar (numpy, pandas, scikit-learn, scipy,
   matplotlib) ishlatiladi; e2e `labs-content.spec.ts` ko'rinadigan testlarni haqiqiy Pyodide'da ham o'tkazadi.
 
+## Moslashuvchan daraja (I3-10)
+
+Har topshiriqda 3 daraja bor (asosiy, o'rta, ilg'or). Talaba topshiriqni **birinchi** ochganda daraja tanlanadi va
+keyin o'zgarmaydi (faqat o'qituvchi qo'lda o'zgartirsa — yangi variant bilan, audit jurnalida). Qoida
+`backend/apps/grading/levels.py` da: mavzu testining eng yaxshi foizi va oldingi topshiriqlar eng yuqori ballari
+o'rtachasi olinadi, ikkalasining o'rtachasi `course.yaml` dagi chegaralar bilan solishtiriladi (60 va 85). Ma'lumot
+bo'lmasa — asosiy daraja. Chegarani o'zgartirish faqat yangi ochilishlarga ta'sir qiladi.
+
 ## Rasmiy hujjat va yaxshi manbalar
 - PyYAML hujjati: `yaml.safe_load`.
 - CommonMark (Markdown standarti): https://commonmark.org/help/
