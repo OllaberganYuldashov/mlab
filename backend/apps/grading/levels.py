@@ -22,6 +22,7 @@ from apps.grading.models import (
     Submission,
     SubmissionPolicy,
     SubmissionStatus,
+    Understanding,
 )
 
 
@@ -71,6 +72,7 @@ def prior_scores(student: User, assignment: Assignment) -> list[Decimal]:
             status=SubmissionStatus.DONE,
         )
         .exclude(policy=SubmissionPolicy.PRACTICE)
+        .exclude(understanding=Understanding.PENDING)
         .values("student_assignment_id")
         .annotate(best=Max("final_score"))
         .values_list("best", flat=True)

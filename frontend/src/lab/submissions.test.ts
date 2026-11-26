@@ -11,6 +11,7 @@ const base: Submission = {
   final_score: null,
   created_at: "2026-11-26T00:00:00Z",
   finished_at: null,
+  understanding: "none",
 };
 
 function fakeSocket() {

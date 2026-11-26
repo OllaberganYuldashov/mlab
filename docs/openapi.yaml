@@ -1337,6 +1337,35 @@ paths:
               schema:
                 $ref: '#/components/schemas/SubmissionDetailOut'
           description: ''
+  /api/submissions/{submission_id}/answers:
+    post:
+      operationId: submissions_answers_create
+      description: 'INT-02: tushunish savollariga javob (bir marta); noto''g''ri bo''lsa
+        ball 50 gacha.'
+      summary: Tushunish savollariga javob
+      parameters:
+      - in: path
+        name: submission_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - submissions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/_AnswersInRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubmissionOut'
+          description: ''
   /api/users/{user_id}/reset-password:
     post:
       operationId: users_reset_password_create
@@ -2126,6 +2155,18 @@ components:
         join_enabled:
           type: boolean
           title: Qo'shilish yoqilgan
+    PendingQuestion:
+      type: object
+      properties:
+        text:
+          type: string
+        options:
+          type: array
+          items:
+            type: string
+      required:
+      - options
+      - text
     PlanRequest:
       type: object
       properties:
@@ -2592,9 +2633,15 @@ components:
           nullable: true
         code:
           type: string
+        understanding_detail:
+          type: array
+          items:
+            $ref: '#/components/schemas/UnderstandingDetail'
+          nullable: true
       required:
       - code
       - result
+      - understanding_detail
     StudentSubmissionsOut:
       type: object
       properties:
@@ -2617,7 +2664,13 @@ components:
           allOf:
           - $ref: '#/components/schemas/SubmissionResult'
           nullable: true
+        questions:
+          type: array
+          items:
+            $ref: '#/components/schemas/PendingQuestion'
+          nullable: true
       required:
+      - questions
       - result
     SubmissionListOut:
       type: object
@@ -2655,6 +2708,8 @@ components:
           type: string
           format: date-time
           nullable: true
+        understanding:
+          $ref: '#/components/schemas/UnderstandingEnum'
       required:
       - created_at
       - final_score
@@ -2664,6 +2719,7 @@ components:
       - position
       - score
       - status
+      - understanding
     SubmissionOutStatusEnum:
       enum:
       - queued
@@ -2741,6 +2797,29 @@ components:
       required:
       - code
       - title
+    UnderstandingDetail:
+      type: object
+      properties:
+        answer:
+          type: integer
+        chosen:
+          type: integer
+          nullable: true
+      required:
+      - answer
+      - chosen
+    UnderstandingEnum:
+      enum:
+      - none
+      - pending
+      - passed
+      - failed
+      type: string
+      description: |-
+        * `none` - none
+        * `pending` - pending
+        * `passed` - passed
+        * `failed` - failed
     WindowPlan:
       type: object
       properties:
@@ -2786,6 +2865,17 @@ components:
           default: false
       required:
       - mode
+    _AnswersInRequest:
+      type: object
+      properties:
+        answers:
+          type: array
+          items:
+            type: integer
+            minimum: 0
+          maxItems: 10
+      required:
+      - answers
     _EventInRequest:
       type: object
       properties:

@@ -24,6 +24,7 @@ from apps.grading.models import (
     SubmissionPolicy,
     SubmissionStatus,
     TestKind,
+    Understanding,
 )
 
 HIDDEN_FAILED = "O'tmadi"
@@ -93,6 +94,7 @@ def best_score(record: StudentAssignment | None) -> Decimal | None:
     best: Decimal | None = (
         Submission.objects.filter(student_assignment=record, status=SubmissionStatus.DONE)
         .exclude(policy=SubmissionPolicy.PRACTICE)
+        .exclude(understanding=Understanding.PENDING)  # INT-02: javobsiz — hali rasmiy emas
         .aggregate(best=Max("final_score"))["best"]
     )
     return best

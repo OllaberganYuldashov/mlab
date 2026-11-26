@@ -40,6 +40,7 @@ const sub = (over: Partial<Submission>): Submission => ({
   final_score: null,
   created_at: "2026-11-26T05:00:00Z",
   finished_at: null,
+  understanding: "none",
   ...over,
 });
 
@@ -205,5 +206,115 @@ describe("SubmitPanel (AGR-02, AGR-04, AGR-05, AGR-06)", () => {
     );
     expect(screen.getByText(messages["lab.submit.empty"])).toBeInTheDocument();
     expect(calls.some((c) => c.method === "POST")).toBe(false);
+  });
+
+  it("tushunish savollari: javob yuboriladi, natija ko'rsatiladi (INT-02)", async () => {
+    const pending = sub({
+      id: 4,
+      status: "done",
+      score: 100,
+      final_score: "100.00",
+      understanding: "pending",
+      questions: [
+        {
+          text: "`removed` qanday hisoblanadi?",
+          options: ["len(clean)", "len(df) - len(clean)"],
+        },
+        {
+          text: "Indeks nega tiklanadi?",
+          options: ["0 dan ketma-ket", "Tezlik"],
+        },
+      ],
+    });
+    const calls = mockApi({
+      [`GET ${URL}`]: () => ({
+        status: 200,
+        body: { best_final_score: null, submissions: [] },
+      }),
+      [`POST ${URL}`]: () => ({ status: 202, body: sub({ id: 4 }) }),
+      "POST /api/submissions/4/answers": () => ({
+        status: 200,
+        body: {
+          ...pending,
+          understanding: "failed",
+          final_score: "50.00",
+          questions: undefined,
+        },
+      }),
+    });
+    const onGraded = vi.fn();
+    render(
+      <SubmitPanel code="M01" getCode={() => "x = 1"} onGraded={onGraded} />,
+    );
+    await userEvent.click(
+      await screen.findByRole("button", {
+        name: messages["lab.submit.button"],
+      }),
+    );
+    act(() => watcher.update?.(pending));
+    const send = await screen.findByRole("button", {
+      name: messages["lab.understanding.send"],
+    });
+    expect(send).toBeDisabled();
+    await userEvent.click(screen.getByLabelText("len(df) - len(clean)"));
+    await userEvent.click(screen.getByLabelText("Tezlik"));
+    expect(send).toBeEnabled();
+    await userEvent.click(send);
+    expect(
+      await screen.findByText(messages["lab.understanding.failed"]),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Ball: 50.00 / 100")).toBeInTheDocument();
+    expect(
+      calls.find((c) => c.path === "/api/submissions/4/answers")?.body,
+    ).toEqual({
+      answers: [1, 1],
+    });
+    expect(
+      screen.queryByRole("button", {
+        name: messages["lab.understanding.send"],
+      }),
+    ).toBeNull();
+    expect(onGraded).toHaveBeenCalledTimes(2);
+  });
+
+  it("tushunish: to'g'ri javob xabari va yuborishda xato", async () => {
+    const pending = sub({
+      id: 6,
+      status: "done",
+      final_score: "90.00",
+      understanding: "pending",
+      questions: [
+        { text: "A?", options: ["x", "y"] },
+        { text: "B?", options: ["p", "q"] },
+      ],
+    });
+    let fail = true;
+    mockApi({
+      [`GET ${URL}`]: () => ({
+        status: 200,
+        body: { best_final_score: null, submissions: [pending] },
+      }),
+      "GET /api/submissions/6": () => ({ status: 200, body: pending }),
+      "POST /api/submissions/6/answers": () =>
+        fail
+          ? { status: 500, body: null }
+          : { status: 200, body: { ...pending, understanding: "passed" } },
+    });
+    render(<SubmitPanel code="M01" getCode={() => "x = 1"} />);
+    await userEvent.click(await screen.findByLabelText("x"));
+    await userEvent.click(screen.getByLabelText("q"));
+    await userEvent.click(
+      screen.getByRole("button", { name: messages["lab.understanding.send"] }),
+    );
+    expect(
+      await screen.findByText(messages["common.unexpectedError"]),
+    ).toBeInTheDocument();
+    fail = false;
+    await userEvent.click(
+      screen.getByRole("button", { name: messages["lab.understanding.send"] }),
+    );
+    expect(
+      await screen.findByText(messages["lab.understanding.passed"]),
+    ).toBeInTheDocument();
   });
 });

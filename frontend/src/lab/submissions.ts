@@ -7,6 +7,8 @@ import { api, type ApiResult } from "../api";
 
 export type SubmissionStatus = "queued" | "running" | "done" | "error";
 export type SubmissionPolicy = "on_time" | "late" | "practice";
+/** INT-02: tushunish savollari holati. */
+export type Understanding = "none" | "pending" | "passed" | "failed";
 
 export interface ResultTest {
   name: string;
@@ -34,7 +36,10 @@ export interface Submission {
   final_score: string | null;
   created_at: string;
   finished_at: string | null;
+  understanding: Understanding;
   result?: { code_error: string | null; steps: ResultStep[] } | null;
+  /** Javob kutilayotgan savollar (to'g'ri javobsiz). */
+  questions?: { text: string; options: string[] }[] | null;
 }
 
 export interface SubmissionList {
@@ -58,6 +63,16 @@ export function submitCode(
   return api<Submission>(`/api/labs/${code}/submissions`, {
     method: "POST",
     body: { code: source },
+  });
+}
+
+export function answerQuestions(
+  id: number,
+  answers: number[],
+): Promise<ApiResult<Submission>> {
+  return api<Submission>(`/api/submissions/${id}/answers`, {
+    method: "POST",
+    body: { answers },
   });
 }
 
