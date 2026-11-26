@@ -85,9 +85,12 @@ function ResultView({ submission }: { submission: Submission }) {
 export default function SubmitPanel({
   code,
   getCode,
+  onGraded,
 }: {
   code: string;
   getCode: () => string;
+  /** Urinish baholandi (masalan, challenge ochilgan bo'lishi mumkin — ADP-03). */
+  onGraded?: () => void;
 }) {
   const [history, setHistory] = useState<Submission[]>([]);
   const [best, setBest] = useState<string | null>(null);
@@ -95,6 +98,10 @@ export default function SubmitPanel({
   const [message, setMessage] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
   const stopWatch = useRef<(() => void) | null>(null);
+  const graded = useRef(onGraded);
+  useEffect(() => {
+    graded.current = onGraded;
+  }, [onGraded]);
 
   const reload = useCallback(async () => {
     const res = await listSubmissions(code);
@@ -109,6 +116,7 @@ export default function SubmitPanel({
       stopWatch.current = watchSubmission(id, (s) => {
         setCurrent(s);
         if (!isOpen(s)) void reload();
+        if (s.status === "done") graded.current?.();
       });
     },
     [reload],

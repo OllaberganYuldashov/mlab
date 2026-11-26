@@ -19,6 +19,15 @@ vi.mock("./checker", async (orig) => ({
   },
 }));
 
+// Topshirish paneli alohida sinalgan (submit-panel.test.tsx); bu yerda faqat "baholandi" signali.
+vi.mock("./SubmitPanel", () => ({
+  default: ({ onGraded }: { onGraded?: () => void }) => (
+    <button type="button" onClick={() => onGraded?.()}>
+      {messages["lab.submit.button"]}
+    </button>
+  ),
+}));
+
 afterEach(() => {
   cleanup();
   vi.unstubAllGlobals();
@@ -148,5 +157,37 @@ describe("AssignmentPanel (AGR-01, LAB-07)", () => {
     expect(
       await screen.findByText(messages["common.unexpectedError"]),
     ).toBeInTheDocument();
+  });
+
+  it("challenge: yopiq — izoh; baholangach qayta so'raladi va ochiladi (ADP-03)", async () => {
+    let unlocked = false;
+    const calls = mockApi({
+      "GET /api/labs/M01/assignment": () => ({
+        status: 200,
+        body: {
+          ...ASSIGNMENT,
+          has_challenge: true,
+          challenge: unlocked ? "IQR bilan **outlier**larni toping." : null,
+        },
+      }),
+    });
+    render(<AssignmentPanel code="M01" getNotebook={() => notebook} />);
+    expect(
+      await screen.findByText(messages["lab.challenge.locked"]),
+    ).toBeInTheDocument();
+    unlocked = true;
+    await userEvent.click(
+      screen.getByRole("button", { name: messages["lab.submit.button"] }),
+    );
+    expect(
+      await screen.findByRole("region", {
+        name: messages["lab.challenge.title"],
+      }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("outlier")).toBeInTheDocument();
+    expect(screen.queryByText(messages["lab.challenge.locked"])).toBeNull();
+    expect(
+      calls.filter((c) => c.path === "/api/labs/M01/assignment"),
+    ).toHaveLength(2);
   });
 });

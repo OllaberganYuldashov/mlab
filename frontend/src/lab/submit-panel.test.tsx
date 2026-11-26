@@ -57,7 +57,10 @@ describe("SubmitPanel (AGR-02, AGR-04, AGR-05, AGR-06)", () => {
         body: sub({ id: 5, position: 3 }),
       }),
     });
-    render(<SubmitPanel code="M01" getCode={() => "df = 1"} />);
+    const onGraded = vi.fn();
+    render(
+      <SubmitPanel code="M01" getCode={() => "df = 1"} onGraded={onGraded} />,
+    );
     const button = await screen.findByRole("button", {
       name: messages["lab.submit.button"],
     });
@@ -121,7 +124,10 @@ describe("SubmitPanel (AGR-02, AGR-04, AGR-05, AGR-06)", () => {
     best = "70.00";
     act(() => watcher.update?.(done));
     expect(await screen.findByText("Ball: 70.00 / 100")).toBeInTheDocument();
-    expect(screen.getByText(/30 \/ 60 ball \(1 \/ 2 test\)/)).toBeInTheDocument();
+    expect(onGraded).toHaveBeenCalledOnce();
+    expect(
+      screen.getByText(/30 \/ 60 ball \(1 \/ 2 test\)/),
+    ).toBeInTheDocument();
     expect(screen.getByText(/O'tmadi/)).toBeInTheDocument();
     expect(
       await screen.findByText("Eng yuqori rasmiy ball: 70.00"),

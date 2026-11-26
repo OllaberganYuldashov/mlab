@@ -305,5 +305,8 @@
   "lab.submit.state.queued": "navbatda",
   "lab.submit.state.running": "tekshirilmoqda",
   "lab.submit.state.done": "baholandi",
-  "lab.submit.state.error": "xato (qayta topshiring)"
+  "lab.submit.state.error": "xato (qayta topshiring)",
+  "lab.challenge.title": "🏆 Challenge",
+  "lab.challenge.note": "Qo'shimcha topshiriq: bali alohida hisoblanadi va asosiy ballga ta'sir qilmaydi. Natijani o'qituvchi ko'radi.",
+  "lab.challenge.locked": "Laboratoriya ochiq paytda 100 ball olsangiz, qo'shimcha challenge topshirig'i ochiladi."
 }
