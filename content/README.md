@@ -125,7 +125,7 @@ cd backend && uv run python manage.py check_lab_solutions ../content --python <s
 # yoki sandbox image bilan: --docker mlab-sandbox:dev   (CI job — I3-18)
 ```
 
-Tayyor: **A1–A5** (I3-15). Server sandbox'ida seaborn yo'q — topshiriqlardagi grafiklar matplotlib bilan.
+Tayyor: **A1–A10** (I3-15, I3-16). Server sandbox'ida seaborn yo'q — topshiriqlardagi grafiklar matplotlib bilan.
 
 Test funksiyasi: `def test_<nom>(ns, params):` — `ns` talaba kodi bajarilgandan keyingi global nomlar, `params` — variant
 parametrlari. Shartdagi har `{parametr}` har variantda bo'lishi shart (import tekshiradi).

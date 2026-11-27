@@ -1,0 +1,34 @@
+code: A06
+title: "Logistik regressiya"
+topic: M07
+statement: |
+  **Dataset:** `{dataset}`, **sinf ustuni:** `{target}`.
+
+  Tayyorlash: `df = mlab.load("{dataset}")`, `X = df.drop(columns=["{target}"])`, `y = df["{target}"]`;
+  `X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state={seed}, stratify=y)`;
+  `scaler = StandardScaler().fit(X_train)` (**faqat train'da**), `X_train_s = scaler.transform(X_train)`,
+  `X_test_s = scaler.transform(X_test)`.
+
+  **C:** `{c}`.
+
+  1. **Model.** `model = LogisticRegression(C={c}, max_iter=1000).fit(X_train_s, y_train)`;
+     testdagi aniqlik (accuracy) — `acc` (`model.score(X_test_s, y_test)`).
+  2. **Ehtimolliklar.** `proba = model.predict_proba(X_test_s)`; har qatorning eng katta ehtimolligi o'rtachasi —
+     `confidence` (`float(proba.max(axis=1).mean())`).
+  3. **Eng ishonchsiz bashorat.** Eng katta ehtimolligi eng kichik bo'lgan test qatorining **o'rni** (0 dan) —
+     `least_sure` (`int(proba.max(axis=1).argmin())`) va shu qator uchun bashorat qilingan sinf — `least_sure_class`
+     (`model.predict(X_test_s)[least_sure]`).
+steps:
+  - key: model
+    title: "Logistik regressiya va aniqlik"
+    points: 40
+  - key: proba
+    title: "Ehtimolliklar"
+    points: 30
+  - key: unsure
+    title: "Eng ishonchsiz bashorat"
+    points: 30
+challenge: |
+  `C` ni `[0.01, 0.1, 1, 10, 100]` qiymatlarida sinab, test aniqligini `acc_by_C` lug'atiga yozing va eng yaxshi `C` ni toping.
+independent: |
+  Threshold va decision boundary: ikki belgi va ikki sinfni tanlab, 0.3, 0.5 va 0.7 chegaralarida bashoratlar soni qanday o'zgarishini va qaror chegarasini (matplotlib) ko'rsating.
