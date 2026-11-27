@@ -2,6 +2,21 @@
 
 > Har run oxirida Claude qo'shadi. Eng yangisi yuqorida.
 
+### 2026-11-27 — tungi run 1/2
+- **Bajarilgan issue'lar va PR:** #158 → PR #188 (moslashuvchan daraja), #159 → PR #189 (challenge taklifi) — merge
+  bo'ldi (3 ball). #161 → PR #190 (tushunish savollari) — tayyor, lokal testlar yashil, lekin **GitHub Actions ishga
+  tushmayapti** (#191), shuning uchun merge kutmoqda.
+- **Nima qilindi (oddiy tilda):** Har talabaga mos daraja: topshiriq birinchi ochilganda mavzu testi va oldingi
+  topshiriqlar balliga qarab asosiy/o'rta/ilg'or tanlanadi va qotiriladi; o'qituvchi uni o'zgartira oladi (audit
+  jurnalida). 100 ballni o'z vaqtida olgan talabaga qo'shimcha challenge ochiladi. Topshirgandan keyin kod bo'yicha
+  2 ta savol beriladi; noto'g'ri javobda ball 50 bilan cheklanadi.
+- **Ishlatilgan skill'lar va nima uchun:** floating-point (`Decimal`), auth-and-authorization (o'z guruhi, IDOR),
+  migration-safety (audit CHECK — NOT VALID + VALIDATE), testing-with-discernment, security-discipline (savol javoblari
+  oshkor emas).
+- **Yangi texnologiya / tushuncha:** `docs/learn/content-format.md` — "Moslashuvchan daraja", "Tushunish savollari".
+- **Ertalab nimani ko'rish kerak:** #191 (Actions — billing/daqiqalar) va PR #190 dagi "Talqin" bo'limi.
+- **Savollar / bloklar:** #191 — GitHub Actions; INT-02 talqini ("50 dan oshmaydi" yoki "yarmiga").
+
 ### 2026-11-26 — tungi run 2/2
 - **Bajarilgan issue'lar va PR:** #157 → PR #185 (laboratoriyada "Topshirish", navbat va natija), #163 → PR #186
   (A01–A05 topshiriqlari va yechim tekshiruvi). 4 ball.
