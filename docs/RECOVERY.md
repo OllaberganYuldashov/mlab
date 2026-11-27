@@ -25,6 +25,7 @@ Claude har run boshida, yangi task olishdan oldin quyidagilarni tekshiradi va na
 | Rad etilgan PR'lar | Oxirgi 7 kunda merge qilinmay yopilgan PR'lar |
 | Tuzatish urinishlari | PROGRESS.md'dagi "urinishlar" hisoblagichi |
 | main-guard | Ochiq `alert:main-guard` issue'lar |
+| Infra | Yiqilgan job'larda qadamlar bormi va qancha ishladi (`gh api .../actions/runs/<id>/jobs`) |
 
 ## 3. Chiroqlar
 
@@ -38,10 +39,26 @@ main yashil, testlar o'tadi, ilova ishlaydi.
 
 Claude yangi funksiya olmaydi, avval tuzatish PR ochadi. Har urinish PROGRESS.md'da hisoblanadi.
 
-### Qizil — Claude TO'XTAYDI, hisobot beradi, ruxsat kutadi
-Quyidagilardan **bittasi** yetarli:
+### Infra — kod sabab emas: qayd qilinadi, merge kutadi
+Belgilar (bittasi yetarli):
+- CI job'lari **qadamsiz** tushadi (`steps` bo'sh) yoki 10 soniyadan tez `failure`;
+- GitHub Actions yoki billing xatosi (daqiqalar/limit tugagan, "job was not started", to'lov muammosi).
 
-1. main 2 urinishdan keyin ham qizil (CI yoki testlar).
+Tartib:
+1. Bu kod xatosi emas — Sariq/Qizil hisoblagichi oshmaydi; `alert:red-light`, `docs/incidents/` hisoboti va bisect **shart emas**.
+2. "📋 Kunlik hisobotlar" (#4) da **bitta qator**: sabab va egasi qayerdan tekshiradi
+   (repo Settings → Billing and plans / Actions usage, yoki GitHub Status sahifasi).
+3. PROGRESS.md "Sog'liq": `Infra` va sana. Merge kutadi: tayyor PR'lar ochiq qoladi, ish boshqa task bilan davom etadi;
+   Actions tiklangach `scripts/merge-if-green.sh` qayta ishga tushiriladi.
+4. Job'larda qadamlar bor va kod/test yiqilgan bo'lsa — bu Infra emas: Sariq/Qizil tartibi o'zgarmaydi.
+
+Sabab: 2026-11-26/27 hodisasi (`docs/LESSONS.md`) — Actions daqiqalari tugaganda Infra holati qizil chiroq va bisect
+sifatida yuritildi, ~8 soat va ko'p qadam ketdi, kod esa sog'lom edi.
+
+### Qizil — Claude TO'XTAYDI, hisobot beradi, ruxsat kutadi
+Quyidagilardan **bittasi** yetarli (kod sabab bo'lganda; Infra holati — yuqorida):
+
+1. main 2 urinishdan keyin ham qizil (CI yoki testlar; job'lar qadamlari bilan ishlagan).
 2. Ilova ishga tushmaydi yoki deploy'dan keyingi smoke test yiqildi va 1 urinishda tuzalmadi.
 3. Oxirgi 7 kunda 5 va undan ko'p regressiya bug'i, yoki ochiq bug'lar soni 2 hafta ketma-ket o'smoqda.
 4. Bir xil bug 2 marta qayta ochilgan.
