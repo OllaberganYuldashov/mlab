@@ -1,0 +1,33 @@
+code: A12
+title: "PCA: o'lchamni kamaytirish"
+topic: M14
+statement: |
+  **Dataset:** `{dataset}`, **komponentlar:** `{n_components}`, **test ulushi:** `{test_size}`.
+
+  Tayyorlash: `df = mlab.load("{dataset}")`, `X = df.drop(columns=["{target}"])`, `y = df["{target}"]`,
+  `Xs = StandardScaler().fit_transform(X)`. PCA doim `svd_solver="full"` bilan (natija takrorlanadigan bo'lishi uchun).
+
+  1. **PCA.** `pca = PCA(n_components={n_components}, svd_solver="full").fit(Xs)`; saqlangan dispersiya ulushi —
+     `explained` (`float(pca.explained_variance_ratio_.sum())`), `X_pca = pca.transform(Xs)`.
+  2. **95% qoidasi.** `full = PCA(svd_solver="full").fit(Xs)`; dispersiyaning kamida 95% ini saqlaydigan eng kam
+     komponentlar soni — `n95` (`int`; `np.cumsum(full.explained_variance_ratio_)` dan foydalaning).
+  3. **Aniqlikka ta'siri.** `train_test_split(X, y, test_size={test_size}, random_state={seed}, stratify=y)`;
+     `make_pipeline(StandardScaler(), LogisticRegression(max_iter=1000))` ning test aniqligi — `acc_full`,
+     `make_pipeline(StandardScaler(), PCA(n_components={n_components}, svd_solver="full"), LogisticRegression(max_iter=1000))`
+     niki — `acc_pca` (ikkalasi `float`).
+steps:
+  - key: pca
+    title: "PCA"
+    points: 30
+  - key: n95
+    title: "95% qoidasi"
+    points: 30
+  - key: accuracy
+    title: "Aniqlikka ta'siri"
+    points: 40
+challenge: |
+  Birinchi ikki komponent bo'yicha `X_pca[:, 0]` va `X_pca[:, 1]` ni sinflar rangida chizing (matplotlib) va
+  qaysi sinflar PCA tekisligida yaxshi ajralishini yozing.
+independent: |
+  Tezlik va aniqlikka ta'siri: `digits` datasetida komponentlar soni 5, 10, 20, 40 va to'liq belgilar uchun o'qitish vaqti
+  (`time.perf_counter`) va test aniqligini jadvalga yig'ing; qaysi nuqtada aniqlik deyarli o'zgarmay qolishini toping.

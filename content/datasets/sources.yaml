@@ -23,3 +23,10 @@ datasets:
     sha256: bbe6bc506fec05b65edfb905b871a229bdc97341f512e7548a9ecc6081644251
     source_url: https://archive.ics.uci.edu/dataset/17/breast+cancer+wisconsin+diagnostic
     license: CC-BY-4.0
+  - name: digits
+    title: Qo'lda yozilgan raqamlar (8×8)
+    description: 0–9 raqamlarining 1797 ta 8×8 kulrang tasviri; p0..p63 — piksel yorqinligi (0..16), satr bo'yicha. Tasvir tasnifi va PCA uchun.
+    file: digits.csv
+    sha256: ba6ee5aa91a99912e5e4e601339a3d45bb1c136a5df153daf68d7a8e45a04ce5
+    source_url: https://archive.ics.uci.edu/dataset/80/optical+recognition+of+handwritten+digits
+    license: CC-BY-4.0

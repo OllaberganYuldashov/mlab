@@ -1,0 +1,32 @@
+code: A15
+title: "Modelni mini-veb ilovaga aylantirish"
+topic: M22
+statement: |
+  **Dataset:** `{dataset}`, **model:** `{estimator}`, **test ulushi:** `{test_size}`, **namuna qator:** `{sample}`.
+
+  Veb ilova (keyingi bosqichda brauzerdagi Streamlit) uchun modelni tayyorlaymiz: o'qitish, bitta so'rovga javob
+  beradigan funksiya va saqlash/yuklash.
+  Tayyorlash: `df = mlab.load("{dataset}")`, `X = df.drop(columns=["{target}"])`, `y = df["{target}"]`,
+  `X_train, X_test, y_train, y_test = train_test_split(X, y, test_size={test_size}, random_state={seed}, stratify=y)`.
+
+  1. **Model.** `model = make_pipeline(StandardScaler(), {estimator}).fit(X_train, y_train)`; test aniqligi — `acc` (`float`).
+  2. **Bashorat funksiyasi.** `predict_one(row)` — `row` lug'at (ustun nomi → qiymat, masalan,
+     `X.iloc[{sample}].to_dict()`); `(label, confidence)` qaytaradi: `label` — bashorat qilingan sinf (`str`),
+     `confidence` — shu sinf ehtimoli (`float`, `predict_proba` dan). Namuna qator uchun natija — `answer = predict_one(X.iloc[{sample}].to_dict())`.
+  3. **Saqlash.** `blob = pickle.dumps(model)` (bayt), `restored = pickle.loads(blob)`; `same = bool((restored.predict(X_test) == model.predict(X_test)).all())`.
+steps:
+  - key: model
+    title: "Model"
+    points: 30
+  - key: predict
+    title: "Bashorat funksiyasi"
+    points: 40
+  - key: save
+    title: "Saqlash"
+    points: 30
+challenge: |
+  `predict_one` ni kiritishni tekshiradigan qiling: ustun yetishmasa yoki qiymat son bo'lmasa, tushunarli xabar bilan
+  `ValueError` chiqarsin (veb ilovada foydalanuvchiga ko'rsatiladi).
+independent: |
+  Brauzerdagi Streamlit (stlite) ilovasi: har belgi uchun `st.number_input`, "Bashorat" tugmasi, natija va ehtimol
+  (`st.metric`). Ilova `predict_one` va saqlangan modeldan foydalansin (I4 da platformada ishga tushadi).

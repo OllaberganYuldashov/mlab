@@ -1,0 +1,32 @@
+code: A14
+title: "CNN g'oyasi: konvolyutsiya va pooling"
+topic: M18
+statement: |
+  **Dataset:** `digits` (8×8 raqam tasvirlari), **yadro (kernel):** `{kernel}`, **tasvir:** `{image}`-qator,
+  **test ulushi:** `{test_size}`.
+
+  Tayyorlash: `df = mlab.load("digits")`, `images = df.drop(columns=["digit"]).to_numpy().reshape(-1, 8, 8)`,
+  `y = df["digit"]`, `K = np.array({kernel})`. Konvolyutsiya — `scipy.signal.correlate2d` (CNN dagi kabi, yadro aylantirilmaydi).
+
+  1. **Konvolyutsiya + ReLU.** `fmap = np.maximum(correlate2d(images[{image}], K, mode="valid"), 0)` — 6×6 xususiyat xaritasi.
+  2. **Max pooling.** `pooled = fmap.reshape(3, 2, 3, 2).max(axis=(1, 3))` — har 2×2 bo'lakdan eng katta qiymat (3×3).
+  3. **Tasnif.** Har tasvir uchun 1–2-qadamdagi `pooled.ravel()` (9 ta belgi) — `F` matritsasi (1797×9).
+     `train_test_split(F, y, test_size={test_size}, random_state={seed}, stratify=y)` va
+     `make_pipeline(StandardScaler(), LogisticRegression(max_iter=2000))` ning test aniqligi — `acc_conv` (`float`).
+     Xuddi shu bo'linish (`random_state={seed}`) bilan xom 64 piksel bo'yicha aniqlik — `acc_raw` (`float`).
+steps:
+  - key: conv
+    title: "Konvolyutsiya + ReLU"
+    points: 35
+  - key: pool
+    title: "Max pooling"
+    points: 30
+  - key: classify
+    title: "Tasnif"
+    points: 35
+challenge: |
+  Ikki yadroni (gorizontal va vertikal chegara) birga ishlating: har tasvirdan 2 × 9 = 18 belgi oling va `acc_conv` bilan
+  solishtiring. Bitta CNN qatlamidagi "ko'p filtr" g'oyasi shu.
+independent: |
+  Oldindan o'qitilgan CNN namoyishi (to'liq CNN — R4): ma'ruzadagi namoyishda filtrlar va xususiyat xaritalarini
+  ko'ring, o'zingiz qo'lda yozgan yadrolar bilan solishtirib, qisqa xulosa yozing.

@@ -126,7 +126,8 @@ cd backend && uv run python manage.py check_lab_solutions ../content --python "$
 # yoki sandbox image bilan: --docker mlab-sandbox:dev   (CI job — I3-18)
 ```
 
-Tayyor: **A1–A10** (I3-15, I3-16). Server sandbox'ida seaborn yo'q — topshiriqlardagi grafiklar matplotlib bilan.
+Tayyor: **A1–A15** (I3-15, I3-16, I3-17). A14 — `digits` datasetida qo'lda konvolyutsiya, ReLU va max pooling
+(CNN g'oyasi; to'liq CNN — R4); A15 — model, `predict_one` va pickle (stlite ilovasi — I4). Server sandbox'ida seaborn yo'q — topshiriqlardagi grafiklar matplotlib bilan.
 
 Test funksiyasi: `def test_<nom>(ns, params):` — `ns` talaba kodi bajarilgandan keyingi global nomlar, `params` — variant
 parametrlari. Shartdagi har `{parametr}` har variantda bo'lishi shart (import tekshiradi).
