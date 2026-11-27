@@ -107,7 +107,7 @@
 
 ## backend/tests
 
-- `backend/tests/` — 7 fayl
+- `backend/tests/` — 8 fayl
 - `backend/tests/accounts/` — 7 fayl
 - `backend/tests/audit/` — 2 fayl
 - `backend/tests/courses/` — 11 fayl
@@ -197,3 +197,4 @@
 ## scripts
 
 - `scripts/codemap.py` — docs/CODEMAP.md ni yasaydi: har modul uchun bitta qator (fayl izohining birinchi qatori).
+- `scripts/sync_status.py` — Dashboard holatini GitHub Issues'dan oladi va `docs/status/build.py` ni chaqiradi.

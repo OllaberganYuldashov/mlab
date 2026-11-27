@@ -369,6 +369,67 @@
 - **Savollar / bloklar:** yo'q. (Avval `merge-if-green.sh` bulutda ishlamaydi deb o'ylangan edi — noto'g'ri:
   `gh auth status` xato ko'rsatsa ham `gh api` proxy orqali ishlaydi; PR #24 skript bilan merge qilindi.)
 
+## Arxiv
+
+> 2026-11-28 da `docs/PROGRESS.md` dan ko'chirildi (PROGRESS.md endi faqat holat). Bu yerda JOURNAL yozuvlarida
+> bo'lmagan qismlar saqlanadi; yangi yozuv qo'shilmaydi.
+
+### Loyiha boshlanishi
+- TZ: SRS v2 tasdiqlangan → `docs/SRS.md`
+- GitHub: label'lar va R0-01..R0-17 issue'lari (#5–#21), "📋 Kunlik hisobotlar" (#4) yaratildi
+- #173 → PR #174 (2026-11-24): lokal demo — `docker compose up --build` → http://localhost:8080, `docs/learn/local-run.md`.
+- PR #131 (Caddy CSP) egasi tomonidan merge qilingan.
+
+### Run'lar tarixi (PROGRESS.md jadvali)
+| Sana | Sessiya | Natija |
+| --- | --- | --- |
+| 2026-11-23 | Kunduzgi run 2/3 | Yashil; R0-08 (#44), R0-09 (#45), R0-17 (#46) merge — 4 ball |
+| 2026-11-23 | Kunduzgi run 1/3 | Yashil; R0-06 (#37), R0-07 (#39) merge — 4 ball |
+| 2026-11-22 | Tungi run 2/2 | Yashil; R0-05 (#33), R0-13 (#35) merge — 4 ball |
+| 2026-11-22 | Tungi run 1/2 | Yashil; R0-04 (#28), R0-03 (#29), R0-14 (#30), R0-12 (#31) merge — 5 ball |
+| 2026-11-22 | Tayyorgarlik (chat) | SRS v2 tasdiqlandi, L1 loyiha fayllari tayyorlandi |
+| 2026-11-21 | Birinchi sessiya (interaktiv) | Label'lar, issue'lar #4–#21; R0-01 → PR #22; R0-02 → PR #23; PR #24 (hujjat) skript bilan merge |
+
+### Texnik eslatmalar (PROGRESS.md "Eslatmalar keyingi sessiya uchun")
+- Frontend: talaba `next` qaytishi faqat `/join/<token>` (`src/nav.ts`); vaqt ko'rinishi `src/datetime.ts` (Asia/Tashkent). Testdagi soxta token literal gitleaks beradi — `.gitleaksignore` yoki runtime'da yasash.
+- WebSocket: `config/asgi.py`, `apps/sections/consumers.py` (15 daqiqa umr, a'zolik o'zgarsa `force.close`). Testda `channels.testing` emas, `asgiref.testing.ApplicationCommunicator` (daphne kerak emas).
+- Frontend: QR `src/qr.ts` (ADR-0005). `userEvent.setup()` o'z clipboard'ini o'rnatadi — testda stub undan keyin.
+- Topshirish holati faqat `apps/sections/policy.submission_policy` dan; qo'lda yopilgan ochiq oyna `closes_at=now` saqlaydi (kechikish/mashq uchun). Ball — `Decimal`, `apply_late_penalty`.
+- Bulut sessiyasida PostgreSQL vaqti-vaqti bilan to'xtaydi — testlar `Connection refused` bersa `service postgresql start`.
+- Sections: yozuvlar faqat `apps/sections/services.py` orqali; qulflar `select_for_update(no_key=True)`, tartib o'qituvchi → guruh(lar, id bo'yicha) → a'zolik (oddiy FOR UPDATE FK tekshiruvi bilan deadlock bergan). Vaqt — DB `Now()`. Talaba ishlari (I2+) talabaga bog'lanadi, guruhga emas (SEC-07: o'tkazishda saqlanadi).
+- Ustma-ust (stacked) PR ochilmaydi: #54 R0-15 branch'iga merge bo'lib qolgan, #56 bilan tuzatildi. Zarur bo'lsa — pastki PR merge bo'lgach base'ni `main` ga qo'lda ko'chirish va tekshirish.
+- Prod: `deploy/` (compose, Caddyfile, deploy/smoke/backup skriptlari), ADR-0004. Bulutda docker daemon yo'q: image build va `caddy validate` sinalmagan; skriptlar soxta docker bilan testlangan. Celery worker va sandbox I3 da compose'ga qo'shiladi.
+- Frontend: `src/api.ts` (CSRF, `fieldErrors`), kichik router `src/router.ts` + `Link.tsx` (react-router faqat ADR bilan). E2E soxta API bilan (`e2e/auth.spec.ts`) — frontend CI job'ida backend yo'q; backend oqimi `backend/tests` da. Testda parol literali yozma: gitleaks `generic-api-key` beradi — `crypto.randomUUID()` dan yasa.
+- `/policy` "Mas'ul shaxs" aloqa ma'lumoti: kafedra email'i (egasi bergan, 2026-11-23), `policy.s1.body` da.
+- Ruxsatlar faqat rol bo'yicha: `apps/accounts/permissions.py` (DRF) va `admin_access.RoleAccessAdmin` (admin).
+  `User.has_perm*` doim `False`, `Group` admin yo'q. Rolni o'zgartiradigan har yangi yo'l audit yozishi shart
+  (hozir faqat admin `save_model` yozadi) — bitta servis funksiyasi orqali.
+- Kontent: `apps/courses/content.py` (ADR-0002). Mavzuga `PROTECT` FK bor bo'lsa (kirish oynasi, keyin progress) import uni o'chirmaydi — `ContentError` bilan to'xtaydi.
+- Auth: yagona login yo'li `apps/accounts/backends.py` (API + admin); lockout `lockout.py` (atomik INCR);
+  IP qoidasi `net.py` (throttle, lockout, audit uchun bir xil). R0-08 da admin `password_change` → `PASSWORD_CHANGED` audit.
+- OpenAPI: API o'zgarsa `cd backend && uv run python manage.py spectacular --validate --file ../docs/openapi.yaml`
+  (test eskirgan faylni ushlaydi). ADR-0003 — OpenAPI; deploy ADR'i — 0004.
+- Draft PR "ready" qilinganda draft paytidagi merge-gate natijasi qizil qoladi — `merge-if-green.sh` ni
+  qayta ishga tushirish kerak (yangi merge-gate yashil bo'lgach o'tadi).
+- SQL CHECK'da NULL: `x >= 1` NULL bo'lsa CHECK o'tib ketadi — `IS NOT NULL` aniq yoziladi (R0-09).
+- Bash'da `sleep` bloklangan; merge skripti tekshiruvlarni o'zi kutadi.
+- gitleaks: testda `secret = "..."` kabi nom ham `generic-api-key` beradi — o'zgaruvchiga boshqa nom va `uuid`/`secrets`.
+- Foydalanuvchi API'da URL'ga chiqsa, tashqi `public_id` (UUIDv7) kerakmi — R0-05/R0-06 da hal qilinadi (schema-reviewer tavsiyasi).
+- Audit: tarixi bor foydalanuvchi o'chirilmaydi (`PROTECT`), trigger UPDATE/DELETE'ni bloklaydi — ma'lumot o'chirish
+  siyosati (SRS 7) kelganda alohida migratsiya.
+- Loglar: `config/observability.py` — maskalash formatter'da; audit `record()` secret kalitlarni tashlaydi.
+- Testlar: Faker yordamchilari `backend/tests/accounts/factories.py` (`make_user`, `make_direction`); factory_boy mypy strict bilan ishlamadi.
+- Parallel PR'lar `docs/CHANGELOG.md` ning bir qatorida konflikt beradi: merge'dan oldin main'ni branch'ga merge qilish
+  (force push auto-mode'da rad etiladi — rebase emas, merge).
+- Run davomida Redis to'xtab qolgan (sabab noma'lum) — testdan oldin `redis-cli ping`, kerak bo'lsa `service redis-server start`.
+- R0-01 da `django.contrib.admin` va loyiha migratsiyasi ataylab yo'q: custom User (R0-04) birinchi migratsiya.
+  Lokal bazada `auth` migratsiyalari qo'llangan bo'lsa, R0-04 dan oldin baza qayta yaratiladi (dev/test ma'lumoti).
+- `@playwright/test` bulutdagi Chromium bilan mos versiyada pin qilingan (1.63.0) — `playwright install` qilinmaydi.
+- gitleaks: soxta kalitlar testlarda `secrets.token_urlsafe()` bilan yaratiladi; literal yozilmaydi.
+- `scripts/merge-if-green.sh` bulutda ishlaydi: `gh auth status` "token invalid" desa ham `gh api` so'rovlari
+  proxy orqali o'tadi (PR #24 shu skript bilan merge qilindi). `gh` boshqa maqsadda ishlatilmaydi.
+- `UV_NATIVE_TLS` eskirgan — ogohlantirishni o'chirish uchun `UV_SYSTEM_CERTS=1` ishlatiladi.
+
 ## Shablon
 
 ### YYYY-MM-DD — <run turi: tungi / interaktiv / review>

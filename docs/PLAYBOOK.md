@@ -35,13 +35,11 @@
 | 6. Milestone | Review, retro, skill yangilash | Baholaydi | LESSONS.md |
 | 7. Release | deploy-checklist, CI/CD | Deploy'ni tasdiqlaydi | Server |
 
-## 4. Tungi run
+## 4. Runlar
 
-- Jadval (2026-11-22): har tunda **2 run** — 23:23 (har kuni) va 03:23 (dushanba–shanba), Asia/Tashkent.
-- Haftalik review: yakshanba 03:23 — faqat code-review, tech-debt, LESSONS retro.
-- Run hajmi: kamida 2 ta `size:M` yoki 4 ta `size:S`; limit qolsa davom etadi.
-- Pro limiti chat va Claude Code o'rtasida umumiy (egasi kunduzi kam ishlatadi).
-- Protokol: `CLAUDE.md` 7-bo'lim (Definition of Done — 6-bo'lim). Prompt: `docs/prompts/nightly-run.md`.
+Jadval, hajm va tartib bir joyda: run protokoli — `CLAUDE.md` 7-bo'lim (DoD — 6-bo'lim); tungi run va haftalik
+review jadvali — `docs/prompts/nightly-run.md`; kunduzgi (gibrid) sessiyalar — `docs/prompts/day-run.md`.
+Pro limiti chat va Claude Code o'rtasida umumiy.
 
 ## 5. Xotira fayllari
 
@@ -84,23 +82,18 @@ Secret oqib ketsa — darhol almashtiriladi (rotate). Git tarixidan o'chirishnin
 
 ## 8. GitHub
 
-- Repo private, GitHub Free — main'da GitHub himoyasi (ruleset) yo'q. Uning o'rniga:
-  - qoidalar (CLAUDE.md, promptlar) va `.claude/settings.json` taqiqlari: main'ga push, force push, skriptsiz merge;
-  - `merge-gate` workflow + `scripts/merge-if-green.sh`: Claude PR'ni faqat hamma tekshiruv yashil va himoyalangan fayllar o'zgarmagan bo'lsa merge qiladi;
-  - `main-guard` workflow: main'ga PR'siz commit yoki force push tushsa, darhol `alert:main-guard` issue ochadi;
-  - `weekly-backup` workflow: har yakshanba 01:17 (Toshkent) to'liq git bundle nusxasi, 90 kun saqlanadi.
-- Claude `claude/` bilan boshlanadigan branch'larga push qiladi, PR ochadi va uni `scripts/merge-if-green.sh` orqali merge qiladi.
-  Himoyalangan fayllarni o'zgartirgan PR `needs:owner` oladi — uni egasi merge qiladi (2026-11-22: "B" varianti).
-- Ochiq `alert:main-guard` issue — keyingi run'ning birinchi ishi.
-- `known-good` workflow main'dagi har to'liq yashil commit'ga `good-*` teg qo'yadi (yashil nuqta).
+Repo private, GitHub Free — main'da GitHub himoyasi (ruleset) yo'q. Uning o'rniga (qoidalar — `CLAUDE.md` 5.1):
+- `.claude/settings.json` taqiqlari: main'ga push, force push, skriptsiz merge;
+- `merge-gate` workflow + `scripts/merge-if-green.sh`: hamma tekshiruv yashil va himoyalangan fayllar o'zgarmagan
+  bo'lsa merge; himoyalangan fayl o'zgargan PR `needs:owner` oladi — uni egasi merge qiladi;
+- `main-guard` workflow: main'ga PR'siz commit yoki force push tushsa, `alert:main-guard` issue ochadi;
+- `known-good` workflow: main'dagi har to'liq yashil commit'ga `good-*` teg (yashil nuqta);
+- `weekly-backup` workflow: har yakshanba 01:17 (Toshkent) to'liq git bundle nusxasi, 90 kun saqlanadi.
+- Commit: Conventional Commits. Release: teg + CHANGELOG.
 
 ## 8a. Qizil chiroq
 
-Har run boshida sog'liq tekshiruvi (Yashil / Sariq / Qizil). Qizilda Claude to'xtaydi, hisobot beradi va
-egasining ruxsatidan keyingina eng kichik ortga qaytishni bajaradi (A oldinga tuzatish → B bitta PR revert →
-C bir nechta PR → D yashil nuqtaga qaytish → E zaxiradan tiklash). Hammasi PR orqali, tarix o'chirilmaydi.
-To'liq tartib: `docs/RECOVERY.md`.
-- Commit: Conventional Commits. Release: teg + CHANGELOG.
+Sog'liq tekshiruvi, chiroqlar va ortga qaytish zinapoyasi (A–E, faqat egasining ruxsati bilan) — `docs/RECOVERY.md`.
 
 ## 9. Stack modullari (odatiy tanlov, yakuniy qaror ADR bilan)
 

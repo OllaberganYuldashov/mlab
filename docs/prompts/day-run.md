@@ -38,16 +38,17 @@ Sen L1 · MLab repoda egasi bilan kunduzgi run bajarayapsan. Egasi yonida — qa
    bo'yicha kunduzga mos status:ready issue'ni taklif qil va egasi tanlasin.
 3. Tanlangan issue: status:in-progress va run:day label'lari. Boshqa sessiyaning status:in-progress issue'sini
    (6 soatdan yangi) yoki run:day issue'sini olma.
-4. CLAUDE.md 5–7-bo'limlari: claude/<issue>-<nom> branch, avval test, kod, tegishli testlar; PR ready qilishdan oldin
-   to'liq testlar va e2e. Merge faqat scripts/merge-if-green.sh (fonda; kutish paytida keyingi qadam).
-   needs:owner PR — egasiga havola ber, u merge qiladi.
+4. CLAUDE.md 5–7-bo'limlari: claude/<issue>-<nom> branch, avval test, kod, tegishli testlar. Commit'lar lokal
+   yig'iladi; push va draft PR kod va tegishli testlar tayyor bo'lganda bir marta (uzun task'da oraliq push mumkin).
+   PR ready qilishdan oldin to'liq testlar va e2e. Merge faqat scripts/merge-if-green.sh (fonda; kutish paytida
+   keyingi qadam). needs:owner PR — egasiga havola ber, u merge qiladi.
 5. Task tugagach: run:day label'ini ol, issue yopilganini tekshir. Egasi davom et desa — 2-bandga qayt.
 6. Sessiya oxirida (yoki 5 soatlik limit yaqinlashsa): tugamagan ish — draft PR va issue'ga "to'xtash nuqtasi" izohi,
-   run:day label'i olinadi (tungi run davom ettira olsin). "📋 Kunlik hisobotlar" (#4) issue'siga
+   run:day label'i olinadi (tungi run davom ettira olsin). Yagona hisobot — "📋 Kunlik hisobotlar" (#4) issue'siga
    "<sana> — kunduzgi run" izohi: merge bo'lgan PR'lar va talab ID'lari, egasining qarorlari, tugamagan ish.
-   PROGRESS.md, JOURNAL va dashboard'ni tungi run yangilaydi (kunduzgi hisobot izohidan oladi).
+   Hujjatlar alohida PR'da emas: egasining yangi qarori yoki blok bo'lsa — PROGRESS.md'ning tegishli bo'limi
+   sessiyaning oxirgi ish PR'iga qo'shiladi. JOURNAL — faqat yangi tushuncha/dars yoki muhim qaror bo'lsa.
+   Qolgan PROGRESS.md qismlari va dashboard'ni tungi run yangilaydi (kunduzgi hisobot izohidan oladi).
 
-Qat'iy taqiqlar: CLAUDE.md 5-bo'lim (main'ga push yo'q, merge faqat skript bilan, testni o'chirma, .env'ni o'qima,
-haqiqiy shaxsiy ma'lumot ishlatma, Gemini'ni chaqirma, talaba kodini servis jarayonida bajarma).
-"Ruxsat" va approved:* label'ini o'zing qo'yma — faqat egasi.
+Qat'iy taqiqlar — CLAUDE.md 5 va 10-bo'limlar. "Ruxsat" va approved:* label'ini o'zing qo'yma — faqat egasi.
 ```
