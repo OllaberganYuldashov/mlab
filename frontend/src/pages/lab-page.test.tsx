@@ -207,4 +207,50 @@ describe("laboratoriya sahifasi (LAB-07)", () => {
       messages["lab.paste.proctored"],
     );
   });
+
+  it("INT-05: nazorat rejimida tab almashtirish qayd qilinadi, oddiy rejimda — yo'q", async () => {
+    const events: unknown[] = [];
+    let proctored = false;
+    mockApi({
+      "GET /api/auth/me": () => ({ status: 200, body: STUDENT }),
+      "GET /api/labs/M01/work": () => ({
+        status: 200,
+        body: {
+          version: 0,
+          notebook: null,
+          saved_at: null,
+          policy: "on_time",
+          paste_limit: 200,
+          proctored,
+        },
+      }),
+      "GET /api/course/topics": () =>
+        topics({ status: "open", opens_at: null, closes_at: null }),
+      "PUT /api/labs/M01/work": () => ({
+        status: 200,
+        body: { version: 1, saved_at: "2026-11-27T10:00:00Z", policy: "on_time" },
+      }),
+      "POST /api/labs/M01/events": (call) => {
+        events.push(call.body);
+        return { status: 201, body: { blocked: false, recorded: true } };
+      },
+    });
+    const hide = () => {
+      Object.defineProperty(document, "visibilityState", { configurable: true, value: "hidden" });
+      fireEvent(document, new Event("visibilitychange"));
+      Object.defineProperty(document, "visibilityState", { configurable: true, value: "visible" });
+    };
+    visit("/labs/M01");
+    render(<App />);
+    await screen.findByRole("textbox", { name: "Kod katagi 1" });
+    hide();
+    expect(events).toEqual([]);
+
+    cleanup();
+    proctored = true;
+    render(<App />);
+    await screen.findByRole("textbox", { name: "Kod katagi 1" });
+    hide();
+    await waitFor(() => expect(events).toEqual([{ kind: "tab_hidden" }]));
+  });
 });

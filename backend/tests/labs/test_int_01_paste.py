@@ -43,8 +43,8 @@ def test_int_01_small_paste_logged_large_paste_blocked() -> None:
     client = _client(membership.student)
     small = _paste(client, 200)
     large = _paste(client, 201, cell="c2")
-    assert (small.status_code, small.json()) == (201, {"blocked": False})
-    assert (large.status_code, large.json()) == (201, {"blocked": True})
+    assert (small.status_code, small.json()) == (201, {"blocked": False, "recorded": True})
+    assert (large.status_code, large.json()) == (201, {"blocked": True, "recorded": True})
     events = list(LabEvent.objects.order_by("pk").values_list("kind", "size", "cell", "student"))
     assert events == [
         (LabEventKind.PASTE, 200, "c1", membership.student.pk),
@@ -59,7 +59,7 @@ def test_int_01_course_limit_is_used() -> None:
     course.save(update_fields=["paste_limit"])
     client = _client(membership.student)
     assert client.get("/api/labs/M01/work").json()["paste_limit"] == 1000
-    assert _paste(client, 999).json() == {"blocked": False}
+    assert _paste(client, 999).json() == {"blocked": False, "recorded": True}
 
 
 def test_acc_09_proctored_window_blocks_any_paste() -> None:
@@ -67,7 +67,7 @@ def test_acc_09_proctored_window_blocks_any_paste() -> None:
     AccessWindow.objects.filter(section=membership.section).update(proctored=True)
     client = _client(membership.student)
     assert client.get("/api/labs/M01/work").json()["proctored"] is True
-    assert _paste(client, 1).json() == {"blocked": True}
+    assert _paste(client, 1).json() == {"blocked": True, "recorded": True}
     assert LabEvent.objects.get().kind == LabEventKind.PASTE_BLOCKED
 
 

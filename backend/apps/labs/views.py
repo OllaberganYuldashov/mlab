@@ -8,6 +8,7 @@ Bir xil saqlashni qayta yuborish (javob yo'qolgan) — o'sha natija (idempotent)
 INT-01: `GET work` paste qoidalarini ham beradi (`paste_limit`, `proctored`);
 `POST /api/labs/{code}/events` — har paste qaydi (faqat hajm va katak, matn emas). Rad etilganmi —
 server o'zi hal qiladi (mijozga ishonilmaydi).
+INT-05: `kind: tab_hidden` — sahifa yashirildi; faqat nazorat rejimida yoziladi (`recorded`).
 O'qituvchi: `GET /api/sections/{id}/labs/{code}/works/{student_id}` — faqat o'z guruhi
 (begona — 404).
 """
@@ -77,13 +78,22 @@ WorkOut = inline_serializer(
         "proctored": serializers.BooleanField(),
     },
 )
-EventOut = inline_serializer("LabEventOut", {"blocked": serializers.BooleanField()})
+EventOut = inline_serializer(
+    "LabEventOut", {"blocked": serializers.BooleanField(), "recorded": serializers.BooleanField()}
+)
 
 
 class _EventIn(serializers.Serializer[dict[str, Any]]):
-    kind = serializers.ChoiceField(choices=["paste"])
-    size = serializers.IntegerField(min_value=0, max_value=MAX_PASTE_SIZE)
-    cell = serializers.RegexField(r"^[A-Za-z0-9_-]{1,64}\Z")
+    kind = serializers.ChoiceField(choices=["paste", "tab_hidden"])
+    size = serializers.IntegerField(min_value=0, max_value=MAX_PASTE_SIZE, required=False)
+    cell = serializers.RegexField(r"^[A-Za-z0-9_-]{1,64}\Z", required=False)
+
+    def validate(self, attrs: dict[str, Any]) -> dict[str, Any]:
+        if attrs["kind"] == "paste":
+            missing = {f: "Paste uchun majburiy." for f in ("size", "cell") if f not in attrs}
+            if missing:
+                raise ValidationError(missing)
+        return attrs
 
 
 def paste_rules(section: Section, topic: Topic) -> tuple[int, bool]:
@@ -236,8 +246,22 @@ class MyLabEventView(APIView):
         student, section, topic = _student_context(request.user, code)
         data = _EventIn(data=request.data)
         data.is_valid(raise_exception=True)
-        size = data.validated_data["size"]
         limit, proctored = paste_rules(section, topic)
+        if data.validated_data["kind"] == "tab_hidden":
+            # INT-05: faqat nazorat rejimida; oddiy rejimda tab almashtirish talabaning ishi.
+            if proctored:
+                LabEvent.objects.create(
+                    student=student,
+                    section=section,
+                    topic=topic,
+                    kind=LabEventKind.TAB_HIDDEN,
+                    size=0,
+                    cell="",
+                )
+            return Response(
+                {"blocked": False, "recorded": proctored}, status=status.HTTP_201_CREATED
+            )
+        size = data.validated_data["size"]
         blocked = proctored or size > limit
         LabEvent.objects.create(
             student=student,
@@ -247,4 +271,4 @@ class MyLabEventView(APIView):
             size=size,
             cell=data.validated_data["cell"],
         )
-        return Response({"blocked": blocked}, status=status.HTTP_201_CREATED)
+        return Response({"blocked": blocked, "recorded": True}, status=status.HTTP_201_CREATED)

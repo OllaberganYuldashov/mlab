@@ -3,6 +3,7 @@ import { api, fieldErrors } from "../api";
 import { t } from "../i18n";
 import { Link } from "../Link";
 import { qrDataUrl } from "../qr";
+import SectionIntegrityPanel from "./SectionIntegrityPanel";
 import SectionSettingsPanel from "./SectionSettingsPanel";
 import type { Section } from "./SectionsPage";
 import SectionWindowsPanel from "./SectionWindowsPanel";
@@ -409,6 +410,7 @@ export default function SectionPage({ sectionId }: { sectionId: number }) {
       <Settings key={`${section.id}-${version}`} section={section} onSaved={setSection} />
       <SectionSettingsPanel sectionId={section.id} />
       <SectionWindowsPanel sectionId={section.id} />
+      <SectionIntegrityPanel sectionId={section.id} />
     </main>
   );
 }

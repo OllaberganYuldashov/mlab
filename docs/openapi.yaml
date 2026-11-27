@@ -890,6 +890,75 @@ paths:
       responses:
         '204':
           description: No response body
+  /api/sections/{section_id}/labs/{code}/integrity:
+    get:
+      operationId: sections_labs_integrity_retrieve
+      description: 'INT-04: o''qituvchi — guruh x mavzu bo''yicha shubhali holatlar
+        (faqat o''qish).'
+      summary: Shubhali holatlar
+      parameters:
+      - in: path
+        name: code
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: section_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - sections
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IntegrityFlagsOut'
+          description: ''
+  /api/sections/{section_id}/labs/{code}/students/{student_id}/integrity-note:
+    put:
+      operationId: sections_labs_students_integrity_note_update
+      description: 'INT-04: o''qituvchi izohi talaba x mavzu uchun. Bo''sh matn —
+        izoh o''chiriladi (204).'
+      summary: Halollik izohi
+      parameters:
+      - in: path
+        name: code
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: section_id
+        schema:
+          type: integer
+        required: true
+      - in: path
+        name: student_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - sections
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/_NoteInRequest'
+        required: true
+      security:
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IntegrityNoteOut'
+          description: ''
+        '204':
+          description: No response body
   /api/sections/{section_id}/labs/{code}/students/{student_id}/level:
     put:
       operationId: sections_labs_students_level_update
@@ -1702,6 +1771,56 @@ components:
       - id
       - student_limit
       - temporary_password
+    IntegrityFlagsOut:
+      type: object
+      properties:
+        students:
+          type: array
+          items:
+            $ref: '#/components/schemas/IntegrityStudent'
+      required:
+      - students
+    IntegrityNoteOut:
+      type: object
+      properties:
+        text:
+          type: string
+        author:
+          type: string
+        updated_at:
+          type: string
+          format: date-time
+      required:
+      - author
+      - text
+      - updated_at
+    IntegrityStudent:
+      type: object
+      properties:
+        student_id:
+          type: integer
+        full_name:
+          type: string
+        paste_blocked:
+          type: integer
+        tab_hidden:
+          type: integer
+        understanding_failed:
+          type: integer
+        fast_full_score:
+          type: boolean
+        note:
+          allOf:
+          - $ref: '#/components/schemas/IntegrityNoteOut'
+          nullable: true
+      required:
+      - fast_full_score
+      - full_name
+      - note
+      - paste_blocked
+      - student_id
+      - tab_hidden
+      - understanding_failed
     JoinPreview:
       type: object
       properties:
@@ -1741,15 +1860,21 @@ components:
     KindEnum:
       enum:
       - paste
+      - tab_hidden
       type: string
-      description: '* `paste` - paste'
+      description: |-
+        * `paste` - paste
+        * `tab_hidden` - tab_hidden
     LabEventOut:
       type: object
       properties:
         blocked:
           type: boolean
+        recorded:
+          type: boolean
       required:
       - blocked
+      - recorded
     LabSaveInRequest:
       type: object
       properties:
@@ -2890,9 +3015,7 @@ components:
           minLength: 1
           pattern: ^[A-Za-z0-9_-]{1,64}$
       required:
-      - cell
       - kind
-      - size
     _LevelInRequest:
       type: object
       properties:
@@ -2900,6 +3023,14 @@ components:
           $ref: '#/components/schemas/LevelEnum'
       required:
       - level
+    _NoteInRequest:
+      type: object
+      properties:
+        text:
+          type: string
+          maxLength: 1000
+      required:
+      - text
     _SubmitInRequest:
       type: object
       properties:

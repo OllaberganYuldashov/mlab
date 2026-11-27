@@ -39,13 +39,18 @@ class LabWork(models.Model):
         return f"{self.student_id}/{self.section_id}/{self.topic_id} v{self.version}"
 
 
+NOTE_MAX_LENGTH = 1000
+
+
 class LabEventKind(models.TextChoices):
     PASTE = "paste", _("Joylashtirish")
     PASTE_BLOCKED = "paste_blocked", _("Joylashtirish rad etildi")
+    # INT-05: nazorat rejimida sahifa yashirildi (boshqa tab yoki oyna) — faqat vaqti.
+    TAB_HIDDEN = "tab_hidden", _("Tab almashtirildi")
 
 
 class LabEvent(models.Model):
-    """INT-01, RPT-03: laboratoriya hodisasi (hozircha paste). Matn emas — faqat hajmi."""
+    """INT-01, INT-05, RPT-03: laboratoriya hodisasi (paste, tab). Matn emas — faqat hajmi."""
 
     student = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -81,3 +86,42 @@ class LabEvent(models.Model):
 
     def __str__(self) -> str:
         return f"{self.student_id}/{self.topic_id} {self.kind} {self.size}"
+
+
+class IntegrityNote(models.Model):
+    """INT-04: o'qituvchining talaba x mavzu izohi (shubhali holat bo'yicha). Ballga ta'sir yo'q."""
+
+    section = models.ForeignKey(
+        "sections.Section", on_delete=models.PROTECT, related_name="integrity_notes", db_index=False
+    )
+    topic = models.ForeignKey(
+        "courses.Topic", on_delete=models.PROTECT, related_name="integrity_notes", db_index=False
+    )
+    student = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="integrity_notes",
+        db_index=False,
+    )
+    author = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.PROTECT,
+        related_name="integrity_notes_written",
+        db_index=False,
+    )
+    text = models.CharField(_("izoh"), max_length=NOTE_MAX_LENGTH)
+    updated_at = models.DateTimeField(_("yangilangan"), auto_now=True)
+
+    class Meta:
+        verbose_name = _("halollik izohi")
+        verbose_name_plural = _("halollik izohlari")
+        constraints: ClassVar[list[models.BaseConstraint]] = [
+            # Prefiks (section, topic) guruh x mavzu ro'yxatini ham qoplaydi.
+            models.UniqueConstraint(
+                fields=["section", "topic", "student"], name="labs_integrity_note_uniq"
+            ),
+            models.CheckConstraint(condition=~Q(text=""), name="labs_integrity_note_text"),
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.section_id}/{self.topic_id}/{self.student_id}"
