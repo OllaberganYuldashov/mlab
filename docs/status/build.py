@@ -1,7 +1,7 @@
-"""docs/status/*.json ni plan.py dagi ma'lumotdan yasaydi (dashboard: "MLab loyiha holati").
+"""docs/status/*.json ni plan.py (reja) va live.json (GitHub holati) dan yasaydi (dashboard: "MLab loyiha holati").
 
-Har run oxirida Claude `plan.py` dagi holatlarni yangilaydi, `python3 docs/status/build.py` ni ishga tushiradi
-va fayllarni dashboard'ga yuklaydi (docs/prompts/nightly-run.md, 8-qadam).
+Holat va PR qo'lda yozilmaydi: `python3 scripts/sync_status.py` ularni GitHub Issues'dan `live.json` ga yozadi va
+shu skriptni chaqiradi. live.json'dagi qiymat plan.py dagisidan ustun (docs/status/README.md).
 """
 
 from __future__ import annotations
@@ -16,11 +16,24 @@ POINTS = {"S": 1, "M": 2}
 STATUSES = {"done", "in_progress", "ready", "planned", "blocked"}
 
 
+def apply_live(tasks: list[dict], meta: dict, live: dict) -> tuple[list[dict], dict]:
+    """live.json ni plan.py ustiga qo'yadi. META.next_task bo'sh bo'lsa — live.json'dagi avtomatik qiymat."""
+    issues = live.get("issues", {})
+    merged = [{**t, **issues.get(t["issue"], {})} if t["issue"] else dict(t) for t in tasks]
+    out = {**meta, "as_of": live.get("as_of") or meta["as_of"]}
+    if not out.get("next_task"):
+        out["next_task"] = live.get("next_task", "")
+    return merged, out
+
+
 def main() -> None:
+    live_path = HERE / "live.json"
+    live = json.loads(live_path.read_text(encoding="utf-8")) if live_path.exists() else {}
+    tasks, meta = apply_live(TASKS, META, live)
     rows = []
     est = {i["iteration"]: i["est_points"] for i in ITERATIONS}
     epics: dict[str, list[dict]] = {}
-    for t in TASKS:
+    for t in tasks:
         assert t["status"] in STATUSES, t
         if t["key"].startswith("E-"):
             epics.setdefault(t["iteration"], []).append(t)
@@ -37,7 +50,7 @@ def main() -> None:
         ("tasks", rows),
         ("iterations", ITERATIONS),
         ("releases", RELEASES),
-        ("meta", [META]),
+        ("meta", [meta]),
     ):
         (HERE / f"{name}.json").write_text(
             json.dumps({"rows": data}, ensure_ascii=False, indent=1) + "\n", encoding="utf-8"
