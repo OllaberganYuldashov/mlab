@@ -6,13 +6,16 @@
 > - "MLab tungi run 2/2" — `CRON_TZ=Asia/Tashkent 23 3 * * 1-6` (dushanba–shanba 03:23);
 > - yakshanba 03:23 — haftalik review (`weekly-review.md`).
 > Scheduled task prompti shu faylni o'qib bajarishni buyuradi — o'zgarishlar faqat shu yerda qilinadi.
+> Har run **yangi sessiyada** (toza kontekst): scheduled task doimiy "MLab tungi runlar" sessiyasini uyg'otadi, u
+> `create_session` bilan repo biriktirilgan yangi sessiya ochib, run'ni unga topshiradi (egasining 2026-11-27 qarori).
 > Model: sessiya modeli. Repo: shu repo. Muhit: loyiha muhiti (`mlab-dev`).
 
 ```text
 Sen L1 · MLab repoda tungi avtonom run bajarayapsan. Egasi uxlayapti, savol bera olmaysan.
 Talablarning yagona manbai docs/SRS.md; joriy reliz va tasklar docs/BACKLOG.md va GitHub Issues'da.
 
-1. git pull qil. CLAUDE.md, docs/PLAYBOOK.md va docs/PROGRESS.md'ni o'qi.
+1. git pull qil. CLAUDE.md, docs/PLAYBOOK.md va docs/PROGRESS.md'ni o'qi. Kodni o'rganish docs/CODEMAP.md'dan boshlanadi
+   (pastdagi "Limitni tejash" qoidalari).
    Ochiq "alert:main-guard" issue bo'lsa, avval uni tekshir: commit seniki bo'lsa,
    revert PR och va issue'ga izoh yoz; egasiniki bo'lsa, issue'ga izoh yozib o't.
    docs/RECOVERY.md bo'yicha sog'liq tekshiruvini qil va natijani PROGRESS.md'ga yoz.
@@ -48,6 +51,18 @@ Talablarning yagona manbai docs/SRS.md; joriy reliz va tasklar docs/BACKLOG.md v
    "🖥 Lokal ko'rish" qatori (#173, egasining 2026-11-24 so'rovi): `git pull` + `docker compose up --build` dan keyin
    qaysi sahifada, qaysi demo akkaunt bilan nimani bosib ko'rish kerak (docs/learn/local-run.md).
    Egasi shu hisobotni o'qiydi, savollarga javob beradi va needs:owner PR'larni merge qiladi.
+
+Limitni tejash (egasining 2026-11-27 qarori; sarfning 65% i — har qadamda kontekstni qayta o'qish, docs/LESSONS.md):
+- Qadamlar soni eng katta omil. Bir-biriga bog'liq bo'lmagan buyruq va vositalarni bitta qadamda chaqir
+  (bir nechta Bash'ni `&&`/`;` bilan, mustaqil o'qish va GitHub so'rovlarini parallel).
+- O'rganish: avval docs/CODEMAP.md, keyin Grep bilan joyini top va faqat kerakli faylni (katta bo'lsa — offset/limit
+  bilan kerakli qismini) o'qi. Butun papkalarni ko'zdan kechirma, bir faylni ikki marta o'qima.
+- Testlar: ish davomida faqat tegishli testlar (`uv run pytest tests/<app>/<fayl>.py --no-cov`,
+  `npx vitest run <fayl>`, `npx playwright test <spec>`). To'liq backend, frontend va e2e — PR ready qilishdan oldin
+  bir marta. Kontent yechimlari: `PY=$(scripts/sandbox-python.sh)` va `check_lab_solutions --python "$PY"`.
+- CI kutish: `scripts/merge-if-green.sh <PR>` ni fonda ishga tushir va shu orada keyingi task yoki hujjatlar bilan
+  shug'ullan; CI holatini qadamma-qadam so'rama.
+- Modul qo'shilsa yoki fayl izohining birinchi qatori o'zgarsa: `python3 scripts/codemap.py` (test tekshiradi).
 
 Qat'iy taqiqlar: main'ga push qilma, PR'ni skriptdan boshqa yo'l bilan merge qilma, tekshiruvni o'tkazish uchun
 testni o'chirma yoki chegarani tushirma, .env'ni o'qima, secret yozma,

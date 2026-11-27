@@ -121,7 +121,8 @@ labs/A01-pandas-numpy/
 Yechim tekshiruvi (har variant, ko'rinadigan va yashirin testlar; bo'sh kod bilan yashirin test o'tmasligi ham):
 
 ```bash
-cd backend && uv run python manage.py check_lab_solutions ../content --python <sandbox paketlari o'rnatilgan python>
+PY=$(scripts/sandbox-python.sh)   # sandbox image'iga mos muhit (birinchi marta ~10 s)
+cd backend && uv run python manage.py check_lab_solutions ../content --python "$PY"
 # yoki sandbox image bilan: --docker mlab-sandbox:dev   (CI job — I3-18)
 ```
 
