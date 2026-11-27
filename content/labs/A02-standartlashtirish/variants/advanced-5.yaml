@@ -1,2 +1,2 @@
-params: {"dataset": "breast_cancer", "column": "error_radius", "category": "diagnosis"}
+params: {"dataset": "breast_cancer", "column": "error_radius", "category": "diagnosis", "prefix": "kat"}
 questions: [{"text": "Z-score'dan keyin `z` ning o'rtachasi va standart og'ishi taxminan qancha?", "options": ["1 va 0", "0 va 1", "0 va 100", "`error_radius` ning o'zinikiga teng"], "answer": 1}, {"text": "Min-max masshtablashda eng kichik qiymat nimaga aylanadi?", "options": ["1", "-1", "0", "o'rtacha qiymatga"], "answer": 2}, {"text": "`encoded` da nechta ustun bor?", "options": ["Bitta", "`df` dagi ustunlar soncha", "Qatorlar soncha", "`diagnosis` dagi har xil qiymatlar soncha"], "answer": 3}]

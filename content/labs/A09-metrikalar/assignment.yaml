@@ -1,0 +1,30 @@
+code: A09
+title: "Metrikalar va Confusion Matrix"
+topic: M11
+statement: |
+  **Dataset:** `{dataset}`, **musbat sinf:** `{positive}`.
+
+  Tayyorlash: `df = mlab.load("{dataset}")`, `X = df.drop(columns=["{target}"])`,
+  `y = (df["{target}"] == "{positive}").astype(int)` (1 — `{positive}`, 0 — qolganlari);
+  `X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state={seed}, stratify=y)`;
+  `scaler = StandardScaler().fit(X_train)`, `X_train_s = scaler.transform(X_train)`, `X_test_s = scaler.transform(X_test)`;
+  `model = LogisticRegression(max_iter=1000).fit(X_train_s, y_train)`, `pred = model.predict(X_test_s)`.
+
+  1. **Confusion matrix.** `cm = confusion_matrix(y_test, pred)`; `tn, fp, fn, tp` — butun sonlar
+     (`tn, fp, fn, tp = (int(v) for v in cm.ravel())`).
+  2. **Metrikalar.** `precision`, `recall`, `f1` — `precision_score`, `recall_score`, `f1_score` (`float(...)`).
+  3. **ROC-AUC.** `auc = float(roc_auc_score(y_test, model.predict_proba(X_test_s)[:, 1]))`.
+steps:
+  - key: confusion
+    title: "Confusion matrix"
+    points: 35
+  - key: metrics
+    title: "Precision, recall, F1"
+    points: 35
+  - key: roc
+    title: "ROC-AUC"
+    points: 30
+challenge: |
+  Chegara (threshold) 0.1 dan 0.9 gacha (0.1 qadam) o'zgarganda precision va recall qiymatlarini `pr_by_threshold` lug'atiga yozing.
+independent: |
+  Nobalans datasetda ROC-AUC: musbat sinfni 10% gacha kamaytirib (undersample), accuracy va ROC-AUC qanday o'zgarishini solishtiring; nega accuracy aldaydi?

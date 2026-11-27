@@ -1,0 +1,33 @@
+code: A07
+title: "k-NN va qarorlar daraxti"
+topic: M08
+statement: |
+  **Dataset:** `{dataset}`, **sinf ustuni:** `{target}`.
+
+  Tayyorlash: `df = mlab.load("{dataset}")`, `X = df.drop(columns=["{target}"])`, `y = df["{target}"]`;
+  `X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state={seed}, stratify=y)`;
+  `scaler = StandardScaler().fit(X_train)` (**faqat train'da**), `X_train_s = scaler.transform(X_train)`,
+  `X_test_s = scaler.transform(X_test)`.
+
+  **k:** `{k}`, **max_depth:** `{max_depth}`.
+
+  1. **k-NN.** `knn = KNeighborsClassifier(n_neighbors={k}).fit(X_train_s, y_train)` (masshtablangan belgilar);
+     test aniqligi — `knn_acc`.
+  2. **Qarorlar daraxti.** `tree = DecisionTreeClassifier(max_depth={max_depth}, random_state={seed}).fit(X_train, y_train)`
+     (daraxtga masshtablash shart emas — **masshtablanmagan** belgilar); test aniqligi — `tree_acc`,
+     daraxtning haqiqiy chuqurligi — `tree_depth` (`tree.get_depth()`).
+  3. **Taqqoslash.** `best_model = "knn"` yoki `"tree"` — test aniqligi kattasi (teng bo'lsa `"knn"`).
+steps:
+  - key: knn
+    title: "k-NN"
+    points: 35
+  - key: tree
+    title: "Qarorlar daraxti"
+    points: 35
+  - key: compare
+    title: "Taqqoslash"
+    points: 30
+challenge: |
+  `k` ni 1 dan 25 gacha toq qiymatlarda sinab, test aniqligini `acc_by_k` lug'atiga yozing; eng yaxshi `k` qaysi?
+independent: |
+  Giperparametr ta'siri: k-NN uchun `k`, daraxt uchun `max_depth` bo'yicha train va test aniqligi chiziqlarini bitta grafikda chizing va overfitting qayerda boshlanishini yozing.

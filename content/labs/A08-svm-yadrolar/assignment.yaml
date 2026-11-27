@@ -1,0 +1,31 @@
+code: A08
+title: "SVM va yadrolar"
+topic: M10
+statement: |
+  **Dataset:** `{dataset}`, **sinf ustuni:** `{target}`.
+
+  Tayyorlash: `df = mlab.load("{dataset}")`, `X = df.drop(columns=["{target}"])`, `y = df["{target}"]`;
+  `X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_state={seed}, stratify=y)`;
+  `scaler = StandardScaler().fit(X_train)` (**faqat train'da**), `X_train_s = scaler.transform(X_train)`,
+  `X_test_s = scaler.transform(X_test)`.
+
+  **C:** `{c}`.
+
+  1. **Chiziqli SVM.** `svm_linear = SVC(kernel="linear", C={c}).fit(X_train_s, y_train)`; test aniqligi — `linear_acc`.
+  2. **RBF yadro.** `svm_rbf = SVC(kernel="rbf", C={c}, gamma="scale").fit(X_train_s, y_train)`; test aniqligi —
+     `rbf_acc`; support vector'lar soni — `n_support` (`int(svm_rbf.n_support_.sum())`).
+  3. **Taqqoslash.** `best_kernel = "linear"` yoki `"rbf"` — test aniqligi kattasi (teng bo'lsa `"linear"`).
+steps:
+  - key: linear
+    title: "Chiziqli SVM"
+    points: 35
+  - key: rbf
+    title: "RBF yadro va support vector'lar"
+    points: 35
+  - key: compare
+    title: "Taqqoslash"
+    points: 30
+challenge: |
+  `C` ni `[0.01, 0.1, 1, 10, 100]` qiymatlarida sinab, RBF uchun support vector'lar sonini `support_by_C` lug'atiga yozing — C oshganda nima bo'ladi?
+independent: |
+  RBF vs Linear vs Polynomial: uch yadroni bir xil bo'linishda solishtiring (aniqlik va o'qitish vaqti), ikki belgi bo'yicha qaror chegaralarini chizing.

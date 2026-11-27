@@ -1,2 +1,2 @@
-params: {"dataset": "breast_cancer", "column": "mean_smoothness", "category": "diagnosis"}
+params: {"dataset": "breast_cancer", "column": "mean_smoothness", "category": "diagnosis", "prefix": "sinf"}
 questions: [{"text": "Z-score'dan keyin `z` ning o'rtachasi va standart og'ishi taxminan qancha?", "options": ["1 va 0", "0 va 100", "0 va 1", "`mean_smoothness` ning o'zinikiga teng"], "answer": 2}, {"text": "Min-max masshtablashda eng kichik qiymat nimaga aylanadi?", "options": ["1", "-1", "o'rtacha qiymatga", "0"], "answer": 3}, {"text": "`encoded` da nechta ustun bor?", "options": ["`diagnosis` dagi har xil qiymatlar soncha", "Bitta", "`df` dagi ustunlar soncha", "Qatorlar soncha"], "answer": 0}]

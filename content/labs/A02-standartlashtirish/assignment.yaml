@@ -7,8 +7,8 @@ statement: |
   1. **Z-score.** `{column}` ni standartlashtiring: `(x − o'rtacha) / standart og'ish`, standart og'ish `std(ddof=0)`
      bilan. Natija — `z` (pandas Series, uzunligi `df` bilan bir xil).
   2. **Min-max.** `{column}` ni [0, 1] oralig'iga keltiring: `(x − min) / (max − min)`. Natija — `scaled` (Series).
-  3. **One-hot.** `{category}` ustunini kodlang: `encoded = pd.get_dummies(df["{category}"], prefix="{category}")`.
-     Har qatorda aynan bitta ustun 1 (True) bo'ladi.
+  3. **One-hot.** `{category}` ustunini kodlang: `encoded = pd.get_dummies(df["{category}"], prefix="{prefix}")`.
+     Ustun nomlari `{prefix}_<qiymat>` ko'rinishida; har qatorda aynan bitta ustun 1 (True) bo'ladi.
 steps:
   - key: zscore
     title: "Z-score standartlashtirish"
