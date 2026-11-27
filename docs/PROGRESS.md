@@ -37,6 +37,9 @@
 - #193: "Ruxsat: A" — Actions tiklandi (repo vaqtincha public; 1-dekabrda yana private).
 - GitHub'ga pul to'lanmaydi; bepul limitdan samarali foydalanish — sifat va tezlik pasaymasligi shart (docs/CI-BUDGET.md).
 - Har doim o'zbek tilida javob berish.
+- Ish tartibi — **gibrid ("C")**: kechasi avtomatik tungi run'lar (har biri yangi sessiyada), kunduzi egasi haftalik
+  limit sarfiga qarab 0–2 ta `/kunduzgi-run` sessiyasini boshqaradi (`docs/prompts/day-run.md`; `run:day` label'i).
+  Maqsad: MVP kodi ~7–9-dekabr.
 
 ## Egasining qarorlari (2026-11-23, sessiyada)
 - #38 (Hemis ID tasdiqlash): MVP uchun **A** — hozirgi oqim (o'qituvchi I1 da a'zolikni tasdiqlaydi, nizoda admin

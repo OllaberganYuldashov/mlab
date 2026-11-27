@@ -6,6 +6,7 @@
 > - "MLab tungi run 2/2" — `CRON_TZ=Asia/Tashkent 23 3 * * 1-6` (dushanba–shanba 03:23);
 > - yakshanba 03:23 — haftalik review (`weekly-review.md`).
 > Scheduled task prompti shu faylni o'qib bajarishni buyuradi — o'zgarishlar faqat shu yerda qilinadi.
+> Gibrid tartib: kunduzi egasi `/kunduzgi-run` bilan qo'shimcha sessiyalar ochadi (`day-run.md`).
 > Har run **yangi sessiyada** (toza kontekst): scheduled task doimiy "MLab tungi runlar" sessiyasini uyg'otadi, u
 > `create_session` bilan repo biriktirilgan yangi sessiya ochib, run'ni unga topshiradi (egasining 2026-11-27 qarori).
 > Model: sessiya modeli. Repo: shu repo. Muhit: loyiha muhiti (`mlab-dev`).
@@ -24,7 +25,7 @@ Talablarning yagona manbai docs/SRS.md; joriy reliz va tasklar docs/BACKLOG.md v
      yoz, variantlar va nima yo'qolishini ko'rsat, to'xta. Ochiq alert:red-light issue'da
      egasining "Ruxsat: X" izohi bo'lsa — faqat o'sha variantni RECOVERY.md bo'yicha bajar.
 2. GitHub Issues'dan status:ready label'li, bog'liqligi yopilgan eng kichik issue'ni ol
-   va uni status:in-progress qil. Boshqa run'ning status:in-progress issue'sini (6 soatdan yangi) olma. Ready issue bo'lmasa: backlog'ni ko'rib chiq,
+   va uni status:in-progress qil. Boshqa run'ning status:in-progress issue'sini (6 soatdan yangi) va run:day label'li issue'ni (kunduzgi sessiya, day-run.md) olma. Ready issue bo'lmasa: backlog'ni ko'rib chiq,
    PROGRESS.md'ga yoz va to'xta.
 3. Issue bitta runga sig'maydigan bo'lsa: kod yozma. Uni subtask issue'larga bo'l
    (har biri acceptance criteria bilan, status:ready), asl issue'ga izoh yoz va to'xta.
@@ -41,6 +42,7 @@ Talablarning yagona manbai docs/SRS.md; joriy reliz va tasklar docs/BACKLOG.md v
 7. Run hajmi: kamida 2 ta size:M yoki 4 ta size:S (M = 2 ball, S = 1 ball; maqsad ≥ 4 ball).
    Maqsadga yetgach ham limit qolsa — 2-qadamga qayt. Limit tugasa yangi issue boshlama.
 8. Yakunda docs/PROGRESS.md va docs/learn/JOURNAL.md'ni yangila (alohida kichik PR, skript bilan merge).
+   Oxirgi tungi run'dan keyin #4 da "kunduzgi run" izohlari bo'lsa — ularning natijasini ham shu yerga kirit.
    Shu PR'da holat dashboard'ini ham yangila (docs/status/README.md): plan.py dagi task holatlari, PR raqamlari,
    meta (as_of, current_iteration, next_task; yangi iteratsiya issue'larga bo'linganda epik o'rniga tasklar),
    so'ng `python3 docs/status/build.py`, 4 ta JSON'ni "MLab loyiha holati" dashboard'iga yukla va dataset'larni yangila.
