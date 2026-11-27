@@ -1,15 +1,18 @@
-"""Loyiha rejasi va holati — dashboard manbai. Holatlar: done, in_progress, ready, planned, blocked.
+"""Loyiha rejasi — dashboard manbai. Holatlar: done, in_progress, ready, planned, blocked.
+
+Issue'li task holati va PR'i qo'lda yangilanmaydi: `scripts/sync_status.py` ularni GitHub'dan oladi (live.json).
+Bu yerdagi `status`/`pr` — faqat zaxira qiymat (issue'siz task, status label'siz ochiq issue).
 
 Issue raqami bor task — GitHub issue; `E-...` — hali issue'larga bo'linmagan epik (taxminiy ball).
 """
 
 META = {
-    "as_of": "2026-11-28",
+    "as_of": "2026-11-28",  # zaxira; sync_status.py bugungi sanani (Asia/Tashkent) qo'yadi
     "velocity_per_day": 9,  # ball/kun: kuniga 2 tungi run x ~4-5 ball (haftalik review aniqlaydi)
     "velocity_note": "Kuniga 2 tungi run, har biri ~4-5 ball (M=2, S=1). Yakshanba — 1 run + review.",
     "current_release": "R1",
     "current_iteration": "I3",
-    "next_task": "#165 kontent A11–A15, so'ng #167 I3 yakuni; #166 deploy (needs:owner)",
+    "next_task": "",  # bo'sh — avtomatik (eng kichik status:ready issue); matn yozilsa o'shani ko'rsatadi
 }
 
 RELEASES = [
