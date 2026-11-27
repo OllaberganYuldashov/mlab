@@ -4,6 +4,7 @@ Format: [Keep a Changelog](https://keepachangelog.com/), versiyalar: [SemVer](ht
 
 ## [Unreleased]
 ### Added
+- Shubhali holatlar (I3-14; INT-04, INT-05, ACC-09): o'qituvchi guruh × mavzu bo'yicha talabalar belgilarini ko'radi — rad etilgan katta paste, nazorat rejimida tab almashtirish, tushunish savolida xato, topshiriq berilganidan 10 daqiqa ichida to'liq ball — va izoh qoldiradi (`GET /api/sections/{id}/labs/{code}/integrity`, `PUT .../students/{student_id}/integrity-note`; faqat o'z guruhi, IDOR testlari). Avtomatik jazo yo'q: ball o'zgarmaydi (test bilan). Laboratoriya nazorat rejimida `visibilitychange` → `tab_hidden` hodisasi (server faqat nazorat rejimida yozadi; javobga `recorded` qo'shildi). Migratsiya `labs 0003` (CHECK — NOT VALID + VALIDATE). Guruh sahifasida "Shubhali holatlar" paneli, e2e.
 - Topshiriqlar A06–A10 (I3-16; AGR-07, AGR-08, INT-02): logistik regressiya (M07), k-NN va qarorlar daraxti (M08), SVM va yadrolar (M10), metrikalar va confusion matrix (M11), k-fold va GridSearch (M06). Har birida 3 qadam (jami 100 ball), 3 daraja × 5 variant, ko'rinadigan va yashirin testlar, yechim, challenge, mustaqil topshiriq va har variantga 3 tadan tushunish savoli. `check_lab_solutions`: 150 variant (A01–A10) o'tadi; brauzer e2e: 10 lab. Yangi `test_agr_07_course_labs.py` kursdagi barcha labslarni tekshiradi.
 
 ### Fixed

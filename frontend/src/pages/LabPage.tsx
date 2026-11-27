@@ -5,7 +5,7 @@ import { t } from "../i18n";
 import { Autosave, SAVE_INTERVAL_MS, type SaveStatus } from "../lab/autosave";
 import AssignmentPanel from "../lab/AssignmentPanel";
 import Notebook from "../lab/Notebook";
-import { pasteAllowed, reportPaste } from "../lab/paste";
+import { pasteAllowed, reportPaste, reportTabHidden } from "../lab/paste";
 import { getRuntime } from "../lab/runtime";
 import { type Notebook as NotebookState, emptyNotebook } from "../lab/notebook";
 import { Link } from "../Link";
@@ -160,6 +160,17 @@ export default function LabPage({ code }: { code: string }) {
       saver.current = null;
     };
   }, [code, loaded, canSave]);
+
+  // INT-05, ACC-09: nazorat rejimida boshqa tab yoki oynaga o'tish qayd qilinadi (server ham tekshiradi).
+  const proctored = Boolean(loaded?.work.proctored) && canSave;
+  useEffect(() => {
+    if (!proctored) return;
+    const onVisibility = () => {
+      if (document.visibilityState === "hidden") reportTabHidden(code);
+    };
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => document.removeEventListener("visibilitychange", onVisibility);
+  }, [code, proctored]);
 
   // INT-01, ACC-09: har paste qayd qilinadi; chegaradan katta yoki nazorat rejimida — rad.
   const [pasteBlocked, setPasteBlocked] = useState<string | null>(null);

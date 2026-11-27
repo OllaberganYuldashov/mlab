@@ -22,3 +22,11 @@ export function reportPaste(code: string, cell: string, size: number): void {
     body: { kind: "paste", size, cell },
   }).catch(() => undefined);
 }
+
+/** INT-05, ACC-09: nazorat rejimida sahifa yashirildi (boshqa tab yoki oyna). Faqat vaqti qayd qilinadi. */
+export function reportTabHidden(code: string): void {
+  void api(`/api/labs/${encodeURIComponent(code)}/events`, {
+    method: "POST",
+    body: { kind: "tab_hidden" },
+  }).catch(() => undefined);
+}
