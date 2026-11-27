@@ -19,7 +19,7 @@ import random
 import time
 from collections.abc import Callable
 from datetime import timedelta
-from decimal import Decimal
+from decimal import ROUND_HALF_UP, Decimal
 from typing import Any
 
 from django.db import IntegrityError, transaction
@@ -45,7 +45,6 @@ logger = logging.getLogger("mlab.grading")
 
 MAX_ATTEMPTS = 3
 QUESTIONS_PER_ATTEMPT = 2  # INT-02
-UNDERSTANDING_CAP = Decimal("50.00")  # INT-02: noto'g'ri javobda ball shu bilan cheklanadi
 POSITIONS_BROADCAST_LIMIT = 200  # navbat bundan uzun bo'lsa, qolganlar o'rnini API'dan oladi
 TIME_LIMIT = 10  # s: talaba kodi va har test uchun (runner ichida)
 # Celery `task_time_limit` (90 s) dan uzoq "running" — worker o'lgan; qayta egallash mumkin.
@@ -350,6 +349,11 @@ class NotAwaitingAnswers(Exception):
     """Urinish baholanmagan yoki savollarga allaqachon javob berilgan."""
 
 
+def halve_score(score: Decimal) -> Decimal:
+    """INT-02: noto'g'ri javobda yakuniy ball yarmiga kamayadi (2 xona, 0.005 yuqoriga)."""
+    return (score / 2).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+
+
 def answer(submission_id: int, student_id: int, answers: list[int]) -> Submission:
     """INT-02: tushunish savollariga javob (bir marta). Biri noto'g'ri — ball 50 bilan cheklanadi.
 
@@ -380,7 +384,7 @@ def answer(submission_id: int, student_id: int, answers: list[int]) -> Submissio
         submission.answered_at = timezone.now()
         fields = ["understanding", "answers", "answered_at"]
         if not correct and submission.final_score is not None:
-            submission.final_score = min(submission.final_score, UNDERSTANDING_CAP)
+            submission.final_score = halve_score(submission.final_score)
             fields.append("final_score")
         submission.save(update_fields=fields)
     notify(submission, student_id)

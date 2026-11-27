@@ -1,4 +1,4 @@
-"""INT-02 (I3-13): topshirgandan keyin 2 ta tushunish savoli; noto'g'ri javobda ball 50 gacha."""
+"""INT-02 (I3-13): topshirgandan keyin 2 ta tushunish savoli; noto'g'ri javobda ball yarmiga."""
 
 from __future__ import annotations
 
@@ -130,7 +130,7 @@ def test_int_02_correct_answers_keep_score(membership: Membership) -> None:
     assert (again.status_code, again.json()["code"]) == (409, "not_awaiting_answers")
 
 
-def test_int_02_wrong_answer_caps_score_at_50(membership: Membership) -> None:
+def test_int_02_wrong_answer_halves_score(membership: Membership) -> None:
     sid = _graded(membership)["id"]
     right = _correct(sid)
     wrong = [right[0], (right[1] + 1) % 2]
@@ -141,7 +141,7 @@ def test_int_02_wrong_answer_caps_score_at_50(membership: Membership) -> None:
     assert submission.answers == wrong
     record = submission.student_assignment
     assert results.best_score(record) == Decimal("50.00")
-    # Past ball (< 50) cheklovdan o'zgarmaydi.
+    # Past ball ham yarmiga kamayadi (egasining 2026-11-27 qarori: "yarmiga kamaysin").
     fake.responses.append(
         {
             "status": "ok",
@@ -156,7 +156,22 @@ def test_int_02_wrong_answer_caps_score_at_50(membership: Membership) -> None:
     low = _graded(membership)["id"]
     right = _correct(low)
     body = _answer(membership, low, [(right[0] + 1) % 2, right[1]]).json()
-    assert body["final_score"] == "40.00"
+    assert body["final_score"] == "20.00"
+    assert Submission.objects.get(pk=low).score == 40
+
+
+@pytest.mark.parametrize(
+    ("before", "after"),
+    [
+        ("100.00", "50.00"),
+        ("40.00", "20.00"),
+        ("70.05", "35.03"),
+        ("0.01", "0.01"),
+        ("0.00", "0.00"),
+    ],
+)
+def test_int_02_halving_keeps_two_decimals(before: str, after: str) -> None:
+    assert service.halve_score(Decimal(before)) == Decimal(after)
 
 
 @pytest.mark.parametrize("answers", [[0], [0, 0, 0], [0, 9], ["a", 0], None])
