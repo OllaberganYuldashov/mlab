@@ -62,6 +62,22 @@ docker build -f sandbox/Dockerfile -t mlab-sandbox:dev .
 echo '{"code": "x = 2 + 2", "tests": []}' | docker run --rm -i --network none mlab-sandbox:dev
 ```
 
+## 6a. Launcher amalda (I3-18a, #202)
+
+`sandbox/launcher.py` — ~250 qator, faqat Python standart kutubxonasi (yangi paket yo'q):
+
+- Ikki yo'l: `POST /run` (runner JSON'i) va `GET /healthz`. Boshqa hamma narsa — 404/405; 2 MB dan katta so'rov — 413
+  (tana o'qilmaydi ham).
+- Har so'rov uchun `docker run --rm -i --name mlab-sbx-<tasodifiy> <ADR cheklovlari> <SANDBOX_IMAGE>`. Image va
+  cheklovlar kodda — so'rovdagi hech bir maydon `docker` argumentiga tushmaydi (test: `--privileged` so'rasa ham yo'q).
+  Cheklovlar ro'yxati hujum testlaridagi bilan aynan bir xilligini alohida test tekshiradi.
+- 60 s dan keyin CLI o'ldiriladi va **har holatda** `docker rm -f` — konteyner "osilib" qolmaydi.
+- Chiqish 512 KB dan oshsa — to'xtatiladi. Talaba aybi bo'lgan holatlar (vaqt, 512 MB xotira, juda katta chiqish)
+  `code_error` bo'lib qaytadi — worker qayta urinmaydi, ball 0. Docker ishlamasa yoki 2 ta konteyner band bo'lsa —
+  503: worker keyinroq qayta urinadi (`SandboxUnavailable`).
+- Logga faqat natija turi, vaqt va so'rov hajmi yoziladi — kod va yashirin testlar hech qachon (test bilan).
+- Image: `sandbox/launcher.Dockerfile` (`docker` CLI + python3, root emas). Soket guruhi va compose — #203.
+
 ## 7. Brauzerdagi "Tekshirish" (I3-04)
 
 "Tekshirish" tugmasi serverga hech narsa yubormaydi: ko'rinadigan testlar talabaning o'z brauzerida, Pyodide'da ishlaydi
