@@ -36,6 +36,8 @@ WALL_TIMEOUT = 60  # s: konteyner umri (ADR-0007)
 MAX_PARALLEL = 2  # ADR-0007: bir vaqtda 2 sandbox (RAM byudjeti 2 x 512 MB)
 DOCKER = "docker"
 PORT = 8080
+REQUEST_TIMEOUT = 10  # s: so'rov tanasini o'qish uchun
+MAX_CONNECTIONS = 16  # bir vaqtdagi ulanishlar (2 ta ishlaydi, qolgani 503 oladi)
 
 # ADR-0007 2-band — `sandbox/tests/test_image_attacks.py` dagi LIMITS bilan aynan bir xil
 # (test tekshiradi). /tmp — konteyner ichidagi tmpfs, xostniki emas.
@@ -89,9 +91,13 @@ class Launcher:
         if not self.slots.acquire(blocking=False):
             raise Busy
         try:
-            return self._run(payload)
+            return self.run_reserved(payload)
         finally:
             self.slots.release()
+
+    def run_reserved(self, payload: bytes) -> dict[str, Any]:
+        """Joy (`slots`) chaqiruvchi tomonidan olingan."""
+        return self._run(payload)
 
     def _run(self, payload: bytes) -> dict[str, Any]:
         name = f"mlab-sbx-{uuid.uuid4().hex}"
@@ -118,16 +124,21 @@ class Launcher:
                     return
                 chunks.append(chunk)
 
-        reader = threading.Thread(target=read, daemon=True)
-        reader.start()
-        timed_out = False
-        try:
+        def write() -> None:
+            # Alohida oqimda: CLI yoki daemon osilib qolsa ham vaqt chegarasi ishlaydi.
             try:
                 assert proc.stdin is not None  # noqa: S101
                 proc.stdin.write(payload)
                 proc.stdin.close()
             except OSError:
                 pass  # konteyner stdin'ni o'qimay tugadi — natija quyida
+
+        reader = threading.Thread(target=read, daemon=True)
+        writer = threading.Thread(target=write, daemon=True)
+        reader.start()
+        writer.start()
+        timed_out = False
+        try:
             try:
                 proc.wait(timeout=self.wall_timeout)
             except subprocess.TimeoutExpired:
@@ -135,6 +146,7 @@ class Launcher:
                 proc.kill()
                 proc.wait()
             reader.join(timeout=5)
+            writer.join(timeout=5)
             if proc.stdout is not None:
                 proc.stdout.close()
         finally:
@@ -149,13 +161,27 @@ class Launcher:
             raise DockerUnavailable("docker run: 125")
         try:
             data = json.loads(b"".join(chunks))
-        except ValueError:
+        except (ValueError, RecursionError):  # chuqur ichma-ich `[[[...` — RecursionError
             data = None
         if isinstance(data, dict):
             return data
         if proc.returncode == 137:
             return _code_error("Sandbox to'xtatildi (xotira chegarasi — 512 MB)")
         return _code_error("Sandbox natija bermadi")
+
+    def reap(self) -> None:
+        """Ishga tushganda: oldingi jarayondan qolgan sandbox konteynerlarini o'chiradi."""
+        try:
+            ids = subprocess.run(  # noqa: S603
+                [self.docker, "ps", "-aq", "--filter", "label=mlab.sandbox=1"],
+                capture_output=True,
+                timeout=30,
+                check=False,
+            ).stdout.split()
+        except (OSError, subprocess.TimeoutExpired):
+            return
+        for container in ids:
+            self._remove(container.decode())
 
     def _remove(self, name: str) -> None:
         try:
@@ -174,6 +200,7 @@ def make_handler(launcher: Launcher) -> type[BaseHTTPRequestHandler]:
     class Handler(BaseHTTPRequestHandler):
         server_version = "mlab-launcher"
         sys_version = ""
+        timeout = REQUEST_TIMEOUT  # sekin mijoz (slowloris) ulanishni cheksiz ushlab turmasin
 
         def _send(self, status: HTTPStatus, body: dict[str, Any]) -> None:
             data = json.dumps(body, ensure_ascii=False).encode()
@@ -205,10 +232,25 @@ def make_handler(launcher: Launcher) -> type[BaseHTTPRequestHandler]:
                 self.close_connection = True
                 self._send(HTTPStatus.REQUEST_ENTITY_TOO_LARGE, {"error": "size"})
                 return
-            raw = self.rfile.read(int(length))
+            # Joy bo'lmasa — tanani o'qimasdan 503 (band launcher xotirasini to'ldirmaymiz).
+            if not launcher.slots.acquire(blocking=False):
+                self.close_connection = True
+                self._send(HTTPStatus.SERVICE_UNAVAILABLE, {"error": "busy"})
+                return
+            try:
+                self._run(int(length))
+            finally:
+                launcher.slots.release()
+
+        def _run(self, length: int) -> None:
+            try:
+                raw = self.rfile.read(length)
+            except OSError:  # vaqt chegarasi yoki uzilish
+                self.close_connection = True
+                return
             try:
                 data = json.loads(raw)
-            except ValueError:
+            except (ValueError, RecursionError):
                 data = None
             if not isinstance(data, dict) or not isinstance(data.get("code"), str):
                 self._send(HTTPStatus.BAD_REQUEST, {"error": "bad_json"})
@@ -216,18 +258,21 @@ def make_handler(launcher: Launcher) -> type[BaseHTTPRequestHandler]:
             started = time.monotonic()
             outcome = "ok"
             try:
-                result = launcher.run(raw)
+                result = launcher.run_reserved(raw)
                 outcome = str(result.get("status"))[:32]
                 self._send(HTTPStatus.OK, result)
-            except Busy:
-                outcome = "busy"
-                self._send(HTTPStatus.SERVICE_UNAVAILABLE, {"error": "busy"})
             except DockerUnavailable as exc:
                 outcome = "docker_unavailable"
                 logger.error(
                     json.dumps({"event": "launcher.docker_unavailable", "reason": str(exc)})
                 )
                 self._send(HTTPStatus.SERVICE_UNAVAILABLE, {"error": "docker_unavailable"})
+            except Exception as exc:  # bizning xato: 500, worker qayta urinadi
+                outcome = "internal_error"
+                logger.exception(
+                    json.dumps({"event": "launcher.internal_error", "type": type(exc).__name__})
+                )
+                self._send(HTTPStatus.INTERNAL_SERVER_ERROR, {"error": "internal"})
             finally:
                 # Kod va testlar logga yozilmaydi (yashirin testlar — AGR-05).
                 logger.info(
@@ -247,6 +292,32 @@ def make_handler(launcher: Launcher) -> type[BaseHTTPRequestHandler]:
     return Handler
 
 
+class LimitedServer(ThreadingHTTPServer):
+    """Bir vaqtda ko'pi bilan MAX_CONNECTIONS ulanish (har biri oqim); ortig'i darhol yopiladi."""
+
+    daemon_threads = True
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+        self.connections = threading.BoundedSemaphore(MAX_CONNECTIONS)
+
+    def process_request(self, request: Any, client_address: Any) -> None:
+        if not self.connections.acquire(blocking=False):
+            self.shutdown_request(request)
+            return
+        try:
+            super().process_request(request, client_address)
+        except BaseException:
+            self.connections.release()
+            raise
+
+    def process_request_thread(self, request: Any, client_address: Any) -> None:
+        try:
+            super().process_request_thread(request, client_address)
+        finally:
+            self.connections.release()
+
+
 def main() -> int:
     logging.basicConfig(level=logging.INFO, format="%(message)s", stream=sys.stderr)
     try:
@@ -254,7 +325,8 @@ def main() -> int:
     except ValueError as exc:
         logger.error(json.dumps({"event": "launcher.config_error", "reason": str(exc)}))
         return 2
-    server = ThreadingHTTPServer(("0.0.0.0", PORT), make_handler(launcher))  # noqa: S104 — faqat ichki tarmoq
+    launcher.reap()
+    server = LimitedServer(("0.0.0.0", PORT), make_handler(launcher))  # noqa: S104 — ichki tarmoq
     logger.info(json.dumps({"event": "launcher.start", "port": PORT, "image": launcher.image}))
     server.serve_forever()
     return 0

@@ -45,6 +45,9 @@ with open(log, "a") as f:
     f.write(json.dumps(args) + "\\n")
 if args[0] == "rm":
     sys.exit(0)
+if args[0] == "ps":
+    print("old1\\nold2")
+    sys.exit(0)
 data = sys.stdin.buffer.read()
 with open(log + ".stdin", "wb") as f:
     f.write(data)
@@ -59,6 +62,8 @@ elif mode == "daemon":
     sys.exit(125)
 elif mode == "oom":
     sys.exit(137)
+elif mode == "deep":
+    sys.stdout.write("[" * 400000)
 elif mode == "garbage":
     sys.stdout.write("not json")
 """
@@ -151,7 +156,7 @@ def test_agr_03_output_flood_is_cut(launcher: Any, fake: Fake) -> None:
 
 @pytest.mark.parametrize(
     ("mode", "message"),
-    [("oom", "xotira chegarasi"), ("garbage", "natija bermadi")],
+    [("oom", "xotira chegarasi"), ("garbage", "natija bermadi"), ("deep", "natija bermadi")],
 )
 def test_agr_03_killed_or_garbage_is_code_error(
     launcher: Any, fake: Fake, mode: str, message: str
@@ -293,3 +298,51 @@ def test_agr_03_logs_never_contain_code(server: str, caplog: pytest.LogCaptureFi
 def test_agr_03_main_fails_fast_without_image(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.delenv("SANDBOX_IMAGE", raising=False)
     assert launcher_mod.main() == 2
+
+
+def test_agr_03_reap_removes_leftover_sandbox_containers(launcher: Any, fake: Fake) -> None:
+    launcher.reap()
+    assert fake.calls() == [
+        ["ps", "-aq", "--filter", "label=mlab.sandbox=1"],
+        ["rm", "-f", "old1"],
+        ["rm", "-f", "old2"],
+    ]
+
+
+def test_agr_03_http_internal_error_is_500(
+    server: str, launcher: Any, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    def boom(payload: bytes) -> dict[str, Any]:
+        raise RuntimeError("kutilmagan")
+
+    monkeypatch.setattr(launcher, "run_reserved", boom)
+    status, body, _ = _request(server + "/run", "POST", PAYLOAD)
+    assert (status, body) == (500, {"error": "internal"})
+    assert launcher.slots.acquire(blocking=False)  # joy qaytarildi
+    launcher.slots.release()
+
+
+def test_agr_03_http_slow_body_times_out_and_frees_slot(
+    launcher: Any, fake: Fake, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(launcher_mod, "REQUEST_TIMEOUT", 0.5)
+    httpd = launcher_mod.LimitedServer(("127.0.0.1", 0), launcher_mod.make_handler(launcher))
+    thread = threading.Thread(target=httpd.serve_forever, daemon=True)
+    thread.start()
+    conn = http.client.HTTPConnection("127.0.0.1", httpd.server_address[1], timeout=10)
+    try:
+        conn.putrequest("POST", "/run")
+        conn.putheader("Content-Length", "1000")
+        conn.endheaders()
+        conn.send(b'{"code": ')  # qolgani hech qachon kelmaydi
+        with pytest.raises((http.client.RemoteDisconnected, ConnectionError)):
+            conn.getresponse()
+    finally:
+        conn.close()
+        httpd.shutdown()
+        httpd.server_close()
+    assert fake.calls() == []
+    assert launcher.slots.acquire(blocking=False)
+    assert launcher.slots.acquire(blocking=False)
+    launcher.slots.release()
+    launcher.slots.release()
