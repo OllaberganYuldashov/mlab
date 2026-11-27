@@ -46,6 +46,14 @@ keyin o'zgarmaydi (faqat o'qituvchi qo'lda o'zgartirsa — yangi variant bilan, 
 o'rtachasi olinadi, ikkalasining o'rtachasi `course.yaml` dagi chegaralar bilan solishtiriladi (60 va 85). Ma'lumot
 bo'lmasa — asosiy daraja. Chegarani o'zgartirish faqat yangi ochilishlarga ta'sir qiladi.
 
+## Tushunish savollari (I3-13, INT-02)
+
+Variant fayliga `questions:` qo'shiladi — har biri `text`, `options` (2..6 ta har xil) va `answer` (to'g'ri variant
+indeksi, 0 dan). Talaba topshirgandan keyin 2 tasi beriladi; javob noto'g'ri bo'lsa shu urinish bali 50 bilan
+cheklanadi. Yaxshi savol **talabaning o'z kodi** haqida bo'ladi (`removed` qanday hisoblanadi, `random_state` nima uchun)
+va variant parametrlarini ishlatadi — shunda boshqa variantdan ko'chirilgan javob mos kelmaydi. To'g'ri javob
+o'rnini variantlar bo'yicha almashtiring (hamma joyda birinchi variant bo'lmasin).
+
 ## Rasmiy hujjat va yaxshi manbalar
 - PyYAML hujjati: `yaml.safe_load`.
 - CommonMark (Markdown standarti): https://commonmark.org/help/

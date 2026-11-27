@@ -17,7 +17,7 @@ from django.db.models import Prefetch
 from django.utils import timezone
 from drf_spectacular.utils import extend_schema, inline_serializer
 from rest_framework import serializers, status
-from rest_framework.exceptions import NotFound
+from rest_framework.exceptions import NotFound, ValidationError
 from rest_framework.parsers import JSONParser
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -38,6 +38,7 @@ from apps.grading.models import (
     SubmissionPolicy,
     TestFile,
     TestKind,
+    Understanding,
 )
 from apps.grading.models import SubmissionStatus as SubmissionState
 from apps.labs.views import _student_context
@@ -167,6 +168,7 @@ def challenge_unlocked(record: StudentAssignment, assignment: Assignment) -> boo
         status=SubmissionState.DONE,
         policy=SubmissionPolicy.ON_TIME,
         final_score__gte=100,
+        understanding__in=[Understanding.NONE, Understanding.PASSED],
     ).exists()
 
 
@@ -216,6 +218,7 @@ _SUBMISSION_FIELDS: dict[str, serializers.Field[Any, Any, Any, Any]] = {
     "final_score": serializers.DecimalField(max_digits=5, decimal_places=2, allow_null=True),
     "created_at": serializers.DateTimeField(),
     "finished_at": serializers.DateTimeField(allow_null=True),
+    "understanding": serializers.ChoiceField(choices=Understanding.values),
 }
 SubmissionOut = inline_serializer("SubmissionOut", _SUBMISSION_FIELDS)
 _TEST_FIELDS: dict[str, serializers.Field[Any, Any, Any, Any]] = {
@@ -241,8 +244,19 @@ ResultOut = inline_serializer(
     },
     allow_null=True,
 )
+_QUESTION_FIELDS: dict[str, serializers.Field[Any, Any, Any, Any]] = {
+    "text": serializers.CharField(),
+    "options": serializers.ListField(child=serializers.CharField()),
+}
 SubmissionDetailOut = inline_serializer(
-    "SubmissionDetailOut", {**_SUBMISSION_FIELDS, "result": ResultOut}
+    "SubmissionDetailOut",
+    {
+        **_SUBMISSION_FIELDS,
+        "result": ResultOut,
+        "questions": inline_serializer(
+            "PendingQuestion", _QUESTION_FIELDS, many=True, allow_null=True
+        ),
+    },
 )
 _BEST = serializers.DecimalField(max_digits=5, decimal_places=2, allow_null=True)
 SubmissionListOut = inline_serializer(
@@ -258,7 +272,21 @@ StudentSubmissionsOut = inline_serializer(
         "best_final_score": _BEST,
         "submissions": inline_serializer(
             "StudentSubmissionItem",
-            {**_SUBMISSION_FIELDS, "code": serializers.CharField(), "result": ResultOut},
+            {
+                **_SUBMISSION_FIELDS,
+                "code": serializers.CharField(),
+                "result": ResultOut,
+                "understanding_detail": inline_serializer(
+                    "UnderstandingDetail",
+                    {
+                        **_QUESTION_FIELDS,
+                        "answer": serializers.IntegerField(),
+                        "chosen": serializers.IntegerField(allow_null=True),
+                    },
+                    many=True,
+                    allow_null=True,
+                ),
+            },
             many=True,
         ),
     },
@@ -353,13 +381,81 @@ class MySubmissionView(APIView):
             Submission.objects.filter(
                 pk=submission_id, student_assignment__student_id=request.user.pk
             )
-            .select_related("student_assignment")
+            .select_related("student_assignment__variant")
             .first()
         )
         if submission is None:
             raise NotFound
         steps = _steps(submission.student_assignment.assignment_id)
-        return Response({**_out(submission), "result": results.student_result(submission, steps)})
+        return Response(
+            {
+                **_out(submission),
+                "result": results.student_result(submission, steps),
+                "questions": _pending_questions(submission),
+            }
+        )
+
+
+def _pending_questions(submission: Submission) -> list[dict[str, Any]] | None:
+    """INT-02: javob kutilayotgan savollar — matn va variantlar, to'g'ri javobsiz."""
+    if submission.understanding != Understanding.PENDING:
+        return None
+    pool = submission.student_assignment.variant.questions
+    return [
+        {"text": pool[i]["text"], "options": pool[i]["options"]} for i in submission.questions or []
+    ]
+
+
+class _AnswersIn(serializers.Serializer[dict[str, Any]]):
+    answers = serializers.ListField(child=serializers.IntegerField(min_value=0), max_length=10)
+
+
+class SubmissionAnswersView(APIView):
+    """INT-02: tushunish savollariga javob (bir marta); noto'g'ri bo'lsa ball 50 gacha."""
+
+    permission_classes = (IsStudent,)
+    parser_classes = (JSONParser,)
+
+    @extend_schema(
+        request=_AnswersIn, responses={200: SubmissionOut}, summary="Tushunish savollariga javob"
+    )
+    def post(self, request: Request, submission_id: int) -> Response:
+        data = _AnswersIn(data=request.data)
+        data.is_valid(raise_exception=True)
+        try:
+            submission = service.answer(
+                submission_id, int(request.user.pk or 0), data.validated_data["answers"]
+            )
+        except Submission.DoesNotExist as exc:
+            raise NotFound from exc
+        except service.NotAwaitingAnswers:
+            return Response(
+                {"code": "not_awaiting_answers", "detail": "Bu urinishga javob kutilmayapti."},
+                status=status.HTTP_409_CONFLICT,
+            )
+        except ValueError:
+            raise ValidationError({"answers": ["Har savolga bitta variant tanlang."]}) from None
+        return Response(_out(submission))
+
+
+def _understanding_detail(
+    submission: Submission, record: StudentAssignment | None
+) -> list[dict[str, Any]] | None:
+    """O'qituvchiga: berilgan savollar, to'g'ri javob va talaba javobi (INT-02)."""
+    if record is None or not submission.questions:
+        return None
+    pool = record.variant.questions
+    answers = submission.answers or []
+    return [
+        {
+            "text": pool[i]["text"],
+            "options": pool[i]["options"],
+            "answer": pool[i]["answer"],
+            "chosen": answers[k] if k < len(answers) else None,
+        }
+        for k, i in enumerate(submission.questions)
+        if i < len(pool)
+    ]
 
 
 def _section_student(
@@ -397,9 +493,11 @@ class StudentSubmissionsView(APIView):
     )
     def get(self, request: Request, section_id: int, code: str, student_id: int) -> Response:
         _, assignment = _section_student(request.user, section_id, code, student_id)
-        record = StudentAssignment.objects.filter(
-            student_id=student_id, assignment=assignment
-        ).first()
+        record = (
+            StudentAssignment.objects.filter(student_id=student_id, assignment=assignment)
+            .select_related("variant")
+            .first()
+        )
         steps = _steps(assignment.pk)
         rows = (
             Submission.objects.filter(student_assignment=record).order_by("-created_at")[:50]
@@ -414,6 +512,7 @@ class StudentSubmissionsView(APIView):
                         **_out(s),
                         "code": s.code,
                         "result": results.student_result(s, steps),
+                        "understanding_detail": _understanding_detail(s, record),
                     }
                     for s in rows
                 ],

@@ -89,6 +89,8 @@ class Variant(models.Model):
     level = models.CharField(_("daraja"), max_length=8, choices=Level.choices)
     number = models.PositiveSmallIntegerField(_("raqam"))
     params = models.JSONField(_("parametrlar"))
+    # INT-02: tushunish savollari [{text, options, answer}] — javoblar talabaga ketmaydi.
+    questions = models.JSONField(_("tushunish savollari"), default=list, blank=True)
 
     class Meta:
         verbose_name = _("variant")
@@ -213,6 +215,15 @@ class SubmissionStatus(models.TextChoices):
     ERROR = "error", _("xato")
 
 
+class Understanding(models.TextChoices):
+    """INT-02: tushunish savollari holati."""
+
+    NONE = "none", _("savol yo'q")
+    PENDING = "pending", _("javob kutilmoqda")
+    PASSED = "passed", _("to'g'ri")
+    FAILED = "failed", _("noto'g'ri — ball 50 bilan cheklandi")
+
+
 class SubmissionPolicy(models.TextChoices):
     """ACC-06..08: topshirish paytidagi siyosat (`sections.policy.submission_policy`)."""
 
@@ -258,6 +269,13 @@ class Submission(models.Model):
     final_score = models.DecimalField(
         _("yakuniy ball"), max_digits=5, decimal_places=2, null=True, blank=True
     )
+    # INT-02: baholangach 2 ta savol (variant savollari indekslari), javoblar va holat.
+    understanding = models.CharField(
+        _("tushunish"), max_length=8, choices=Understanding.choices, default=Understanding.NONE
+    )
+    questions = models.JSONField(_("berilgan savollar"), null=True, blank=True)
+    answers = models.JSONField(_("javoblar"), null=True, blank=True)
+    answered_at = models.DateTimeField(_("javob vaqti"), null=True, blank=True)
     created_at = models.DateTimeField(_("topshirilgan"), default=timezone.now)
     started_at = models.DateTimeField(_("boshlangan"), null=True, blank=True)
     finished_at = models.DateTimeField(_("tugagan"), null=True, blank=True)
@@ -310,6 +328,15 @@ class Submission(models.Model):
             models.CheckConstraint(
                 condition=~Q(status="done") | Q(final_score__isnull=False),
                 name="grading_submission_done_final",
+            ),
+            models.CheckConstraint(
+                condition=Q(understanding__in=Understanding.values),
+                name="grading_submission_understanding",
+            ),
+            models.CheckConstraint(
+                condition=Q(understanding__in=["none", "pending"])
+                | Q(answers__isnull=False, answered_at__isnull=False),
+                name="grading_submission_answered",
             ),
             # AGR-02: bir topshiriqda bir vaqtda bitta ochiq urinish (ikki tab, ikki marta bosish).
             models.UniqueConstraint(

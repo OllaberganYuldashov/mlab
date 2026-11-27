@@ -29,10 +29,11 @@ for (const dir of readdirSync(LABS).sort()) {
   }) => {
     test.setTimeout(240_000);
     const params = JSON.parse(
-      readFileSync(join(LABS, dir, "variants", "basic-1.yaml"), "utf8").replace(
-        /^params:\s*/,
-        "",
-      ),
+      (
+        readFileSync(join(LABS, dir, "variants", "basic-1.yaml"), "utf8").split(
+          "\n",
+        )[0] ?? ""
+      ).replace(/^params:\s*/, ""),
     ) as Record<string, unknown>;
     const solution = render(
       readFileSync(join(LABS, dir, "solutions", "solution.py"), "utf8"),

@@ -3,7 +3,9 @@
 Tuzilma (`content/README.md`):
     labs/<A##>-<slug>/assignment.yaml          kod, nom, mavzu, shart ({parametr}),
                                                qadamlar va ballar (jami 100)
-    labs/<A##>-<slug>/variants/<daraja>-<n>.yaml   params: {...}; har daraja kamida 5 variant
+    labs/<A##>-<slug>/variants/<daraja>-<n>.yaml   params: {...}; har daraja kamida 5 variant;
+                                               questions: tushunish savollari (INT-02, ixtiyoriy,
+                                               bo'lsa kamida 2: text, options, answer)
     labs/<A##>-<slug>/tests/visible/<qadam>.py  brauzerda (ixtiyoriy)
     labs/<A##>-<slug>/tests/hidden/<qadam>.py   faqat sandbox'da (har qadamda majburiy)
     labs/<A##>-<slug>/solutions/                import qilinmaydi (CI tekshiruvi uchun)
@@ -60,6 +62,8 @@ class LabData:
     independent: str
     steps: tuple[StepData, ...]
     variants: tuple[tuple[str, int, dict[str, Any]], ...]
+    # (daraja, raqam) -> tushunish savollari; javoblar faqat serverda (INT-02)
+    questions: dict[tuple[str, int], list[dict[str, Any]]]
 
 
 def _compile(rel: str, source: str) -> None:
@@ -67,6 +71,35 @@ def _compile(rel: str, source: str) -> None:
         compile(source, rel, "exec")
     except SyntaxError as exc:
         raise ContentError(rel, exc.lineno, f"Python sintaksis xatosi: {exc.msg}") from exc
+
+
+MIN_QUESTIONS = 2  # INT-02: topshirgandan keyin 2 ta savol
+
+
+def _questions(rel: str, line: int | None, raw: list[Any]) -> list[dict[str, Any]]:
+    """INT-02: [{text, options: [2..6 satr], answer: indeks}], kamida 2 ta."""
+    if len(raw) < MIN_QUESTIONS:
+        raise ContentError(rel, line, f"questions: kamida {MIN_QUESTIONS} ta savol")
+    out = []
+    for i, item in enumerate(raw, start=1):
+        if not isinstance(item, dict) or set(item) != {"text", "options", "answer"}:
+            raise ContentError(rel, line, f"questions[{i}]: text, options, answer")
+        text, options, answer = item["text"], item["options"], item["answer"]
+        if not isinstance(text, str) or not text.strip():
+            raise ContentError(rel, line, f"questions[{i}]: text bo'sh")
+        if (
+            not isinstance(options, list)
+            or not 2 <= len(options) <= 6
+            or not all(isinstance(o, str) and o.strip() for o in options)
+            or len({o.strip() for o in options}) != len(options)
+        ):
+            raise ContentError(rel, line, f"questions[{i}]: options — 2..6 ta har xil satr")
+        if type(answer) is not int or not 0 <= answer < len(options):
+            raise ContentError(rel, line, f"questions[{i}]: answer — variant indeksi (0 dan)")
+        out.append(
+            {"text": text.strip(), "options": [o.strip() for o in options], "answer": answer}
+        )
+    return out
 
 
 def _load_one(reader: _Reader, lab_dir: Path) -> LabData:
@@ -136,6 +169,7 @@ def _load_one(reader: _Reader, lab_dir: Path) -> LabData:
     # Variantlar: shartdagi har {parametr} har variantda bo'lishi kerak.
     placeholders = {name for _, name, _, _ in string.Formatter().parse(meta["statement"]) if name}
     variants: list[tuple[str, int, dict[str, Any]]] = []
+    questions: dict[tuple[str, int], list[dict[str, Any]]] = {}
     folder = lab_dir / "variants"
     for file in sorted(folder.glob("*")) if folder.is_dir() else []:
         vrel = reader.rel(file)
@@ -144,7 +178,9 @@ def _load_one(reader: _Reader, lab_dir: Path) -> LabData:
             raise ContentError(
                 vrel, None, f"variant fayli '<daraja>-<n>.yaml', daraja: {', '.join(Level.values)}"
             )
-        data = reader.yaml(file, {"params": dict})
+        data = reader.yaml(
+            file, {"params": dict, "questions": list}, optional=frozenset({"questions"})
+        )
         params = {k: v for k, v in data["params"].items()}
         missing = placeholders - set(params)
         if missing:
@@ -154,6 +190,10 @@ def _load_one(reader: _Reader, lab_dir: Path) -> LabData:
                 f"shartdagi parametr yo'q: {', '.join(sorted(missing))}",
             )
         variants.append((vm.group(1), int(vm.group(2)), params))
+        if "questions" in data:
+            questions[(vm.group(1), int(vm.group(2)))] = _questions(
+                vrel, data["__lines__"]["questions"], data["questions"]
+            )
     for level in Level.values:
         count = sum(1 for v in variants if v[0] == level)
         if count < MIN_VARIANTS:
@@ -181,6 +221,7 @@ def _load_one(reader: _Reader, lab_dir: Path) -> LabData:
         independent=meta.get("independent", "").strip(),
         steps=steps,
         variants=tuple(sorted(variants)),
+        questions=questions,
     )
 
 
@@ -287,10 +328,11 @@ def _sync_variants(assignment: Assignment, lab: LabData, report: ImportReport) -
         report.bump("deleted", "variant", len(stale))
     for (level, number), params in wanted.items():
         current = existing.get((level, number))
+        values = {"params": params, "questions": lab.questions.get((level, number), [])}
         if current is None:
-            Variant.objects.create(assignment=assignment, level=level, number=number, params=params)
+            Variant.objects.create(assignment=assignment, level=level, number=number, **values)
             report.bump("created", "variant")
-        elif _sync(current, {"params": params}):
+        elif _sync(current, values):
             report.bump("updated", "variant")
 
 

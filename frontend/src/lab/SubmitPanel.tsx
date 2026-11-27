@@ -6,6 +6,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { showTime } from "../datetime";
 import { t } from "../i18n";
 import {
+  answerQuestions,
+  getSubmission,
   isOpen,
   listSubmissions,
   type Submission,
@@ -38,6 +40,72 @@ function StatusLine({ submission }: { submission: Submission }) {
         </p>
       );
   }
+}
+
+/** INT-02: topshirgandan keyin 2 ta savol; javob berilmaguncha ball rasmiy emas. */
+function Questions({
+  submission,
+  onAnswered,
+}: {
+  submission: Submission;
+  onAnswered: (s: Submission) => void;
+}) {
+  const questions = submission.questions ?? [];
+  const [chosen, setChosen] = useState<(number | null)[]>(() =>
+    questions.map(() => null),
+  );
+  const [error, setError] = useState<string | null>(null);
+  const [sending, setSending] = useState(false);
+  const ready = chosen.every((c) => c !== null);
+
+  async function send() {
+    setSending(true);
+    setError(null);
+    const res = await answerQuestions(submission.id, chosen as number[]);
+    setSending(false);
+    if (res.ok) onAnswered({ ...submission, ...res.data, questions: null });
+    else setError(t("common.unexpectedError"));
+  }
+
+  return (
+    <form
+      className="understanding"
+      aria-label={t("lab.understanding.title")}
+      onSubmit={(e) => {
+        e.preventDefault();
+        void send();
+      }}
+    >
+      <h4>{t("lab.understanding.title")}</h4>
+      <p className="muted">{t("lab.understanding.note")}</p>
+      {questions.map((q, i) => (
+        <fieldset key={i}>
+          <legend>{q.text}</legend>
+          {q.options.map((option, j) => (
+            <label key={j}>
+              <input
+                type="radio"
+                name={`q${submission.id}-${i}`}
+                checked={chosen[i] === j}
+                onChange={() =>
+                  setChosen((c) => c.map((v, k) => (k === i ? j : v)))
+                }
+              />{" "}
+              {option}
+            </label>
+          ))}
+        </fieldset>
+      ))}
+      {error && (
+        <p role="alert" className="error">
+          {error}
+        </p>
+      )}
+      <button type="submit" disabled={!ready || sending}>
+        {t("lab.understanding.send")}
+      </button>
+    </form>
+  );
 }
 
 function ResultView({ submission }: { submission: Submission }) {
@@ -133,7 +201,16 @@ export default function SubmitPanel({
       if (open) {
         setCurrent(open);
         watch(open.id);
+        return;
       }
+      // INT-02: javob berilmagan urinish — savollar bilan qaytariladi (sahifa yangilansa ham).
+      const unanswered = res.data.submissions.find(
+        (s) => s.understanding === "pending",
+      );
+      if (unanswered)
+        void getSubmission(unanswered.id).then((detail) => {
+          if (active && detail.ok) setCurrent(detail.data);
+        });
     });
     return () => {
       active = false;
@@ -186,6 +263,27 @@ export default function SubmitPanel({
       )}
       {current && <StatusLine submission={current} />}
       {current && <ResultView submission={current} />}
+      {current?.status === "done" &&
+        current.understanding === "pending" &&
+        current.questions && (
+          <Questions
+            key={current.id}
+            submission={current}
+            onAnswered={(s) => {
+              setCurrent(s);
+              void reload();
+              graded.current?.();
+            }}
+          />
+        )}
+      {current?.understanding === "passed" && (
+        <p role="status">{t("lab.understanding.passed")}</p>
+      )}
+      {current?.understanding === "failed" && (
+        <p role="alert" className="error">
+          {t("lab.understanding.failed")}
+        </p>
+      )}
       {best !== null && (
         <p className="badge">{t("lab.submit.best", { score: best })}</p>
       )}

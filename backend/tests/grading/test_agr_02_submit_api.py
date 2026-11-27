@@ -192,6 +192,7 @@ def test_agr_04_status_events_go_to_owner_only(
             "policy": "on_time",
             "score": None,
             "final_score": None,
+            "understanding": "none",
         }
     ]
     assert all("result" not in m and "code" not in m for _, m in events)

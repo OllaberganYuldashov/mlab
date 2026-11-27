@@ -15,9 +15,11 @@ Commit va navbatga qo'yish orasida broker yiqilsa — `requeue_stale()` (davriy)
 from __future__ import annotations
 
 import logging
+import random
 import time
 from collections.abc import Callable
 from datetime import timedelta
+from decimal import Decimal
 from typing import Any
 
 from django.db import IntegrityError, transaction
@@ -32,6 +34,7 @@ from apps.grading.models import (
     SubmissionStatus,
     TestFile,
     TestKind,
+    Understanding,
 )
 from apps.grading.results import step_breakdown
 from apps.grading.sandbox import SandboxUnavailable, get_sandbox
@@ -41,6 +44,8 @@ from apps.sections.realtime import user_event
 logger = logging.getLogger("mlab.grading")
 
 MAX_ATTEMPTS = 3
+QUESTIONS_PER_ATTEMPT = 2  # INT-02
+UNDERSTANDING_CAP = Decimal("50.00")  # INT-02: noto'g'ri javobda ball shu bilan cheklanadi
 POSITIONS_BROADCAST_LIMIT = 200  # navbat bundan uzun bo'lsa, qolganlar o'rnini API'dan oladi
 TIME_LIMIT = 10  # s: talaba kodi va har test uchun (runner ichida)
 # Celery `task_time_limit` (90 s) dan uzoq "running" — worker o'lgan; qayta egallash mumkin.
@@ -124,6 +129,7 @@ def status_payload(submission: Submission, place: int | None = None) -> dict[str
         "policy": submission.policy,
         "score": submission.score,
         "final_score": (None if submission.final_score is None else str(submission.final_score)),
+        "understanding": submission.understanding,
     }
 
 
@@ -298,7 +304,18 @@ def grade(submission_id: int) -> str:
     score = compute_score(result, steps)
     # ACC-07: kechikkan bo'lsa jarima (topshirish paytidagi foiz); mashq — ball bor, rasmiy emas.
     final = apply_late_penalty(score, submission.penalty_percent)
-    done = {"status": SubmissionStatus.DONE, "score": score, "final_score": final, "result": result}
+    done: dict[str, Any] = {
+        "status": SubmissionStatus.DONE,
+        "score": score,
+        "final_score": final,
+        "result": result,
+    }
+    pool = submission.student_assignment.variant.questions
+    if len(pool) >= QUESTIONS_PER_ATTEMPT:
+        # INT-02: har urinishga 2 ta savol (urinish raqamidan barqaror tanlov, javoblar serverda).
+        rng = random.Random(submission.pk)  # noqa: S311 — xavfsizlik emas, xilma-xillik
+        done["understanding"] = Understanding.PENDING
+        done["questions"] = sorted(rng.sample(range(len(pool)), QUESTIONS_PER_ATTEMPT))
     if _finish(submission, **done):
         _notify_by_id(submission.pk)
         _log("grading.done", submission, started, score=score, runner_status=result["status"])
@@ -327,3 +344,52 @@ def requeue_stale(dispatch: Callable[[int], None] = _dispatch, limit: int = 100)
             extra={"event": "grading.requeued", "count": len(ids), **queue_depth()},
         )
     return len(ids)
+
+
+class NotAwaitingAnswers(Exception):
+    """Urinish baholanmagan yoki savollarga allaqachon javob berilgan."""
+
+
+def answer(submission_id: int, student_id: int, answers: list[int]) -> Submission:
+    """INT-02: tushunish savollariga javob (bir marta). Biri noto'g'ri — ball 50 bilan cheklanadi.
+
+    Javobsiz urinish rasmiy hisoblanmaydi (eng yuqori ball, challenge, daraja qoidasi) — `results`.
+    `ValueError` — javoblar shakli noto'g'ri; `Submission.DoesNotExist` — begona yoki yo'q.
+    """
+    with transaction.atomic():
+        submission = (
+            Submission.objects.select_for_update(of=("self",))
+            .select_related("student_assignment__variant")
+            .get(pk=submission_id, student_assignment__student_id=student_id)
+        )
+        if (
+            submission.status != SubmissionStatus.DONE
+            or submission.understanding != Understanding.PENDING
+        ):
+            raise NotAwaitingAnswers
+        pool = submission.student_assignment.variant.questions
+        chosen = [pool[i] for i in submission.questions or []]
+        if len(answers) != len(chosen) or not all(
+            type(a) is int and 0 <= a < len(q["options"])
+            for a, q in zip(answers, chosen, strict=True)
+        ):
+            raise ValueError("javoblar")
+        correct = all(a == q["answer"] for a, q in zip(answers, chosen, strict=True))
+        submission.understanding = Understanding.PASSED if correct else Understanding.FAILED
+        submission.answers = answers
+        submission.answered_at = timezone.now()
+        fields = ["understanding", "answers", "answered_at"]
+        if not correct and submission.final_score is not None:
+            submission.final_score = min(submission.final_score, UNDERSTANDING_CAP)
+            fields.append("final_score")
+        submission.save(update_fields=fields)
+    notify(submission, student_id)
+    logger.info(
+        "grading.understanding",
+        extra={
+            "event": "grading.understanding",
+            "submission_id": submission.pk,
+            "passed": correct,
+        },
+    )
+    return submission
