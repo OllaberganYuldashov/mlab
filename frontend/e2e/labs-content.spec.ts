@@ -11,15 +11,18 @@ import messages from "../src/i18n/uz.json" with { type: "json" };
 const CONTENT = join(import.meta.dirname, "..", "..", "content");
 const LABS = join(CONTENT, "labs");
 
+// Python `str(value)` bilan bir xil ko'rinish — shart serverda shunday to'ldiriladi (ichma-ich ro'yxat ham, A14 yadrosi).
+function pyStr(value: unknown, nested = false): string {
+  if (Array.isArray(value))
+    return `[${value.map((v) => pyStr(v, true)).join(", ")}]`;
+  if (typeof value === "string") return nested ? `'${value}'` : value;
+  return String(value);
+}
+
 function render(template: string, params: Record<string, unknown>): string {
-  return template.replace(/\{([a-z_][a-z0-9_]*)\}/g, (match, name: string) => {
-    if (!(name in params)) return match;
-    const value = params[name];
-    // Python ro'yxat literali (`str(list)` bilan bir xil ko'rinish) — shart serverda shunday to'ldiriladi.
-    return Array.isArray(value)
-      ? `[${value.map((v) => `'${String(v)}'`).join(", ")}]`
-      : String(value);
-  });
+  return template.replace(/\{([a-z_][a-z0-9_]*)\}/g, (match, name: string) =>
+    name in params ? pyStr(params[name]) : match,
+  );
 }
 
 for (const dir of readdirSync(LABS).sort()) {
