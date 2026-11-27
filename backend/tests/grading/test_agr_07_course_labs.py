@@ -1,4 +1,4 @@
-"""AGR-07, AGR-08, INT-02 (I3-15, I3-16): kursdagi topshiriqlar (`content/labs/`) to'liq tarkibda.
+"""AGR-07, AGR-08, INT-02 (I3-15..I3-17): kursdagi topshiriqlar (`content/labs/`) to'liq tarkibda.
 
 Yechimlarning yashirin testlardan o'tishi — `manage.py check_lab_solutions` (sandbox paketlari).
 """
@@ -21,9 +21,9 @@ def labs() -> tuple[LabData, ...]:
     return load_labs(CONTENT)
 
 
-def test_agr_07_course_has_labs_a01_to_a10_in_order(labs: tuple[LabData, ...]) -> None:
+def test_agr_07_course_has_labs_a01_to_a15_in_order(labs: tuple[LabData, ...]) -> None:
     codes = [lab.code for lab in labs]
-    assert codes[:10] == [f"A{n:02d}" for n in range(1, 11)]
+    assert codes == [f"A{n:02d}" for n in range(1, 16)]
 
 
 def test_agr_07_each_lab_is_complete(labs: tuple[LabData, ...]) -> None:

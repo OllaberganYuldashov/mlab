@@ -1,0 +1,31 @@
+code: A13
+title: "Ko'p qatlamli neyron to'r (MLP)"
+topic: M16
+statement: |
+  **Dataset:** `{dataset}`, **yashirin qatlam:** `{hidden}` neyron, **alpha:** `{alpha}`, **test ulushi:** `{test_size}`.
+
+  Tayyorlash: `df = mlab.load("{dataset}")`, `X = df.drop(columns=["{target}"])`, `y = df["{target}"]`,
+  `X_train, X_test, y_train, y_test = train_test_split(X, y, test_size={test_size}, random_state={seed}, stratify=y)`.
+
+  1. **MLP.** `model = make_pipeline(StandardScaler(), MLPClassifier(hidden_layer_sizes=({hidden},), alpha={alpha},
+     max_iter=500, random_state={seed})).fit(X_train, y_train)`; test aniqligi — `acc` (`float`).
+  2. **Parametrlar soni.** `mlp = model[-1]`; barcha og'irlik va siljishlar soni — `n_params` (`int`;
+     `mlp.coefs_` va `mlp.intercepts_` dagi massivlar `size` lari yig'indisi).
+  3. **Chuqurroq to'r.** Xuddi shunday, lekin `hidden_layer_sizes=({hidden}, {hidden})` — test aniqligi `acc_deep`;
+     `better = "deep"` agar `acc_deep > acc`, aks holda `"shallow"`.
+steps:
+  - key: mlp
+    title: "MLP"
+    points: 40
+  - key: params
+    title: "Parametrlar soni"
+    points: 30
+  - key: deep
+    title: "Chuqurroq to'r"
+    points: 30
+challenge: |
+  `mlp.loss_curve_` ni chizing va `max_iter` ni 50, 200, 500 qilib, o'qitish to'xtagan nuqta va aniqlik qanday
+  o'zgarishini ko'rsating. `alpha` ni 10 marta oshirsangiz nima bo'ladi?
+independent: |
+  Vizual o'yin-maydon: ikki belgili sun'iy dataset (`make_moons`) da yashirin neyronlar soni 1, 3, 10 va 50 uchun
+  qaror chegarasini chizing (matplotlib `contourf`) va qachon to'r chiziqli bo'lmagan chegarani o'rganishini tushuntiring.

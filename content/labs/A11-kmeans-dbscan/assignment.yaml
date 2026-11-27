@@ -1,0 +1,31 @@
+code: A11
+title: "k-means va DBSCAN"
+topic: M12
+statement: |
+  **Dataset:** `{dataset}`, **klasterlar:** `{k}`, **DBSCAN:** `eps={eps}`, `min_samples={min_samples}`.
+
+  Tayyorlash: `df = mlab.load("{dataset}")`, `X = StandardScaler().fit_transform(df.drop(columns=["{target}"]))`
+  (klasterlashda javob ustuni ishlatilmaydi).
+
+  1. **k-means.** `km = KMeans(n_clusters={k}, n_init=10, random_state={seed}).fit(X)`;
+     `labels = km.labels_`, `inertia = float(km.inertia_)`.
+  2. **Silhouette.** `sil = float(silhouette_score(X, labels))`; so'ng `k = 2..6` uchun xuddi shunday KMeans
+     (`n_init=10, random_state={seed}`) bilan silhouette'ni hisoblang — eng kattasini bergan `k` — `best_k`.
+  3. **DBSCAN.** `db = DBSCAN(eps={eps}, min_samples={min_samples}).fit(X)`; shovqin (`-1`) bo'lmagan klasterlar soni —
+     `n_clusters`, shovqin nuqtalar soni — `n_noise` (ikkalasi `int`).
+steps:
+  - key: kmeans
+    title: "k-means"
+    points: 35
+  - key: silhouette
+    title: "Silhouette"
+    points: 35
+  - key: dbscan
+    title: "DBSCAN"
+    points: 30
+challenge: |
+  k-means klasterlarini haqiqiy sinflar (`{target}`) bilan solishtiring: `adjusted_rand_score(df["{target}"], labels)` — `ari`.
+  Qaysi `k` da ARI eng katta bo'ladi va u `best_k` bilan mos keladimi?
+independent: |
+  Elbow va Silhouette: `k = 1..10` uchun inertia grafigini (elbow) va `k = 2..10` uchun silhouette grafigini chizing,
+  ikkala usul tanlagan `k` ni solishtiring va farqini tushuntiring.
