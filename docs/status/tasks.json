@@ -863,12 +863,12 @@
    "iteration": "I3",
    "key": "I3-13",
    "issue": "#161",
-   "title": "Tushunish savollari: topshirgandan keyin 2 ta, noto'g'ri bo'lsa ball 50% bilan cheklanadi",
+   "title": "Tushunish savollari: topshirgandan keyin 2 ta, noto'g'ri bo'lsa ball yarmiga kamayadi",
    "req": "INT-02",
    "size": "M",
-   "status": "in_progress",
+   "status": "done",
    "outcome": "Talaba o'z kodini tushunganini tekshirish.",
-   "pr": "#190",
+   "pr": "#190, #195",
    "points": 2
   },
   {
@@ -879,9 +879,9 @@
    "title": "Shubhali holatlar o'qituvchiga va nazorat rejimida tab almashtirish qaydi",
    "req": "INT-04, INT-05, ACC-09",
    "size": "M",
-   "status": "ready",
+   "status": "done",
    "outcome": "O'qituvchi shubhali holatlarni ko'radi; avtomatik jazo yo'q.",
-   "pr": "",
+   "pr": "#197",
    "points": 2
   },
   {
@@ -905,9 +905,9 @@
    "title": "Kontent: A6–A10 topshiriqlari",
    "req": "AGR-07, AGR-08",
    "size": "M",
-   "status": "ready",
+   "status": "done",
    "outcome": "A6–A10 amaliy topshiriqlari.",
-   "pr": "",
+   "pr": "#196",
    "points": 2
   },
   {

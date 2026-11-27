@@ -2,6 +2,20 @@
 
 > Har run oxirida Claude qo'shadi. Eng yangisi yuqorida.
 
+### 2026-11-28 — tungi run 1/2
+- **Bajarilgan issue'lar va PR:** #164 → PR #196 (A06–A10 topshiriqlari), #162 → PR #197 (shubhali holatlar) — 4 ball.
+- **Nima qilindi (oddiy tilda):** Kursga yana 5 ta amaliy topshiriq qo'shildi: logistik regressiya, k-NN va qarorlar
+  daraxti, SVM, metrikalar va k-fold/GridSearch — har birida 15 variant, testlar, yechim va tushunish savollari.
+  Yangi test A02 da bir xil variantlar borligini topdi (5 tadan 2 tasi farqli edi) — tuzatildi. O'qituvchi guruh
+  sahifasida "Shubhali holatlar" panelini ko'radi: katta paste urinishlari, nazorat rejimida boshqa tabga o'tish,
+  tushunish savolidagi xato va juda tez to'liq ball. Ball avtomatik o'zgarmaydi — o'qituvchi izoh yozadi va o'zi hal qiladi.
+- **Ishlatilgan skill'lar va nima uchun:** testing-with-discernment ("variantlar har xil" invarianti xatoni topdi),
+  auth-and-authorization (faqat o'z guruhi, IDOR testlari), migration-safety (CHECK — NOT VALID + VALIDATE),
+  query-discipline (belgilar agregat so'rovlar bilan, talabalar soniga bog'liq emas).
+- **Yangi texnologiya / tushuncha:** `visibilitychange` — brauzer sahifa yashirilganini bildiradigan hodisa.
+- **Ertalab nimani ko'rish kerak:** guruh sahifasidagi "Shubhali holatlar" paneli; M07 laboratoriyasi (A06).
+- **Savollar / bloklar:** CI daqiqalarini tejash o'zgarishi push qilinishini kutmoqda (avto-rejim bloklaydi).
+
 ### 2026-11-27 — tungi run 1/2
 - **Bajarilgan issue'lar va PR:** #158 → PR #188 (moslashuvchan daraja), #159 → PR #189 (challenge taklifi) — merge
   bo'ldi (3 ball). #161 → PR #190 (tushunish savollari) — tayyor, lokal testlar yashil, lekin **GitHub Actions ishga

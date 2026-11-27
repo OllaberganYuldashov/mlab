@@ -4,12 +4,12 @@ Issue raqami bor task — GitHub issue; `E-...` — hali issue'larga bo'linmagan
 """
 
 META = {
-    "as_of": "2026-11-27",
+    "as_of": "2026-11-28",
     "velocity_per_day": 9,  # ball/kun: kuniga 2 tungi run x ~4-5 ball (haftalik review aniqlaydi)
     "velocity_note": "Kuniga 2 tungi run, har biri ~4-5 ball (M=2, S=1). Yakshanba — 1 run + review.",
     "current_release": "R1",
     "current_iteration": "I3",
-    "next_task": "#191 GitHub Actions (egasi), so'ng #190 merge, #164 kontent A6–A10, #162 shubhali holatlar",
+    "next_task": "#165 kontent A11–A15, so'ng #167 I3 yakuni; #166 deploy (needs:owner)",
 }
 
 RELEASES = [
@@ -132,10 +132,10 @@ TASKS = [
     _t("I3", "I3-10", "#158", "Moslashuvchan daraja: qoida bo'yicha tanlash va o'qituvchi o'zgartirishi", "ADP-01, ADP-02", "M", "done", "Har talabaga mos daraja (asosiy, o'rta, ilg'or).", "#188"),
     _t("I3", "I3-11", "#159", "Tez tugatganga challenge taklifi", "ADP-03", "S", "done", "Topshiriqni tez va to'liq bajargan talabaga qo'shimcha challenge.", "#189"),
     _t("I3", "I3-12", "#160", "Paste cheklovi va qaydi (laboratoriya)", "INT-01, INT-04", "M", "done", "Tashqaridan katta matn joylashtirish cheklanadi va qayd qilinadi.", "#171"),
-    _t("I3", "I3-13", "#161", "Tushunish savollari: topshirgandan keyin 2 ta, noto'g'ri bo'lsa ball 50% bilan cheklanadi", "INT-02", "M", "in_progress", "Talaba o'z kodini tushunganini tekshirish.", "#190"),
-    _t("I3", "I3-14", "#162", "Shubhali holatlar o'qituvchiga va nazorat rejimida tab almashtirish qaydi", "INT-04, INT-05, ACC-09", "M", "ready", "O'qituvchi shubhali holatlarni ko'radi; avtomatik jazo yo'q."),
+    _t("I3", "I3-13", "#161", "Tushunish savollari: topshirgandan keyin 2 ta, noto'g'ri bo'lsa ball yarmiga kamayadi", "INT-02", "M", "done", "Talaba o'z kodini tushunganini tekshirish.", "#190, #195"),
+    _t("I3", "I3-14", "#162", "Shubhali holatlar o'qituvchiga va nazorat rejimida tab almashtirish qaydi", "INT-04, INT-05, ACC-09", "M", "done", "O'qituvchi shubhali holatlarni ko'radi; avtomatik jazo yo'q.", "#197"),
     _t("I3", "I3-15", "#163", "Kontent: A1–A5 topshiriqlari (3 daraja × 5 variant, challenge, mustaqil)", "AGR-07, AGR-08", "M", "done", "A1–A5 amaliy topshiriqlari.", "#186"),
-    _t("I3", "I3-16", "#164", "Kontent: A6–A10 topshiriqlari", "AGR-07, AGR-08", "M", "ready", "A6–A10 amaliy topshiriqlari."),
+    _t("I3", "I3-16", "#164", "Kontent: A6–A10 topshiriqlari", "AGR-07, AGR-08", "M", "done", "A6–A10 amaliy topshiriqlari.", "#196"),
     _t("I3", "I3-17", "#165", "Kontent: A11–A15 topshiriqlari", "AGR-07, AGR-08", "M", "ready", "A11–A15 amaliy topshiriqlari."),
     _t("I3", "I3-18", "#166", "Deploy: Celery worker, docker-socket-proxy va sandbox image compose'da", "AGR-03, AGR-04, NFR-08", "S", "ready", "Prod'da baholash ishlashi."),
     _t("I3", "I3-00", "#173", "Lokal demo: docker compose up bilan butun ilova (Windows)", "NFR-08", "M", "done", "Egasi har merge'dan keyin o'zgarishlarni o'z kompyuterida ko'radi.", "#174"),
