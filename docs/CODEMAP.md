@@ -113,7 +113,7 @@
 - `backend/tests/courses/` — 11 fayl
 - `backend/tests/grading/` — 11 fayl
 - `backend/tests/labs/` — 3 fayl
-- `backend/tests/sandbox/` — 1 fayl
+- `backend/tests/sandbox/` — 2 fayl
 - `backend/tests/sections/` — 14 fayl
 
 ## frontend/src
@@ -191,6 +191,7 @@
 
 ## sandbox
 
+- `sandbox/launcher.py` — sandbox-launcher (ADR-0007 2-band; AGR-03, I3-18a): Docker'ga kiradigan yagona xizmat.
 - `sandbox/mlab.py` — Sandbox'dagi `mlab` moduli: brauzerdagi (Pyodide worker) bilan bir xil API, tarmoqsiz.
 - `sandbox/runner.py` — Sandbox runner (ADR-0007 4-band; AGR-03, AGR-05; I3-05).
 
